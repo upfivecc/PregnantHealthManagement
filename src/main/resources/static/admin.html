@@ -1952,9 +1952,20 @@ ID: ${knowledge.id}
                         const repliedTime = consultation.repliedTime ? 
                             new Date(consultation.repliedTime).toLocaleString('zh-CN') : '';
                         
+                        // 构造医生信息
+                        let doctorInfo = '';
+                        if (consultation.hospital || consultation.department || consultation.doctorTitle) {
+                            const parts = [];
+                            if (consultation.hospital) parts.push(consultation.hospital);
+                            if (consultation.department) parts.push(consultation.department);
+                            if (consultation.doctorTitle) parts.push(consultation.doctorTitle);
+                            doctorInfo = parts.join(' - ');
+                        }
+                        
                         alert(`咨询详情:
 ID: ${consultation.id}
 用户: ${consultation.userName || ''}
+医生: ${doctorInfo || ''}
 标题: ${consultation.title || ''}
 状态: ${consultation.status === 1 ? '已回复' : '未回复'}
 创建时间: ${createdTime}
@@ -1992,6 +2003,16 @@ ID: ${consultation.id}
         
         // 显示回复模态框
         function showReplyModal(consultation) {
+            // 构造医生信息
+            let doctorInfo = '';
+            if (consultation.hospital || consultation.department || consultation.doctorTitle) {
+                const parts = [];
+                if (consultation.hospital) parts.push(consultation.hospital);
+                if (consultation.department) parts.push(consultation.department);
+                if (consultation.doctorTitle) parts.push(consultation.doctorTitle);
+                doctorInfo = parts.join(' - ');
+            }
+            
             // 创建模态框HTML
             const modalHtml = `
                 <div class="modal" id="replyModal" style="display: block;">
@@ -2005,6 +2026,14 @@ ID: ${consultation.id}
                                 <div class="form-group">
                                     <label>咨询标题</label>
                                     <input type="text" class="form-control" value="${consultation.title || ''}" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>用户</label>
+                                    <input type="text" class="form-control" value="${consultation.userName || ''}" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>医生</label>
+                                    <input type="text" class="form-control" value="${doctorInfo || ''}" disabled>
                                 </div>
                                 <div class="form-group">
                                     <label>咨询内容</label>
