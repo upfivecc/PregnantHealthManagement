@@ -138,6 +138,10 @@
                                     <input type="text" class="form-control" id="username" required>
                                 </div>
                                 <div class="form-group">
+                                    <label>密码</label>
+                                    <input type="password" class="form-control" id="password" required>
+                                </div>
+                                <div class="form-group">
                                     <label>邮箱</label>
                                     <input type="email" class="form-control" id="email">
                                 </div>
@@ -754,6 +758,7 @@ ID: ${user.id}
                         // 填充表单数据
                         document.getElementById('userId').value = user.id;
                         document.getElementById('username').value = user.username;
+                        document.getElementById('password').value = '';
                         document.getElementById('email').value = user.email || '';
                         document.getElementById('realName').value = user.realName || '';
                         document.getElementById('role').value = user.role;
@@ -815,8 +820,12 @@ ID: ${user.id}
             addUserButton.addEventListener('click', function() {
                 // 清空表单
                 document.getElementById('userForm').reset();
+                // 特别清空用户ID字段
+                document.getElementById('userId').value = '';
                 // 设置默认值
                 document.getElementById('status').value = '1';
+                // 清空密码字段
+                document.getElementById('password').value = '';
                 // 显示模态框
                 document.getElementById('modalTitle').textContent = '添加用户';
                 document.getElementById('userModal').style.display = 'block';
@@ -838,9 +847,18 @@ ID: ${user.id}
             let method = 'POST';
             
             // 如果是更新操作
-            if (userId) {
+            if (userId && userId !== '') {
                 user.id = parseInt(userId);
                 method = 'PUT';
+                // 更新时只在需要时发送密码
+                const password = document.getElementById('password').value;
+                if (password) {
+                    user.password = password;
+                }
+            } else {
+                // 新增用户使用注册接口，必须提供密码
+                user.password = document.getElementById('password').value;
+                url = '/api/users/register';
             }
             
             // 发送请求
@@ -851,20 +869,25 @@ ID: ${user.id}
                 },
                 body: JSON.stringify(user)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.code === 200) {
                     alert(userId ? '用户更新成功' : '用户添加成功');
                     closeUserModal();
                     // 重新加载用户列表
                     loadUserList(currentPage);
                 } else {
-                    alert((userId ? '更新' : '添加') + '用户失败: ' + data.message);
+                    const errorMessage = data.message || '未知错误';
+                    alert((userId ? '更新' : '添加') + '用户失败: ' + errorMessage);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert((userId ? '更新' : '添加') + '用户失败');
+                alert((userId ? '更新' : '添加') + '用户失败: ' + (error.message || '网络错误'));
             });
         }
         
@@ -873,6 +896,10 @@ ID: ${user.id}
             document.getElementById('userModal').style.display = 'none';
             // 清空表单
             document.getElementById('userForm').reset();
+            // 特别清空用户ID字段
+            document.getElementById('userId').value = '';
+            // 清空密码字段
+            document.getElementById('password').value = '';
         }
         
         // 绑定模态框事件
