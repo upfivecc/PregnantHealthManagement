@@ -27,9 +27,13 @@ public class KnowledgeController {
     public Result<PageResult<Knowledge>> getKnowledgeList(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(defaultValue = "false") Boolean published) {
+            @RequestParam(defaultValue = "false") Boolean published,
+            @RequestParam(required = false) String title) {
         PageResult<Knowledge> result;
-        if (published) {
+        if (title != null && !title.isEmpty()) {
+            // 按标题查询
+            result = knowledgeService.getKnowledgeListByTitle(title, page, size);
+        } else if (published) {
             result = knowledgeService.getPublishedKnowledgeList(page, size);
         } else {
             result = knowledgeService.getKnowledgeList(page, size);

@@ -17,6 +17,14 @@ public interface KnowledgeMapper {
     @Select("SELECT COUNT(*) FROM knowledge")
     Long countAll();
     
+    // 按标题模糊查询知识列表
+    @Select("SELECT * FROM knowledge WHERE title LIKE CONCAT('%', #{title}, '%') ORDER BY created_time DESC LIMIT #{offset}, #{limit}")
+    List<Knowledge> selectByTitle(@Param("title") String title, @Param("offset") Integer offset, @Param("limit") Integer limit);
+    
+    // 按标题模糊查询知识总数
+    @Select("SELECT COUNT(*) FROM knowledge WHERE title LIKE CONCAT('%', #{title}, '%')")
+    Long countByTitle(@Param("title") String title);
+    
     @Insert("INSERT INTO knowledge(title, content, category, status, created_by) " +
             "VALUES(#{title}, #{content}, #{category}, #{status}, #{createdBy})")
     @Options(useGeneratedKeys = true, keyProperty = "id")

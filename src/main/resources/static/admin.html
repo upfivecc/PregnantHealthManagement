@@ -403,6 +403,23 @@
                             </button>
                         </div>
                         <div class="card-body">
+                            <!-- 添加查询表单 -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>标题</label>
+                                    <input type="text" class="form-control" id="knowledgeTitle" placeholder="请输入标题">
+                                </div>
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button class="btn btn-primary" id="searchKnowledgeBtn">
+                                        <i class="fas fa-search"></i> 查询
+                                    </button>
+                                    <button class="btn btn-outline" id="resetKnowledgeBtn">
+                                        <i class="fas fa-refresh"></i> 重置
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <div class="table-container">
                                 <table class="table">
                                     <thead>
@@ -416,56 +433,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>孕期营养指南</td>
-                                            <td>营养</td>
-                                            <td><span class="tag tag-success">已发布</span></td>
-                                            <td>2023-06-01</td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>产检时间安排</td>
-                                            <td>产检</td>
-                                            <td><span class="tag tag-success">已发布</span></td>
-                                            <td>2023-06-05</td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <!-- 动态生成知识列表 -->
                                     </tbody>
                                 </table>
                             </div>
                             
                             <div class="pagination">
-                                <div class="page-info">显示 1 到 2 条记录，共 2 条</div>
+                                <div class="page-info">显示 0 到 0 条记录，共 0 条</div>
                                 <div class="page-controls">
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-left"></i></button>
-                                    <button class="btn btn-primary">1</button>
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-right"></i></button>
+                                    <button class="btn btn-outline" onclick="loadKnowledgeList(currentKnowledgePage - 1)" id="prevKnowledgePage"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="btn btn-primary" id="currentKnowledgePageNum">1</button>
+                                    <button class="btn btn-outline" onclick="loadKnowledgeList(currentKnowledgePage + 1)" id="nextKnowledgePage"><i class="fas fa-chevron-right"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -1468,6 +1446,355 @@ ID: ${appointment.id}
                 const userRealName = this.value;
                 loadAppointmentList(1, userRealName);
             }
+        });
+
+        // 知识管理功能
+        let currentKnowledgePage = 1;
+        const knowledgePageSize = 10;
+        let currentKnowledgeSearchTitle = ''; // 保存当前搜索的标题
+        
+        // 查询知识列表
+        function loadKnowledgeList(page = 1, title = '') {
+            currentKnowledgePage = page;
+            // 如果没有传入title参数，则使用当前保存的搜索条件
+            if (arguments.length === 1) {
+                title = currentKnowledgeSearchTitle;
+            } else {
+                // 更新当前搜索条件
+                currentKnowledgeSearchTitle = title;
+            }
+            
+            let url = `/api/knowledge?page=${page}&size=${knowledgePageSize}`;
+            if (title && title.trim() !== '') {
+                url += `&title=${encodeURIComponent(title.trim())}`;
+            }
+            
+            console.log('正在请求知识列表:', url);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('收到知识列表响应:', data);
+                    if (data.code === 200) {
+                        updateKnowledgeTable(data.data.records);
+                        updateKnowledgePagination(data.data);
+                    } else {
+                        alert('获取知识列表失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取知识列表失败');
+                });
+        }
+        
+        // 更新知识表格
+        function updateKnowledgeTable(knowledgeList) {
+            const tbody = document.querySelector('#knowledgePage tbody');
+            tbody.innerHTML = '';
+            
+            knowledgeList.forEach(knowledge => {
+                // 格式化创建时间
+                const createdTime = knowledge.createdTime ? 
+                    new Date(knowledge.createdTime).toLocaleDateString('zh-CN') : '';
+                
+                // 获取状态文本
+                const statusText = knowledge.status === 1 ? '已发布' : '未发布';
+                const statusClass = knowledge.status === 1 ? 'tag-success' : 'tag-warning';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${knowledge.id || ''}</td>
+                    <td>${knowledge.title || ''}</td>
+                    <td>${knowledge.category || ''}</td>
+                    <td><span class="tag ${statusClass}">${statusText}</span></td>
+                    <td>${createdTime}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-outline view-knowledge" data-id="${knowledge.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline edit-knowledge" data-id="${knowledge.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger delete-knowledge" data-id="${knowledge.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // 绑定事件
+            bindKnowledgeActions();
+        }
+        
+        // 更新知识分页信息
+        function updateKnowledgePagination(pageData) {
+            const pageInfo = document.querySelector('#knowledgePage .page-info');
+            const pageControls = document.querySelector('#knowledgePage .page-controls');
+            const currentPageNum = document.querySelector('#knowledgePage #currentKnowledgePageNum');
+            const prevPageBtn = document.querySelector('#knowledgePage #prevKnowledgePage');
+            const nextPageBtn = document.querySelector('#knowledgePage #nextKnowledgePage');
+            
+            // 计算总页数
+            const totalPages = Math.ceil(pageData.total / pageData.pageSize);
+            
+            // 更新页面信息
+            pageInfo.textContent = `显示 ${(pageData.currentPage - 1) * pageData.pageSize + 1} 到 ${Math.min(pageData.currentPage * pageData.pageSize, pageData.total)} 条记录，共 ${pageData.total} 条`;
+            
+            // 更新当前页码
+            currentPageNum.textContent = pageData.currentPage;
+            
+            // 更新按钮状态
+            prevPageBtn.disabled = pageData.currentPage <= 1;
+            nextPageBtn.disabled = pageData.currentPage >= totalPages;
+        }
+        
+        // 绑定知识操作事件
+        function bindKnowledgeActions() {
+            // 查看知识
+            document.querySelectorAll('.view-knowledge').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const knowledgeId = this.getAttribute('data-id');
+                    viewKnowledge(knowledgeId);
+                });
+            });
+            
+            // 编辑知识
+            document.querySelectorAll('.edit-knowledge').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const knowledgeId = this.getAttribute('data-id');
+                    editKnowledge(knowledgeId);
+                });
+            });
+            
+            // 删除知识
+            document.querySelectorAll('.delete-knowledge').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const knowledgeId = this.getAttribute('data-id');
+                    deleteKnowledge(knowledgeId);
+                });
+            });
+        }
+        
+        // 查看知识详情
+        function viewKnowledge(knowledgeId) {
+            fetch(`/api/knowledge/${knowledgeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const knowledge = data.data;
+                        // 格式化创建时间
+                        const createdTime = knowledge.createdTime ? 
+                            new Date(knowledge.createdTime).toLocaleString('zh-CN') : '';
+                        
+                        // 格式化更新时间
+                        const updatedTime = knowledge.updatedTime ? 
+                            new Date(knowledge.updatedTime).toLocaleString('zh-CN') : '';
+                        
+                        alert(`知识详情:
+ID: ${knowledge.id}
+标题: ${knowledge.title || ''}
+分类: ${knowledge.category || ''}
+状态: ${knowledge.status === 1 ? '已发布' : '未发布'}
+创建时间: ${createdTime}
+更新时间: ${updatedTime}
+内容: ${knowledge.content || ''}`);
+                    } else {
+                        alert('获取知识详情失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取知识详情失败');
+                });
+        }
+        
+        // 编辑知识
+        function editKnowledge(knowledgeId) {
+            fetch(`/api/knowledge/${knowledgeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const knowledge = data.data;
+                        // 填充表单数据到知识编辑模态框
+                        showKnowledgeModal(knowledge);
+                    } else {
+                        alert('获取知识信息失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取知识信息失败');
+                });
+        }
+        
+        // 删除知识
+        function deleteKnowledge(knowledgeId) {
+            if (confirm('确定要删除这个知识吗？')) {
+                fetch(`/api/knowledge/${knowledgeId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        alert('知识删除成功');
+                        // 重新加载知识列表
+                        loadKnowledgeList(currentKnowledgePage);
+                    } else {
+                        alert('删除知识失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除知识失败');
+                });
+            }
+        }
+        
+        // 显示知识编辑模态框
+        function showKnowledgeModal(knowledge = null) {
+            // 创建模态框HTML
+            const modalHtml = `
+                <div class="modal" id="knowledgeModal" style="display: block;">
+                    <div class="modal-dialog">
+                        <div class="modal-header">
+                            <h3 id="knowledgeModalTitle">${knowledge ? '编辑知识' : '发布知识'}</h3>
+                            <button class="btn btn-outline" id="closeKnowledgeModal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="knowledgeForm">
+                                <input type="hidden" id="knowledgeId" value="${knowledge ? knowledge.id : ''}">
+                                <div class="form-group">
+                                    <label>标题</label>
+                                    <input type="text" class="form-control" id="knowledgeTitleInput" value="${knowledge ? knowledge.title || '' : ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>分类</label>
+                                    <input type="text" class="form-control" id="knowledgeCategory" value="${knowledge ? knowledge.category || '' : ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>状态</label>
+                                    <select class="form-control" id="knowledgeStatus">
+                                        <option value="1" ${knowledge && knowledge.status === 1 ? 'selected' : ''}>已发布</option>
+                                        <option value="0" ${knowledge && knowledge.status === 0 ? 'selected' : ''}>未发布</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>内容</label>
+                                    <textarea class="form-control" id="knowledgeContent" rows="5">${knowledge ? knowledge.content || '' : ''}</textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline" id="cancelKnowledgeBtn">取消</button>
+                            <button class="btn btn-primary" id="saveKnowledgeBtn">保存</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 添加模态框到页面
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // 绑定事件
+            document.getElementById('closeKnowledgeModal').addEventListener('click', closeKnowledgeModal);
+            document.getElementById('cancelKnowledgeBtn').addEventListener('click', closeKnowledgeModal);
+            document.getElementById('saveKnowledgeBtn').addEventListener('click', saveKnowledge);
+            
+            // 点击模态框外部关闭
+            document.getElementById('knowledgeModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeKnowledgeModal();
+                }
+            });
+        }
+        
+        // 关闭知识模态框
+        function closeKnowledgeModal() {
+            const modal = document.getElementById('knowledgeModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 保存知识
+        function saveKnowledge() {
+            const knowledgeId = document.getElementById('knowledgeId').value;
+            const knowledge = {
+                title: document.getElementById('knowledgeTitleInput').value,
+                category: document.getElementById('knowledgeCategory').value,
+                status: parseInt(document.getElementById('knowledgeStatus').value),
+                content: document.getElementById('knowledgeContent').value
+            };
+            
+            let url = '/api/knowledge';
+            let method = 'POST';
+            
+            // 如果是更新操作
+            if (knowledgeId && knowledgeId !== '') {
+                knowledge.id = parseInt(knowledgeId);
+                method = 'PUT';
+            }
+            
+            // 发送请求
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(knowledge)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    alert(knowledgeId ? '知识更新成功' : '知识发布成功');
+                    closeKnowledgeModal();
+                    // 重新加载知识列表
+                    loadKnowledgeList(currentKnowledgePage);
+                } else {
+                    alert((knowledgeId ? '更新' : '发布') + '知识失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert((knowledgeId ? '更新' : '发布') + '知识失败: ' + (error.message || '网络错误'));
+            });
+        }
+        
+        // 当切换到知识管理页面时加载数据
+        document.querySelector('[data-page="knowledge"]').addEventListener('click', function() {
+            // 清空搜索条件
+            document.getElementById('knowledgeTitle').value = '';
+            currentKnowledgeSearchTitle = '';
+            loadKnowledgeList(1);
+        });
+        
+        // 绑定知识查询按钮事件
+        document.getElementById('searchKnowledgeBtn').addEventListener('click', function() {
+            const title = document.getElementById('knowledgeTitle').value;
+            loadKnowledgeList(1, title);
+        });
+        
+        // 绑定知识重置按钮事件
+        document.getElementById('resetKnowledgeBtn').addEventListener('click', function() {
+            document.getElementById('knowledgeTitle').value = '';
+            currentKnowledgeSearchTitle = '';
+            loadKnowledgeList(1);
+        });
+        
+        // 绑定知识查询表单回车事件
+        document.getElementById('knowledgeTitle').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const title = this.value;
+                loadKnowledgeList(1, title);
+            }
+        });
+        
+        // 添加知识按钮事件
+        document.getElementById('addKnowledgeBtn').addEventListener('click', function() {
+            showKnowledgeModal();
         });
 
     </script>
