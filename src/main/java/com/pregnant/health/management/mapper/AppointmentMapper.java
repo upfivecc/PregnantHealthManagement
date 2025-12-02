@@ -3,7 +3,9 @@ package com.pregnant.health.management.mapper;
 import com.pregnant.health.management.entity.Appointment;
 import org.apache.ibatis.annotations.*;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface AppointmentMapper {
@@ -37,6 +39,22 @@ public interface AppointmentMapper {
             "LEFT JOIN users u ON a.user_id = u.id " +
             "WHERE u.real_name LIKE CONCAT('%', #{userRealName}, '%')")
     Long countByUserRealName(@Param("userRealName") String userRealName);
+    
+    // 查询预约趋势数据（按日期统计）
+    @Select("SELECT DATE(appointment_time) as date, COUNT(*) as count " +
+            "FROM appointments " +
+            "WHERE appointment_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) " +
+            "GROUP BY DATE(appointment_time) " +
+            "ORDER BY date")
+    List<Map<String, Object>> selectAppointmentTrend();
+    
+    // 查询病人数量统计（按日期统计）
+    @Select("SELECT DATE(created_time) as date, COUNT(DISTINCT user_id) as count " +
+            "FROM appointments " +
+            "WHERE created_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) " +
+            "GROUP BY DATE(created_time) " +
+            "ORDER BY date")
+    List<Map<String, Object>> selectPatientStats();
     
     @Insert("INSERT INTO appointments(user_id, doctor_id, appointment_time, status, remark) " +
             "VALUES(#{userId}, #{doctorId}, #{appointmentTime}, #{status}, #{remark})")

@@ -6,6 +6,49 @@
     <title>孕妇健康管理系统 - 管理后台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        /* 图表容器样式 */
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .chart-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .chart-header {
+            margin-bottom: 15px;
+        }
+        
+        .chart-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+        
+        .chart-body {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-body {
+                height: 250px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -113,6 +156,27 @@
                             <div class="stat-info">
                                 <h3 id="unrepliedCount">0</h3>
                                 <p>未回复咨询</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图表容器 -->
+                    <div class="chart-container">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>预约趋势</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="appointmentChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>病人数量统计</h3>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="patientChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -403,7 +467,7 @@
                         <div class="card-header">
                             <div class="card-title">知识管理</div>
                             <button class="btn btn-primary" id="addKnowledgeBtn">
-                                <i class="fas fa-plus"></i> 发布知识
+                                <i class="fas fa-plus"></i> 添加知识
                             </button>
                         </div>
                         <div class="card-body">
@@ -459,13 +523,16 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">咨询管理</div>
+                            <button class="btn btn-primary" id="addConsultationBtn">
+                                <i class="fas fa-plus"></i> 添加咨询
+                            </button>
                         </div>
                         <div class="card-body">
                             <!-- 添加查询表单 -->
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>咨询标题</label>
-                                    <input type="text" class="form-control" id="consultationTitle" placeholder="请输入咨询标题">
+                                    <label>标题</label>
+                                    <input type="text" class="form-control" id="consultationTitle" placeholder="请输入标题">
                                 </div>
                                 <div class="form-group">
                                     <label>状态</label>
@@ -493,7 +560,7 @@
                                             <th>ID</th>
                                             <th>用户</th>
                                             <th>医生</th>
-                                            <th>咨询标题</th>
+                                            <th>标题</th>
                                             <th>状态</th>
                                             <th>创建时间</th>
                                             <th>操作</th>
@@ -518,10 +585,14 @@
                 </div>
             </div>
         </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // 全局变量存储当前用户信息
         let currentUser = null;
+        let appointmentChart = null;
+        let patientChart = null;
         
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -554,6 +625,9 @@
                 }).catch(error => {
                     console.error('设置session失败:', error);
                 });
+                
+                // 加载仪表盘数据
+                loadDashboardData();
             } else {
                 // 未登录，跳转到登录页面
                 window.location.href = './admin-login.html';
@@ -578,6 +652,143 @@
             });
         });
         
+        // 加载仪表盘数据
+        function loadDashboardData() {
+            // 获取统计数据
+            fetch('/api/dashboard/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        // 更新统计数据
+                        document.getElementById('userCount').textContent = data.data.userCount || 0;
+                        document.getElementById('doctorCount').textContent = data.data.doctorCount || 0;
+                        document.getElementById('todayAppointmentCount').textContent = data.data.todayAppointmentCount || 0;
+                        document.getElementById('unrepliedCount').textContent = data.data.unrepliedCount || 0;
+                    }
+                })
+                .catch(error => {
+                    console.error('获取统计数据失败:', error);
+                });
+            
+            // 获取预约趋势数据
+            fetch('/api/dashboard/appointment-trend')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        // 创建预约趋势图表
+                        createAppointmentChart(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('获取预约趋势数据失败:', error);
+                });
+            
+            // 获取病人数量数据
+            fetch('/api/dashboard/patient-stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        // 创建病人数量图表
+                        createPatientChart(data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('获取病人数量数据失败:', error);
+                });
+        }
+        
+        // 创建预约趋势图表
+        function createAppointmentChart(data) {
+            const ctx = document.getElementById('appointmentChart').getContext('2d');
+            
+            // 如果图表已存在，先销毁
+            if (appointmentChart) {
+                appointmentChart.destroy();
+            }
+            
+            // 准备图表数据
+            const labels = data.map(item => item.date);
+            const values = data.map(item => item.count);
+            
+            appointmentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '预约数量',
+                        data: values,
+                        borderColor: '#409EFF',
+                        backgroundColor: 'rgba(64, 158, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 创建病人数量图表
+        function createPatientChart(data) {
+            const ctx = document.getElementById('patientChart').getContext('2d');
+            
+            // 如果图表已存在，先销毁
+            if (patientChart) {
+                patientChart.destroy();
+            }
+            
+            // 准备图表数据
+            const labels = data.map(item => item.date);
+            const values = data.map(item => item.count);
+            
+            patientChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '病人数量',
+                        data: values,
+                        backgroundColor: '#67C23A',
+                        borderColor: '#67C23A',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
         // 根据用户角色调整界面显示
         function adjustUIByRole(role) {
             // 隐藏所有仅管理员可见的元素
@@ -594,25 +805,63 @@
                 });
             } else if (role === 'DOCTOR') {
                 // 医生只能看到部分菜单
-                // 仪表盘、医生管理、预约管理(仅自己的)、知识管理(全部)、咨询管理(仅自己的)
+                // 仪表盘、医生管理（仅自己）、预约管理（仅自己的）、知识管理（全部）、咨询管理（仅自己的）
                 document.querySelector('[data-page="dashboard"]').style.display = 'flex';
                 document.querySelector('[data-page="doctors"]').style.display = 'flex';
+                document.querySelector('[data-page="appointments"]').style.display = 'flex';
                 document.querySelector('[data-page="knowledge"]').style.display = 'flex';
+                document.querySelector('[data-page="consultations"]').style.display = 'flex';
                 
-                // 隐藏其他菜单项
-                const menuItemsToHide = ['users'];
-                menuItemsToHide.forEach(menuId => {
-                    const menuItem = document.querySelector(`[data-page="${menuId}"]`);
-                    if (menuItem) {
-                        menuItem.style.display = 'none';
+                // 隐藏用户管理菜单项
+                const userMenuItem = document.querySelector('[data-page="users"]');
+                if (userMenuItem) {
+                    userMenuItem.style.display = 'none';
+                }
+                
+                // 隐藏用户管理页面中的添加按钮和某些操作按钮
+                const addUserBtn = document.getElementById('addUserBtn');
+                if (addUserBtn) {
+                    addUserBtn.style.display = 'none';
+                }
+                
+                // 在医生管理页面中，隐藏添加医生按钮和删除按钮
+                const addDoctorBtn = document.getElementById('addDoctorBtn');
+                if (addDoctorBtn) {
+                    // 医生不能添加医生
+                    if (role === 'DOCTOR') {
+                        addDoctorBtn.style.display = 'none';
                     }
-                });
+                }
                 
-                // 对于预约管理和咨询管理，需要在数据层面进行过滤
-                // 这部分逻辑将在对应的JavaScript函数中实现
+                // 隐藏医生管理页面中的删除按钮
+                if (role === 'DOCTOR') {
+                    const deleteDoctorButtons = document.querySelectorAll('.delete-doctor');
+                    deleteDoctorButtons.forEach(button => {
+                        button.style.display = 'none';
+                    });
+                }
             }
         }
         
+        // 当切换到医生管理页面时加载数据
+        document.querySelector('[data-page="doctors"]').addEventListener('click', function() {
+            loadDoctorList(1);
+            
+            // 如果是医生登录，隐藏添加医生按钮
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                const addDoctorBtn = document.getElementById('addDoctorBtn');
+                if (addDoctorBtn) {
+                    addDoctorBtn.style.display = 'none';
+                }
+            } else {
+                // 管理员登录，显示添加医生按钮
+                const addDoctorBtn = document.getElementById('addDoctorBtn');
+                if (addDoctorBtn) {
+                    addDoctorBtn.style.display = 'block';
+                }
+            }
+        });
+
         // 侧边栏切换
         document.getElementById('toggleSidebar').addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('collapsed');
@@ -878,6 +1127,36 @@ ID: ${user.id}
                 });
         }
         
+        // 删除医生
+        // 删除医生
+        function deleteDoctor(doctorId) {
+            // 如果是医生登录，不能删除医生（医生不能删除任何医生信息）
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                alert('您没有权限删除医生信息');
+                return;
+            }
+            
+            if (confirm('确定要删除这个医生吗？')) {
+                fetch(`/api/doctors/${doctorId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        alert('医生删除成功');
+                        // 重新加载医生列表
+                        loadDoctorList(currentDoctorPage);
+                    } else {
+                        alert('删除医生失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除医生失败');
+                });
+            }
+        }
+        
         // 删除用户
         function deleteUser(userId) {
             // 管理员才能删除用户
@@ -1050,6 +1329,33 @@ ID: ${user.id}
         
         // 查询医生列表
         function loadDoctorList(page = 1, realName = '') {
+            // 如果是医生登录，只能查看自己的信息
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                // 直接获取当前医生的信息
+                fetch(`/api/doctors/user/${currentUser.id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            // 将单个医生对象转换为数组格式以适应现有表格更新函数
+                            updateDoctorTable([data.data]);
+                            // 更新分页信息（医生只能看到自己，所以只有1页）
+                            const fakePageData = {
+                                currentPage: 1,
+                                pageSize: 1,
+                                total: 1
+                            };
+                            updateDoctorPagination(fakePageData);
+                        } else {
+                            alert('获取医生信息失败: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('获取医生信息失败');
+                    });
+                return;
+            }
+            
             currentDoctorPage = page;
             // 如果没有传入realName参数，则使用当前保存的搜索条件
             if (arguments.length === 1) {
@@ -1193,6 +1499,42 @@ ID: ${doctor.id || ''}
         
         // 编辑医生
         function editDoctor(doctorId) {
+            // 如果是医生登录，只能编辑自己的信息
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                // 获取当前医生的信息
+                fetch(`/api/doctors/user/${currentUser.id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            const doctor = data.data;
+                            // 检查是否是当前医生的信息
+                            if (doctor.id != doctorId) {
+                                alert('您只能编辑自己的信息');
+                                return;
+                            }
+                            // 填充表单数据
+                            document.getElementById('doctorId').value = doctor.id || '';
+                            document.getElementById('doctorUserId').value = doctor.userId || '';
+                            document.getElementById('doctorHospital').value = doctor.hospital || '';
+                            document.getElementById('doctorDepartment').value = doctor.department || '';
+                            document.getElementById('doctorTitle').value = doctor.title || '';
+                            document.getElementById('doctorSpecialty').value = doctor.specialty || '';
+                            document.getElementById('doctorIntroduction').value = doctor.introduction || '';
+                            
+                            // 显示模态框
+                            document.getElementById('doctorModalTitle').textContent = '编辑医生';
+                            document.getElementById('doctorModal').style.display = 'block';
+                        } else {
+                            alert('获取医生信息失败: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('获取医生信息失败');
+                    });
+                return;
+            }
+            
             fetch(`/api/doctors/${doctorId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -1245,6 +1587,42 @@ ID: ${doctor.id || ''}
         
         // 保存医生
         function saveDoctor() {
+            // 如果是医生登录，只能更新自己的信息
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                // 获取表单中的医生ID
+                const doctorId = document.getElementById('doctorId').value;
+                
+                // 获取当前医生的信息
+                fetch(`/api/doctors/user/${currentUser.id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            const currentDoctor = data.data;
+                            // 检查是否是当前医生的信息
+                            if (currentDoctor.id != doctorId) {
+                                alert('您只能更新自己的信息');
+                                return;
+                            }
+                            
+                            // 继续保存操作
+                            performSaveDoctor();
+                        } else {
+                            alert('获取医生信息失败: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('获取医生信息失败');
+                    });
+                return;
+            }
+            
+            // 管理员或其他角色可以直接保存
+            performSaveDoctor();
+        }
+        
+        // 执行保存医生的实际操作
+        function performSaveDoctor() {
             const doctorId = document.getElementById('doctorId').value;
             const doctor = {
                 userId: parseInt(document.getElementById('doctorUserId').value),

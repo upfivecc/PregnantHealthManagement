@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -49,5 +50,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public boolean deleteAppointment(Long id) {
         return appointmentMapper.deleteById(id) > 0;
+    }
+    
+    @Override
+    public List<Map<String, Object>> getAppointmentTrend() {
+        return appointmentMapper.selectAppointmentTrend();
+    }
+    
+    @Override
+    public List<Map<String, Object>> getPatientStats() {
+        return appointmentMapper.selectPatientStats();
     }
 }
