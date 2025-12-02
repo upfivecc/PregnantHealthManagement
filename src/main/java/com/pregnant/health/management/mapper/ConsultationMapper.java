@@ -22,6 +22,48 @@ public interface ConsultationMapper {
     @Select("SELECT COUNT(*) FROM consultations")
     Long countAll();
     
+    // 按标题模糊查询咨询列表
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title " +
+            "FROM consultations c " +
+            "LEFT JOIN users u ON c.user_id = u.id " +
+            "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "WHERE c.title LIKE CONCAT('%', #{title}, '%') " +
+            "ORDER BY c.created_time DESC " +
+            "LIMIT #{offset}, #{limit}")
+    List<Consultation> selectByTitle(@Param("title") String title, @Param("offset") Integer offset, @Param("limit") Integer limit);
+    
+    // 按标题模糊查询咨询总数
+    @Select("SELECT COUNT(*) FROM consultations WHERE title LIKE CONCAT('%', #{title}, '%')")
+    Long countByTitle(@Param("title") String title);
+    
+    // 按状态查询咨询列表
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title " +
+            "FROM consultations c " +
+            "LEFT JOIN users u ON c.user_id = u.id " +
+            "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "WHERE c.status = #{status} " +
+            "ORDER BY c.created_time DESC " +
+            "LIMIT #{offset}, #{limit}")
+    List<Consultation> selectByStatus(@Param("status") Integer status, @Param("offset") Integer offset, @Param("limit") Integer limit);
+    
+    // 按状态查询咨询总数
+    @Select("SELECT COUNT(*) FROM consultations WHERE status = #{status}")
+    Long countByStatus(@Param("status") Integer status);
+    
+    // 按标题和状态查询咨询列表
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title " +
+            "FROM consultations c " +
+            "LEFT JOIN users u ON c.user_id = u.id " +
+            "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "WHERE c.title LIKE CONCAT('%', #{title}, '%') AND c.status = #{status} " +
+            "ORDER BY c.created_time DESC " +
+            "LIMIT #{offset}, #{limit}")
+    List<Consultation> selectByTitleAndStatus(@Param("title") String title, @Param("status") Integer status, @Param("offset") Integer offset, @Param("limit") Integer limit);
+    
+    // 按标题和状态查询咨询总数
+    @Select("SELECT COUNT(*) FROM consultations WHERE title LIKE CONCAT('%', #{title}, '%') AND status = #{status}")
+    Long countByTitleAndStatus(@Param("title") String title, @Param("status") Integer status);
+    
     @Select("SELECT c.*, u.username as userName " +
             "FROM consultations c " +
             "LEFT JOIN users u ON c.user_id = u.id " +

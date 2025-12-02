@@ -29,6 +29,30 @@ public class ConsultationServiceImpl implements ConsultationService {
     }
     
     @Override
+    public PageResult<Consultation> getConsultationListByTitle(String title, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<Consultation> consultations = consultationMapper.selectByTitle(title, offset, size);
+        Long total = consultationMapper.countByTitle(title);
+        return new PageResult<>(consultations, total, page, size);
+    }
+    
+    @Override
+    public PageResult<Consultation> getConsultationListByStatus(Integer status, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<Consultation> consultations = consultationMapper.selectByStatus(status, offset, size);
+        Long total = consultationMapper.countByStatus(status);
+        return new PageResult<>(consultations, total, page, size);
+    }
+    
+    @Override
+    public PageResult<Consultation> getConsultationListByTitleAndStatus(String title, Integer status, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<Consultation> consultations = consultationMapper.selectByTitleAndStatus(title, status, offset, size);
+        Long total = consultationMapper.countByTitleAndStatus(title, status);
+        return new PageResult<>(consultations, total, page, size);
+    }
+    
+    @Override
     public PageResult<Consultation> getConsultationListByDoctor(Long doctorId, Integer page, Integer size) {
         int offset = (page - 1) * size;
         List<Consultation> consultations = consultationMapper.selectByDoctorId(doctorId, offset, size);

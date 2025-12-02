@@ -27,13 +27,29 @@ public class ConsultationController {
     public Result<PageResult<Consultation>> getConsultationList(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) Long doctorId) {
+            @RequestParam(required = false) Long doctorId,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Integer status) {
         PageResult<Consultation> result;
-        if (doctorId != null) {
+        
+        // 根据不同条件查询
+        if (title != null && !title.isEmpty() && status != null) {
+            // 按标题和状态查询
+            result = consultationService.getConsultationListByTitleAndStatus(title, status, page, size);
+        } else if (title != null && !title.isEmpty()) {
+            // 按标题查询
+            result = consultationService.getConsultationListByTitle(title, page, size);
+        } else if (status != null) {
+            // 按状态查询
+            result = consultationService.getConsultationListByStatus(status, page, size);
+        } else if (doctorId != null) {
+            // 按医生ID查询
             result = consultationService.getConsultationListByDoctor(doctorId, page, size);
         } else {
+            // 查询所有
             result = consultationService.getConsultationList(page, size);
         }
+        
         return Result.success(result);
     }
     
