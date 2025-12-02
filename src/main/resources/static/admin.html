@@ -344,6 +344,23 @@
                             <div class="card-title">预约管理</div>
                         </div>
                         <div class="card-body">
+                            <!-- 添加查询表单 -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>用户姓名</label>
+                                    <input type="text" class="form-control" id="appointmentUserRealName" placeholder="请输入用户姓名">
+                                </div>
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button class="btn btn-primary" id="searchAppointmentBtn">
+                                        <i class="fas fa-search"></i> 查询
+                                    </button>
+                                    <button class="btn btn-outline" id="resetAppointmentBtn">
+                                        <i class="fas fa-refresh"></i> 重置
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <div class="table-container">
                                 <table class="table">
                                     <thead>
@@ -359,35 +376,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>张三</td>
-                                            <td>北京协和医院</td>
-                                            <td>妇产科</td>
-                                            <td>主任医师</td>
-                                            <td>2023-06-15 10:00</td>
-                                            <td><span class="tag tag-success">已确认</span></td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <!-- 动态生成预约列表 -->
                                     </tbody>
                                 </table>
                             </div>
                             
                             <div class="pagination">
-                                <div class="page-info">显示 1 到 1 条记录，共 1 条</div>
+                                <div class="page-info">显示 0 到 0 条记录，共 0 条</div>
                                 <div class="page-controls">
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-left"></i></button>
-                                    <button class="btn btn-primary">1</button>
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-right"></i></button>
+                                    <button class="btn btn-outline" onclick="loadAppointmentList(currentAppointmentPage - 1)" id="prevAppointmentPage"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="btn btn-primary" id="currentAppointmentPageNum">1</button>
+                                    <button class="btn btn-outline" onclick="loadAppointmentList(currentAppointmentPage + 1)" id="nextAppointmentPage"><i class="fas fa-chevron-right"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -1228,6 +1227,246 @@ ID: ${doctor.id}
             if (e.key === 'Enter') {
                 const realName = this.value;
                 loadDoctorList(1, realName);
+            }
+        });
+
+        // 预约管理功能
+        let currentAppointmentPage = 1;
+        const appointmentPageSize = 10;
+        let currentAppointmentSearchUserRealName = ''; // 保存当前搜索的用户姓名
+        
+        // 查询预约列表
+        function loadAppointmentList(page = 1, userRealName = '') {
+            currentAppointmentPage = page;
+            // 如果没有传入userRealName参数，则使用当前保存的搜索条件
+            if (arguments.length === 1) {
+                userRealName = currentAppointmentSearchUserRealName;
+            } else {
+                // 更新当前搜索条件
+                currentAppointmentSearchUserRealName = userRealName;
+            }
+            
+            let url = `/api/appointments?page=${page}&size=${appointmentPageSize}`;
+            if (userRealName && userRealName.trim() !== '') {
+                url += `&userRealName=${encodeURIComponent(userRealName.trim())}`;
+            }
+            
+            console.log('正在请求预约列表:', url);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('收到预约列表响应:', data);
+                    if (data.code === 200) {
+                        updateAppointmentTable(data.data.records);
+                        updateAppointmentPagination(data.data);
+                    } else {
+                        alert('获取预约列表失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取预约列表失败');
+                });
+        }
+        
+        // 更新预约表格
+        function updateAppointmentTable(appointments) {
+            const tbody = document.querySelector('#appointmentsPage tbody');
+            tbody.innerHTML = '';
+            
+            appointments.forEach(appointment => {
+                // 格式化预约时间
+                const appointmentTime = appointment.appointmentTime ? 
+                    new Date(appointment.appointmentTime).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '';
+                
+                // 获取状态文本
+                const statusText = getStatusText(appointment.status);
+                const statusClass = getStatusClass(appointment.status);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${appointment.id || ''}</td>
+                    <td>${appointment.userRealName || appointment.userName || ''}</td>
+                    <td>${appointment.hospital || ''}</td>
+                    <td>${appointment.department || ''}</td>
+                    <td>${appointment.title || ''}</td>
+                    <td>${appointmentTime}</td>
+                    <td><span class="tag ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-outline view-appointment" data-id="${appointment.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-danger delete-appointment" data-id="${appointment.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // 绑定事件
+            bindAppointmentActions();
+        }
+        
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                0: '待确认',
+                1: '已确认',
+                2: '已完成',
+                3: '已取消'
+            };
+            return statusMap[status] || '未知';
+        }
+        
+        // 获取状态样式类
+        function getStatusClass(status) {
+            const classMap = {
+                0: 'tag-warning',
+                1: 'tag-success',
+                2: 'tag-info',
+                3: 'tag-danger'
+            };
+            return classMap[status] || 'tag-default';
+        }
+        
+        // 更新预约分页信息
+        function updateAppointmentPagination(pageData) {
+            const pageInfo = document.querySelector('#appointmentsPage .page-info');
+            const pageControls = document.querySelector('#appointmentsPage .page-controls');
+            const currentPageNum = document.querySelector('#appointmentsPage #currentAppointmentPageNum');
+            const prevPageBtn = document.querySelector('#appointmentsPage #prevAppointmentPage');
+            const nextPageBtn = document.querySelector('#appointmentsPage #nextAppointmentPage');
+            
+            // 计算总页数
+            const totalPages = Math.ceil(pageData.total / pageData.pageSize);
+            
+            // 更新页面信息
+            pageInfo.textContent = `显示 ${(pageData.currentPage - 1) * pageData.pageSize + 1} 到 ${Math.min(pageData.currentPage * pageData.pageSize, pageData.total)} 条记录，共 ${pageData.total} 条`;
+            
+            // 更新当前页码
+            currentPageNum.textContent = pageData.currentPage;
+            
+            // 更新按钮状态
+            prevPageBtn.disabled = pageData.currentPage <= 1;
+            nextPageBtn.disabled = pageData.currentPage >= totalPages;
+        }
+        
+        // 绑定预约操作事件
+        function bindAppointmentActions() {
+            // 查看预约
+            document.querySelectorAll('.view-appointment').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const appointmentId = this.getAttribute('data-id');
+                    viewAppointment(appointmentId);
+                });
+            });
+            
+            // 删除预约
+            document.querySelectorAll('.delete-appointment').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const appointmentId = this.getAttribute('data-id');
+                    deleteAppointment(appointmentId);
+                });
+            });
+        }
+        
+        // 查看预约详情
+        function viewAppointment(appointmentId) {
+            fetch(`/api/appointments/${appointmentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const appointment = data.data;
+                        // 格式化预约时间
+                        const appointmentTime = appointment.appointmentTime ? 
+                            new Date(appointment.appointmentTime).toLocaleString('zh-CN', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }) : '';
+                        
+                        // 获取状态文本
+                        const statusText = getStatusText(appointment.status);
+                        
+                        alert(`预约详情:
+ID: ${appointment.id}
+用户: ${appointment.userRealName || appointment.userName || ''}
+医院: ${appointment.hospital || ''}
+科室: ${appointment.department || ''}
+医生职称: ${appointment.title || ''}
+预约时间: ${appointmentTime}
+状态: ${statusText}
+备注: ${appointment.remark || ''}`);
+                    } else {
+                        alert('获取预约详情失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取预约详情失败');
+                });
+        }
+        
+        // 删除预约
+        function deleteAppointment(appointmentId) {
+            if (confirm('确定要删除这个预约吗？')) {
+                fetch(`/api/appointments/${appointmentId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        alert('预约删除成功');
+                        // 重新加载预约列表
+                        loadAppointmentList(currentAppointmentPage);
+                    } else {
+                        alert('删除预约失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除预约失败');
+                });
+            }
+        }
+        
+        // 当切换到预约管理页面时加载数据
+        document.querySelector('[data-page="appointments"]').addEventListener('click', function() {
+            // 清空搜索条件
+            document.getElementById('appointmentUserRealName').value = '';
+            currentAppointmentSearchUserRealName = '';
+            loadAppointmentList(1);
+        });
+        
+        // 绑定预约查询按钮事件
+        document.getElementById('searchAppointmentBtn').addEventListener('click', function() {
+            const userRealName = document.getElementById('appointmentUserRealName').value;
+            loadAppointmentList(1, userRealName);
+        });
+        
+        // 绑定预约重置按钮事件
+        document.getElementById('resetAppointmentBtn').addEventListener('click', function() {
+            document.getElementById('appointmentUserRealName').value = '';
+            currentAppointmentSearchUserRealName = '';
+            loadAppointmentList(1);
+        });
+        
+        // 绑定预约查询表单回车事件
+        document.getElementById('appointmentUserRealName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const userRealName = this.value;
+                loadAppointmentList(1, userRealName);
             }
         });
 

@@ -29,6 +29,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
     
     @Override
+    public PageResult<Appointment> getAppointmentListByUserRealName(String userRealName, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<Appointment> appointments = appointmentMapper.selectByUserRealName(userRealName, offset, size);
+        Long total = appointmentMapper.countByUserRealName(userRealName);
+        return new PageResult<>(appointments, total, page, size);
+    }
+    
+    @Override
     public boolean saveAppointment(Appointment appointment) {
         return appointmentMapper.insert(appointment) > 0;
     }

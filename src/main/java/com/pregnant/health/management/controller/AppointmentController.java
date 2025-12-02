@@ -26,8 +26,16 @@ public class AppointmentController {
     @GetMapping
     public Result<PageResult<Appointment>> getAppointmentList(
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-        PageResult<Appointment> result = appointmentService.getAppointmentList(page, size);
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String userRealName) {
+        PageResult<Appointment> result;
+        if (userRealName != null && !userRealName.isEmpty()) {
+            // 按用户姓名查询
+            result = appointmentService.getAppointmentListByUserRealName(userRealName, page, size);
+        } else {
+            // 查询所有
+            result = appointmentService.getAppointmentList(page, size);
+        }
         return Result.success(result);
     }
     

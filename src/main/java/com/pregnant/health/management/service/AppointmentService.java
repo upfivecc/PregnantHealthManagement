@@ -9,6 +9,9 @@ public interface AppointmentService {
     
     PageResult<Appointment> getAppointmentList(Integer page, Integer size);
     
+    // 按用户姓名查询预约列表
+    PageResult<Appointment> getAppointmentListByUserRealName(String userRealName, Integer page, Integer size);
+    
     boolean saveAppointment(Appointment appointment);
     
     boolean updateAppointmentStatus(Long id, Integer status);

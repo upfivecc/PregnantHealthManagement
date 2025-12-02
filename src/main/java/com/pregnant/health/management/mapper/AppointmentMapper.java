@@ -22,6 +22,22 @@ public interface AppointmentMapper {
     @Select("SELECT COUNT(*) FROM appointments")
     Long countAll();
     
+    // 按用户姓名查询预约列表
+    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title " +
+            "FROM appointments a " +
+            "LEFT JOIN users u ON a.user_id = u.id " +
+            "LEFT JOIN doctors d ON a.doctor_id = d.id " +
+            "WHERE u.real_name LIKE CONCAT('%', #{userRealName}, '%') " +
+            "ORDER BY a.appointment_time DESC " +
+            "LIMIT #{offset}, #{limit}")
+    List<Appointment> selectByUserRealName(@Param("userRealName") String userRealName, @Param("offset") Integer offset, @Param("limit") Integer limit);
+    
+    // 按用户姓名查询预约总数
+    @Select("SELECT COUNT(*) FROM appointments a " +
+            "LEFT JOIN users u ON a.user_id = u.id " +
+            "WHERE u.real_name LIKE CONCAT('%', #{userRealName}, '%')")
+    Long countByUserRealName(@Param("userRealName") String userRealName);
+    
     @Insert("INSERT INTO appointments(user_id, doctor_id, appointment_time, status, remark) " +
             "VALUES(#{userId}, #{doctorId}, #{appointmentTime}, #{status}, #{remark})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
