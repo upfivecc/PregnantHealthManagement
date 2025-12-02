@@ -610,26 +610,24 @@
                 } else if (currentUser.role === 'DOCTOR') {
                     document.getElementById('userAvatar').textContent = '医';
                     document.getElementById('userName').textContent = currentUser.realName || currentUser.username || '医生';
+                    // 医生登录后隐藏用户管理菜单
+                    const userMenuItem = document.querySelector('[data-page="users"]');
+                    if (userMenuItem) {
+                        userMenuItem.style.display = 'none';
+                    }
                 }
                 
-                // 根据用户角色调整界面显示
+                // 根据角色调整界面显示
                 adjustUIByRole(currentUser.role);
                 
-                // 将用户信息保存到session中，供后端拦截器使用
-                fetch('/api/users/set-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(currentUser)
-                }).catch(error => {
-                    console.error('设置session失败:', error);
-                });
+                // 默认显示仪表盘页面
+                document.getElementById('dashboardPage').style.display = 'block';
+                document.querySelector('[data-page="dashboard"]').classList.add('active');
                 
                 // 加载仪表盘数据
                 loadDashboardData();
             } else {
-                // 未登录，跳转到登录页面
+                // 如果没有用户信息，跳转到登录页面
                 window.location.href = './admin-login.html';
             }
             
@@ -861,6 +859,20 @@
                 }
             }
         });
+        
+        // 绑定添加医生按钮事件
+        document.getElementById('addDoctorBtn').addEventListener('click', function() {
+            // 清空表单
+            document.getElementById('doctorForm').reset();
+            document.getElementById('doctorId').value = '';
+            // 显示模态框
+            document.getElementById('doctorModal').style.display = 'block';
+        });
+        
+        // 预约管理功能
+        document.querySelector('[data-page="appointments"]').addEventListener('click', function() {
+            loadAppointmentList(1);
+        });
 
         // 侧边栏切换
         document.getElementById('toggleSidebar').addEventListener('click', function() {
@@ -873,20 +885,46 @@
         const pageTitle = document.getElementById('pageTitle');
         
         menuItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // 移除所有菜单项的活动状态
-                menuItems.forEach(i => i.classList.remove('active'));
-                // 添加当前菜单项的活动状态
-                this.classList.add('active');
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
                 
                 // 隐藏所有页面
                 pages.forEach(page => {
                     page.style.display = 'none';
                 });
                 
-                // 显示选中的页面
-                const pageId = this.getAttribute('data-page') + 'Page';
-                document.getElementById(pageId).style.display = 'block';
+                // 移除所有菜单项的激活状态
+                menuItems.forEach(menuItem => {
+                    menuItem.classList.remove('active');
+                });
+                
+                // 添加当前菜单项的激活状态
+                this.classList.add('active');
+                
+                // 显示对应的页面
+                const pageId = this.getAttribute('data-page');
+                document.getElementById(`${pageId}Page`).style.display = 'block';
+                
+                // 根据用户角色调整界面显示
+                if (currentUser && currentUser.role === 'DOCTOR') {
+                    // 医生只能看到部分菜单
+                    if (pageId === 'users') {
+                        alert('您没有权限访问此页面');
+                        // 返回到仪表盘页面
+                        document.getElementById('dashboardPage').style.display = 'block';
+                        document.querySelector('[data-page="dashboard"]').classList.add('active');
+                        this.classList.remove('active');
+                        return;
+                    }
+                } else if (currentUser && currentUser.role === 'ADMIN') {
+                    // 管理员可以看到所有菜单
+                    document.querySelector('[data-page="dashboard"]').style.display = 'flex';
+                    document.querySelector('[data-page="users"]').style.display = 'flex';
+                    document.querySelector('[data-page="doctors"]').style.display = 'flex';
+                    document.querySelector('[data-page="appointments"]').style.display = 'flex';
+                    document.querySelector('[data-page="knowledge"]').style.display = 'flex';
+                    document.querySelector('[data-page="consultations"]').style.display = 'flex';
+                }
                 
                 // 更新页面标题
                 const titles = {
@@ -897,31 +935,28 @@
                     'knowledge': '知识管理',
                     'consultations': '咨询管理'
                 };
-                pageTitle.textContent = titles[this.getAttribute('data-page')];
+                pageTitle.textContent = titles[pageId];
                 
-                // 如果切换到用户管理页面，则加载用户数据
-                if (this.getAttribute('data-page') === 'users') {
-                    loadUserList(1);
-                }
-                
-                // 如果切换到医生管理页面，则加载医生数据
-                if (this.getAttribute('data-page') === 'doctors') {
-                    loadDoctorList(1);
-                }
-                
-                // 如果切换到预约管理页面，则加载预约数据
-                if (this.getAttribute('data-page') === 'appointments') {
-                    loadAppointmentList(1);
-                }
-                
-                // 如果切换到知识管理页面，则加载知识数据
-                if (this.getAttribute('data-page') === 'knowledge') {
-                    loadKnowledgeList(1);
-                }
-                
-                // 如果切换到咨询管理页面，则加载咨询数据
-                if (this.getAttribute('data-page') === 'consultations') {
-                    loadConsultationList(1);
+                // 根据页面加载相应数据
+                switch(pageId) {
+                    case 'dashboard':
+                        loadDashboardData();
+                        break;
+                    case 'users':
+                        loadUserList(1);
+                        break;
+                    case 'doctors':
+                        loadDoctorList(1);
+                        break;
+                    case 'appointments':
+                        loadAppointmentList(1);
+                        break;
+                    case 'knowledge':
+                        loadKnowledgeList(1);
+                        break;
+                    case 'consultations':
+                        loadConsultationList(1);
+                        break;
                 }
             });
         });
@@ -1223,6 +1258,21 @@ ID: ${user.id}
                 document.getElementById('userModal').style.display = 'block';
             });
         }
+        
+        // 绑定添加医生按钮事件
+        document.getElementById('addDoctorBtn').addEventListener('click', function() {
+            // 如果是医生登录，不能添加医生
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                alert('您没有权限添加医生');
+                return;
+            }
+            
+            // 清空表单
+            document.getElementById('doctorForm').reset();
+            document.getElementById('doctorId').value = '';
+            // 显示模态框
+            document.getElementById('doctorModal').style.display = 'block';
+        });
         
         // 保存用户
         function saveUser() {
@@ -2115,6 +2165,12 @@ ID: ${knowledge.id || ''}
             loadKnowledgeList(1);
         });
         
+        // 绑定添加知识按钮事件
+        document.getElementById('addKnowledgeBtn').addEventListener('click', function() {
+            // 这里应该打开添加知识的模态框
+            alert('添加知识功能待实现');
+        });
+        
         // 咨询管理功能
         let currentConsultationPage = 1;
         const consultationPageSize = 10;
@@ -2309,6 +2365,17 @@ ID: ${consultation.id || ''}
             loadConsultationList(1);
         });
         
+        // 当切换到知识管理页面时加载数据
+        document.querySelector('[data-page="knowledge"]').addEventListener('click', function() {
+            loadKnowledgeList(1);
+        });
+        
+        // 绑定添加知识按钮事件
+        document.getElementById('addKnowledgeBtn').addEventListener('click', function() {
+            // 这里应该打开添加知识的模态框
+            alert('添加知识功能待实现');
+        });
+        
         // 当切换到咨询管理页面时加载数据
         document.querySelector('[data-page="consultations"]').addEventListener('click', function() {
             // 清空搜索条件
@@ -2317,6 +2384,12 @@ ID: ${consultation.id || ''}
             currentConsultationSearchTitle = '';
             currentConsultationSearchStatus = '';
             loadConsultationList(1);
+        });
+        
+        // 绑定添加咨询按钮事件
+        document.getElementById('addConsultationBtn').addEventListener('click', function() {
+            // 这里应该打开添加咨询的模态框
+            alert('添加咨询功能待实现');
         });
     </script>
 </body>
