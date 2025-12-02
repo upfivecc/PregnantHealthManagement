@@ -219,60 +219,62 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>user1</td>
-                                            <td>user1@example.com</td>
-                                            <td>张三</td>
-                                            <td><span class="tag tag-primary">普通用户</span></td>
-                                            <td><span class="tag tag-success">启用</span></td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>doctor1</td>
-                                            <td>doctor1@example.com</td>
-                                            <td>李医生</td>
-                                            <td><span class="tag tag-success">医生</span></td>
-                                            <td><span class="tag tag-success">启用</span></td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <!-- 动态生成用户列表 -->
                                     </tbody>
                                 </table>
                             </div>
                             
                             <div class="pagination">
-                                <div class="page-info">显示 1 到 2 条记录，共 2 条</div>
+                                <div class="page-info">显示 0 到 0 条记录，共 0 条</div>
                                 <div class="page-controls">
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-left"></i></button>
-                                    <button class="btn btn-primary">1</button>
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-right"></i></button>
+                                    <button class="btn btn-outline" id="prevUserPage"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="btn btn-primary" id="currentUserPageNum">1</button>
+                                    <button class="btn btn-outline" id="nextUserPage"><i class="fas fa-chevron-right"></i></button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 医生编辑模态框 -->
+                <div class="modal" id="doctorModal" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-header">
+                            <h3 id="doctorModalTitle">编辑医生</h3>
+                            <button class="btn btn-outline" id="closeDoctorModal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="doctorForm">
+                                <input type="hidden" id="doctorId">
+                                <div class="form-group">
+                                    <label>用户ID</label>
+                                    <input type="number" class="form-control" id="doctorUserId" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>医院</label>
+                                    <input type="text" class="form-control" id="doctorHospital" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>科室</label>
+                                    <input type="text" class="form-control" id="doctorDepartment" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>职称</label>
+                                    <input type="text" class="form-control" id="doctorTitle" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>专长</label>
+                                    <input type="text" class="form-control" id="doctorSpecialty">
+                                </div>
+                                <div class="form-group">
+                                    <label>简介</label>
+                                    <textarea class="form-control" id="doctorIntroduction" rows="3"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-outline" id="cancelDoctorBtn">取消</button>
+                            <button class="btn btn-primary" id="saveDoctorBtn">保存</button>
                         </div>
                     </div>
                 </div>
@@ -292,46 +294,26 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>用户名</th>
-                                            <th>真实姓名</th>
+                                            <th>用户ID</th>
                                             <th>医院</th>
                                             <th>科室</th>
                                             <th>职称</th>
+                                            <th>专长</th>
                                             <th>操作</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>doctor1</td>
-                                            <td>李医生</td>
-                                            <td>北京协和医院</td>
-                                            <td>妇产科</td>
-                                            <td>主任医师</td>
-                                            <td>
-                                                <div class="table-actions">
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <!-- 动态生成医生列表 -->
                                     </tbody>
                                 </table>
                             </div>
                             
                             <div class="pagination">
-                                <div class="page-info">显示 1 到 1 条记录，共 1 条</div>
+                                <div class="page-info">显示 0 到 0 条记录，共 0 条</div>
                                 <div class="page-controls">
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-left"></i></button>
-                                    <button class="btn btn-primary">1</button>
-                                    <button class="btn btn-outline"><i class="fas fa-chevron-right"></i></button>
+                                    <button class="btn btn-outline" onclick="loadDoctorList(currentDoctorPage - 1)" id="prevDoctorPage"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="btn btn-primary" id="currentDoctorPageNum">1</button>
+                                    <button class="btn btn-outline" onclick="loadDoctorList(currentDoctorPage + 1)" id="nextDoctorPage"><i class="fas fa-chevron-right"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -677,24 +659,22 @@
         function updatePagination(pageData) {
             const pageInfo = document.querySelector('#usersPage .page-info');
             const pageControls = document.querySelector('#usersPage .page-controls');
-            
-            pageInfo.textContent = `显示 ${(pageData.currentPage - 1) * pageData.pageSize + 1} 到 ${Math.min(pageData.currentPage * pageData.pageSize, pageData.total)} 条记录，共 ${pageData.total} 条`;
-            
-            // 如果没有totalPage属性，则计算总页数
+            const currentPageNum = document.querySelector('#usersPage #currentUserPageNum');
+            const prevPageBtn = document.querySelector('#usersPage #prevUserPage');
+            const nextPageBtn = document.querySelector('#usersPage #nextUserPage');
             
             // 计算总页数
             const totalPages = Math.ceil(pageData.total / pageData.pageSize);
             
-            // 简化分页控件
-            pageControls.innerHTML = `
-                <button class="btn btn-outline" ${pageData.currentPage <= 1 ? 'disabled' : ''} onclick="loadUserList(${pageData.currentPage - 1})">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="btn btn-primary">${pageData.currentPage}</button>
-                <button class="btn btn-outline" ${pageData.currentPage >= totalPages ? 'disabled' : ''} onclick="loadUserList(${pageData.currentPage + 1})">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `;
+            // 更新页面信息
+            pageInfo.textContent = `显示 ${(pageData.currentPage - 1) * pageData.pageSize + 1} 到 ${Math.min(pageData.currentPage * pageData.pageSize, pageData.total)} 条记录，共 ${pageData.total} 条`;
+            
+            // 更新当前页码
+            currentPageNum.textContent = pageData.currentPage;
+            
+            // 更新按钮状态
+            prevPageBtn.disabled = pageData.currentPage <= 1;
+            nextPageBtn.disabled = pageData.currentPage >= totalPages;
         }
         
         // 绑定用户操作事件
@@ -914,9 +894,10 @@ ID: ${user.id}
             }
         });
         
-        // 初始化加载用户列表
         // 当切换到用户管理页面时加载数据
-        // 已经在页面切换逻辑中处理
+        document.querySelector('[data-page="users"]').addEventListener('click', function() {
+            loadUserList(1);
+        });
         
         // 页面加载完成后尝试加载用户列表一次
         document.addEventListener('DOMContentLoaded', function() {
@@ -925,6 +906,277 @@ ID: ${user.id}
                 loadUserList(1);
             }
         });
+        
+        // 查看医生详情
+        function viewDoctor(doctorId) {
+            fetch(`/api/doctors/${doctorId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const doctor = data.data;
+                        alert(`医生详情:
+ID: ${doctor.id}
+用户ID: ${doctor.userId}
+医院: ${doctor.hospital || ''}
+科室: ${doctor.department || ''}
+职称: ${doctor.title || ''}
+专长: ${doctor.specialty || ''}
+简介: ${doctor.introduction || ''}`);
+                    } else {
+                        alert('获取医生详情失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取医生详情失败');
+                });
+        }
+        
+        // 编辑医生
+        function editDoctor(doctorId) {
+            fetch(`/api/doctors/${doctorId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const doctor = data.data;
+                        // 填充表单数据
+                        document.getElementById('doctorId').value = doctor.id || '';
+                        document.getElementById('doctorUserId').value = doctor.userId || '';
+                        document.getElementById('doctorHospital').value = doctor.hospital || '';
+                        document.getElementById('doctorDepartment').value = doctor.department || '';
+                        document.getElementById('doctorTitle').value = doctor.title || '';
+                        document.getElementById('doctorSpecialty').value = doctor.specialty || '';
+                        document.getElementById('doctorIntroduction').value = doctor.introduction || '';
+                        
+                        // 显示模态框
+                        document.getElementById('doctorModalTitle').textContent = '编辑医生';
+                        document.getElementById('doctorModal').style.display = 'block';
+                    } else {
+                        alert('获取医生信息失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取医生信息失败');
+                });
+        }
+        
+        // 删除医生
+        function deleteDoctor(doctorId) {
+            if (confirm('确定要删除这个医生吗？')) {
+                fetch(`/api/doctors/${doctorId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        alert('医生删除成功');
+                        // 重新加载医生列表
+                        loadDoctorList(currentDoctorPage);
+                    } else {
+                        alert('删除医生失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除医生失败');
+                });
+            }
+        }
+        
+        // 保存医生
+        function saveDoctor() {
+            const doctorId = document.getElementById('doctorId').value;
+            const doctor = {
+                userId: document.getElementById('doctorUserId').value,
+                hospital: document.getElementById('doctorHospital').value,
+                department: document.getElementById('doctorDepartment').value,
+                title: document.getElementById('doctorTitle').value,
+                specialty: document.getElementById('doctorSpecialty').value,
+                introduction: document.getElementById('doctorIntroduction').value
+            };
+            
+            let url = '/api/doctors';
+            let method = 'POST';
+            
+            // 如果是更新操作
+            if (doctorId && doctorId !== '') {
+                doctor.id = parseInt(doctorId);
+                method = 'PUT';
+            }
+            
+            // 发送请求
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(doctor)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    alert(doctorId ? '医生更新成功' : '医生添加成功');
+                    closeDoctorModal();
+                    // 重新加载医生列表
+                    loadDoctorList(currentDoctorPage);
+                } else {
+                    alert((doctorId ? '更新' : '添加') + '医生失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert((doctorId ? '更新' : '添加') + '医生失败: ' + (error.message || '网络错误'));
+            });
+        }
+        
+        // 关闭医生模态框
+        function closeDoctorModal() {
+            document.getElementById('doctorModal').style.display = 'none';
+            // 清空表单
+            document.getElementById('doctorForm').reset();
+            // 特别清空医生ID字段
+            document.getElementById('doctorId').value = '';
+        }
+        
+        // 添加医生按钮事件
+        document.getElementById('addDoctorBtn').addEventListener('click', function() {
+            // 清空表单
+            document.getElementById('doctorForm').reset();
+            // 特别清空医生ID字段
+            document.getElementById('doctorId').value = '';
+            // 显示模态框
+            document.getElementById('doctorModalTitle').textContent = '添加医生';
+            document.getElementById('doctorModal').style.display = 'block';
+        });
+        
+        // 绑定医生模态框事件
+        document.getElementById('closeDoctorModal').addEventListener('click', closeDoctorModal);
+        document.getElementById('cancelDoctorBtn').addEventListener('click', closeDoctorModal);
+        document.getElementById('saveDoctorBtn').addEventListener('click', saveDoctor);
+        
+        // 点击医生模态框外部关闭
+        document.getElementById('doctorModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDoctorModal();
+            }
+        });
+        
+        // 当切换到医生管理页面时加载数据
+        document.querySelector('[data-page="doctors"]').addEventListener('click', function() {
+            loadDoctorList(1);
+        });
+        
+        // 医生管理功能
+        let currentDoctorPage = 1;
+        const doctorPageSize = 10;
+        
+        // 查询医生列表
+        function loadDoctorList(page = 1) {
+            currentDoctorPage = page;
+            const url = `/api/doctors?page=${page}&size=${doctorPageSize}`;
+            
+            console.log('正在请求医生列表:', url);
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('收到医生列表响应:', data);
+                    if (data.code === 200) {
+                        updateDoctorTable(data.data.records);
+                        updateDoctorPagination(data.data);
+                    } else {
+                        alert('获取医生列表失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取医生列表失败');
+                });
+        }
+        
+        // 更新医生表格
+        function updateDoctorTable(doctors) {
+            const tbody = document.querySelector('#doctorsPage tbody');
+            tbody.innerHTML = '';
+            
+            doctors.forEach(doctor => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${doctor.id || ''}</td>
+                    <td>${doctor.userId || ''}</td>
+                    <td>${doctor.hospital || ''}</td>
+                    <td>${doctor.department || ''}</td>
+                    <td>${doctor.title || ''}</td>
+                    <td>${doctor.specialty || ''}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-outline view-doctor" data-id="${doctor.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline edit-doctor" data-id="${doctor.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger delete-doctor" data-id="${doctor.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // 绑定事件
+            bindDoctorActions();
+        }
+        
+        // 更新医生分页信息
+        function updateDoctorPagination(pageData) {
+            const pageInfo = document.querySelector('#doctorsPage .page-info');
+            const pageControls = document.querySelector('#doctorsPage .page-controls');
+            const currentPageNum = document.querySelector('#doctorsPage #currentDoctorPageNum');
+            const prevPageBtn = document.querySelector('#doctorsPage #prevDoctorPage');
+            const nextPageBtn = document.querySelector('#doctorsPage #nextDoctorPage');
+            
+            // 计算总页数
+            const totalPages = Math.ceil(pageData.total / pageData.pageSize);
+            
+            // 更新页面信息
+            pageInfo.textContent = `显示 ${(pageData.currentPage - 1) * pageData.pageSize + 1} 到 ${Math.min(pageData.currentPage * pageData.pageSize, pageData.total)} 条记录，共 ${pageData.total} 条`;
+            
+            // 更新当前页码
+            currentPageNum.textContent = pageData.currentPage;
+            
+            // 更新按钮状态
+            prevPageBtn.disabled = pageData.currentPage <= 1;
+            nextPageBtn.disabled = pageData.currentPage >= totalPages;
+        }
+        
+        // 绑定医生操作事件
+        function bindDoctorActions() {
+            // 查看医生
+            document.querySelectorAll('.view-doctor').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const doctorId = this.getAttribute('data-id');
+                    viewDoctor(doctorId);
+                });
+            });
+            
+            // 编辑医生
+            document.querySelectorAll('.edit-doctor').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const doctorId = this.getAttribute('data-id');
+                    editDoctor(doctorId);
+                });
+            });
+            
+            // 删除医生
+            document.querySelectorAll('.delete-doctor').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const doctorId = this.getAttribute('data-id');
+                    deleteDoctor(doctorId);
+                });
+            });
+        }
     </script>
 </body>
 </html>
