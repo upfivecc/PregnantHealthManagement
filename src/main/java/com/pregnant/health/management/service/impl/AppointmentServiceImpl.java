@@ -38,6 +38,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
     
     @Override
+    public PageResult<Appointment> getAppointmentListByDoctor(Long doctorId, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<Appointment> appointments = appointmentMapper.selectByDoctorId(doctorId, offset, size);
+        Long total = appointmentMapper.countByDoctorId(doctorId);
+        return new PageResult<>(appointments, total, page, size);
+    }
+    
+    @Override
     public boolean saveAppointment(Appointment appointment) {
         return appointmentMapper.insert(appointment) > 0;
     }

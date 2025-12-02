@@ -15,6 +15,9 @@ public interface AppointmentService {
     // 按用户姓名查询预约列表
     PageResult<Appointment> getAppointmentListByUserRealName(String userRealName, Integer page, Integer size);
     
+    // 按医生ID查询预约列表（新增）
+    PageResult<Appointment> getAppointmentListByDoctor(Long doctorId, Integer page, Integer size);
+    
     boolean saveAppointment(Appointment appointment);
     
     boolean updateAppointmentStatus(Long id, Integer status);

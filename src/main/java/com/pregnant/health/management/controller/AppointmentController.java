@@ -27,11 +27,17 @@ public class AppointmentController {
     public Result<PageResult<Appointment>> getAppointmentList(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) String userRealName) {
+            @RequestParam(required = false) String userRealName,
+            @RequestParam(required = false) Long doctorId) {  // 添加doctorId参数
         PageResult<Appointment> result;
+        
+        // 根据不同条件查询
         if (userRealName != null && !userRealName.isEmpty()) {
             // 按用户姓名查询
             result = appointmentService.getAppointmentListByUserRealName(userRealName, page, size);
+        } else if (doctorId != null) {
+            // 按医生ID查询（新增）
+            result = appointmentService.getAppointmentListByDoctor(doctorId, page, size);
         } else {
             // 查询所有
             result = appointmentService.getAppointmentList(page, size);

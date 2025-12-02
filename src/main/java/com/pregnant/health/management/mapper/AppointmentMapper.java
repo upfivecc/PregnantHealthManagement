@@ -40,6 +40,20 @@ public interface AppointmentMapper {
             "WHERE u.real_name LIKE CONCAT('%', #{userRealName}, '%')")
     Long countByUserRealName(@Param("userRealName") String userRealName);
     
+    // 按医生ID查询预约列表（新增）
+    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title " +
+            "FROM appointments a " +
+            "LEFT JOIN users u ON a.user_id = u.id " +
+            "LEFT JOIN doctors d ON a.doctor_id = d.id " +
+            "WHERE a.doctor_id = #{doctorId} " +
+            "ORDER BY a.appointment_time DESC " +
+            "LIMIT #{offset}, #{limit}")
+    List<Appointment> selectByDoctorId(@Param("doctorId") Long doctorId, @Param("offset") Integer offset, @Param("limit") Integer limit);
+    
+    // 按医生ID查询预约总数（新增）
+    @Select("SELECT COUNT(*) FROM appointments WHERE doctor_id = #{doctorId}")
+    Long countByDoctorId(@Param("doctorId") Long doctorId);
+    
     // 查询预约趋势数据（按日期统计）
     @Select("SELECT DATE(appointment_time) as date, COUNT(*) as count " +
             "FROM appointments " +
