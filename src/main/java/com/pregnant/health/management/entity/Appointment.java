@@ -13,4 +13,11 @@ public class Appointment {
     private String remark;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
+    
+    // 关联字段
+    private String userName;
+    private String userRealName;
+    private String hospital;
+    private String department;
+    private String title;
 }
