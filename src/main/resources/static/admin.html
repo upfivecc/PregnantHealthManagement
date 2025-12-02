@@ -488,6 +488,7 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>用户</th>
+                                            <th>医生</th>
                                             <th>咨询标题</th>
                                             <th>状态</th>
                                             <th>创建时间</th>
@@ -1848,10 +1849,21 @@ ID: ${knowledge.id}
                 const statusText = consultation.status === 1 ? '已回复' : '未回复';
                 const statusClass = consultation.status === 1 ? 'tag-success' : 'tag-warning';
                 
+                // 构造医生信息
+                let doctorInfo = '';
+                if (consultation.hospital || consultation.department || consultation.doctorTitle) {
+                    const parts = [];
+                    if (consultation.hospital) parts.push(consultation.hospital);
+                    if (consultation.department) parts.push(consultation.department);
+                    if (consultation.doctorTitle) parts.push(consultation.doctorTitle);
+                    doctorInfo = parts.join(' - ');
+                }
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${consultation.id || ''}</td>
                     <td>${consultation.userName || ''}</td>
+                    <td>${doctorInfo || ''}</td>
                     <td>${consultation.title || ''}</td>
                     <td><span class="tag ${statusClass}">${statusText}</span></td>
                     <td>${createdTime}</td>

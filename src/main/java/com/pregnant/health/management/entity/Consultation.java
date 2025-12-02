@@ -15,4 +15,10 @@ public class Consultation {
     private LocalDateTime createdTime;
     private LocalDateTime repliedTime;
     private LocalDateTime updatedTime;
+    
+    // 关联字段
+    private String userName;
+    private String hospital;
+    private String department;
+    private String doctorTitle;
 }
