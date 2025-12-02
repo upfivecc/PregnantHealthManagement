@@ -580,6 +580,11 @@
                     'consultations': '咨询管理'
                 };
                 pageTitle.textContent = titles[this.getAttribute('data-page')];
+                
+                // 如果切换到用户管理页面，则加载用户数据
+                if (this.getAttribute('data-page') === 'users') {
+                    loadUserList(1);
+                }
             });
         });
         
@@ -598,11 +603,16 @@
             currentPage = page;
             const url = `/api/users?page=${page}&size=${pageSize}${role ? '&role=' + role : ''}`;
             
+            console.log('正在请求用户列表:', url);
             fetch(url)
-                .then(response => response.json())
+                .then(response => {
+                    console.log('收到响应:', response);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('解析后的数据:', data);
                     if (data.code === 200) {
-                        updateUserTable(data.data.list);
+                        updateUserTable(data.data.records);
                         updatePagination(data.data);
                     } else {
                         alert('获取用户列表失败: ' + data.message);
@@ -665,6 +675,8 @@
             const pageControls = document.querySelector('#usersPage .page-controls');
             
             pageInfo.textContent = `显示 ${(pageData.currentPage - 1) * pageData.pageSize + 1} 到 ${Math.min(pageData.currentPage * pageData.pageSize, pageData.total)} 条记录，共 ${pageData.total} 条`;
+            
+            // 如果没有totalPage属性，则计算总页数
             
             // 计算总页数
             const totalPages = Math.ceil(pageData.total / pageData.pageSize);
@@ -877,8 +889,14 @@ ID: ${user.id}
         
         // 初始化加载用户列表
         // 当切换到用户管理页面时加载数据
-        document.querySelector('[data-page="users"]').addEventListener('click', function() {
-            loadUserList(1);
+        // 已经在页面切换逻辑中处理
+        
+        // 页面加载完成后尝试加载用户列表一次
+        document.addEventListener('DOMContentLoaded', function() {
+            // 如果当前页面是用户管理页面，则加载数据
+            if (document.querySelector('[data-page="users"]') && document.querySelector('[data-page="users"]').classList.contains('active')) {
+                loadUserList(1);
+            }
         });
     </script>
 </body>
