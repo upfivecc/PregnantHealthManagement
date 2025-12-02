@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孕妇健康管理系统 - 管理后台登录</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="./css/login.css">
+    <style>
+        .role-selection {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .role-button {
+            margin: 0 10px;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .role-button.active {
+            background-color: #409EFF;
+            color: white;
+            border-color: #409EFF;
+        }
+        .role-button:not(.active) {
+            background-color: #f5f7fa;
+            border: 1px solid #dcdfe6;
+            color: #606266;
+        }
+        .role-button:hover:not(.active) {
+            background-color: #ecf5ff;
+            border-color: #b3d8ff;
+            color: #409EFF;
+        }
+        .login-button {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="login-container">
+            <div class="login-form">
+                <h2 class="login-title">孕妇健康管理系统</h2>
+                <h3 class="login-subtitle">管理后台登录</h3>
+                
+                <div class="role-selection">
+                    <button 
+                        class="role-button" 
+                        :class="{ active: loginForm.role === 'ADMIN' }"
+                        @click="selectRole('ADMIN')">
+                        管理员
+                    </button>
+                    <button 
+                        class="role-button" 
+                        :class="{ active: loginForm.role === 'DOCTOR' }"
+                        @click="selectRole('DOCTOR')">
+                        医生
+                    </button>
+                </div>
+                
+                <el-form :model="loginForm" :rules="loginRules" ref="loginForm">
+                    <el-form-item prop="username">
+                        <el-input 
+                            v-model="loginForm.username" 
+                            placeholder="请输入用户名" 
+                            prefix-icon="el-icon-user"
+                            @keyup.enter.native="handleLogin">
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item prop="password">
+                        <el-input 
+                            v-model="loginForm.password" 
+                            type="password" 
+                            placeholder="请输入密码" 
+                            prefix-icon="el-icon-lock"
+                            @keyup.enter.native="handleLogin">
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button 
+                            type="primary" 
+                            class="login-button" 
+                            @click="handleLogin" 
+                            :loading="loginLoading">
+                            {{ loginLoading ? '登录中...' : '登录' }}
+                        </el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+    <script>
+        // Vue实例
+        new Vue({
+            el: '#app',
+            data: {
+                loginLoading: false,
+                
+                // 登录表单数据
+                loginForm: {
+                    username: '',
+                    password: '',
+                    role: 'ADMIN' // 默认选择管理员
+                },
+                loginRules: {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' }
+                    ]
+                }
+            },
+            
+            methods: {
+                // 选择角色
+                selectRole(role) {
+                    this.loginForm.role = role;
+                },
+                
+                // 登录处理
+                handleLogin() {
+                    this.$refs.loginForm.validate((valid) => {
+                        if (valid) {
+                            this.loginLoading = true;
+                            
+                            // 准备登录数据
+                            const loginData = {
+                                username: this.loginForm.username,
+                                password: this.loginForm.password,
+                                role: this.loginForm.role
+                            };
+                            
+                            // 调用后端登录接口
+                            axios.post('/api/users/admin-login', loginData)
+                                .then(response => {
+                                    this.loginLoading = false;
+                                    
+                                    if (response.data.code === 200) {
+                                        this.$message.success('登录成功');
+                                        
+                                        // 将用户信息保存到localStorage
+                                        localStorage.setItem('currentUser', JSON.stringify(response.data.data));
+                                        
+                                        // 根据角色跳转到不同的页面
+                                        if (this.loginForm.role === 'ADMIN') {
+                                            // 管理员跳转到完整管理后台
+                                            window.location.href = './admin.html';
+                                        } else if (this.loginForm.role === 'DOCTOR') {
+                                            // 医生跳转到医生版管理后台
+                                            window.location.href = './admin.html';
+                                        }
+                                    } else {
+                                        this.$message.error(response.data.message || '登录失败');
+                                    }
+                                })
+                                .catch(error => {
+                                    this.loginLoading = false;
+                                    this.$message.error('登录失败：' + (error.response?.data?.message || error.message));
+                                });
+                        }
+                    });
+                }
+            }
+        });
+        
+        // Element UI全局配置
+        Vue.use(ElementUI);
+        
+        // 设置axios默认配置
+        axios.defaults.baseURL = '/api';
+        axios.defaults.timeout = 10000;
+    </script>
+</body>
+</html>

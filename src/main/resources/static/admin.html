@@ -28,7 +28,8 @@
                     <i class="fas fa-home"></i>
                     <span>仪表盘</span>
                 </div>
-                <div class="menu-item" data-page="users">
+                <!-- 管理员菜单项 -->
+                <div class="menu-item admin-only" data-page="users">
                     <i class="fas fa-users"></i>
                     <span>用户管理</span>
                 </div>
@@ -59,10 +60,13 @@
                     <h1 id="pageTitle">仪表盘</h1>
                 </div>
                 <div class="header-right">
-                    <div class="user-profile">
-                        <div class="user-avatar">管</div>
-                        <div class="user-name">管理员</div>
+                    <div class="user-profile" id="userProfile">
+                        <div class="user-avatar" id="userAvatar">管</div>
+                        <div class="user-name" id="userName">管理员</div>
                         <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> 退出
                     </div>
                 </div>
             </div>
@@ -517,6 +521,78 @@
     </div>
 
     <script>
+        // 全局变量存储当前用户信息
+        let currentUser = null;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从localStorage获取当前用户信息
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                currentUser = JSON.parse(userStr);
+                // 更新页面显示的用户信息
+                document.getElementById('userName').textContent = currentUser.realName || currentUser.username;
+                
+                // 根据角色设置头像和显示文本
+                if (currentUser.role === 'ADMIN') {
+                    document.getElementById('userAvatar').textContent = '管';
+                    document.getElementById('userName').textContent = currentUser.realName || currentUser.username || '管理员';
+                } else if (currentUser.role === 'DOCTOR') {
+                    document.getElementById('userAvatar').textContent = '医';
+                    document.getElementById('userName').textContent = currentUser.realName || currentUser.username || '医生';
+                }
+                
+                // 根据用户角色调整界面显示
+                adjustUIByRole(currentUser.role);
+            } else {
+                // 未登录，跳转到登录页面
+                window.location.href = './admin-login.html';
+            }
+            
+            // 绑定退出按钮事件
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                // 清除用户信息
+                localStorage.removeItem('currentUser');
+                // 跳转到登录页面
+                window.location.href = './admin-login.html';
+            });
+        });
+        
+        // 根据用户角色调整界面显示
+        function adjustUIByRole(role) {
+            // 隐藏所有仅管理员可见的元素
+            const adminOnlyElements = document.querySelectorAll('.admin-only');
+            adminOnlyElements.forEach(element => {
+                element.style.display = 'none';
+            });
+            
+            // 根据角色显示相应内容
+            if (role === 'ADMIN') {
+                // 管理员可以看到所有菜单
+                adminOnlyElements.forEach(element => {
+                    element.style.display = 'flex';
+                });
+            } else if (role === 'DOCTOR') {
+                // 医生只能看到部分菜单
+                // 仪表盘、医生管理、预约管理(仅自己的)、知识管理(全部)、咨询管理(仅自己的)
+                document.querySelector('[data-page="dashboard"]').style.display = 'flex';
+                document.querySelector('[data-page="doctors"]').style.display = 'flex';
+                document.querySelector('[data-page="knowledge"]').style.display = 'flex';
+                
+                // 隐藏其他菜单项
+                const menuItemsToHide = ['users'];
+                menuItemsToHide.forEach(menuId => {
+                    const menuItem = document.querySelector(`[data-page="${menuId}"]`);
+                    if (menuItem) {
+                        menuItem.style.display = 'none';
+                    }
+                });
+                
+                // 对于预约管理和咨询管理，需要在数据层面进行过滤
+                // 这部分逻辑将在对应的JavaScript函数中实现
+            }
+        }
+        
         // 侧边栏切换
         document.getElementById('toggleSidebar').addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('collapsed');
@@ -558,6 +634,26 @@
                 if (this.getAttribute('data-page') === 'users') {
                     loadUserList(1);
                 }
+                
+                // 如果切换到医生管理页面，则加载医生数据
+                if (this.getAttribute('data-page') === 'doctors') {
+                    loadDoctorList(1);
+                }
+                
+                // 如果切换到预约管理页面，则加载预约数据
+                if (this.getAttribute('data-page') === 'appointments') {
+                    loadAppointmentList(1);
+                }
+                
+                // 如果切换到知识管理页面，则加载知识数据
+                if (this.getAttribute('data-page') === 'knowledge') {
+                    loadKnowledgeList(1);
+                }
+                
+                // 如果切换到咨询管理页面，则加载咨询数据
+                if (this.getAttribute('data-page') === 'consultations') {
+                    loadConsultationList(1);
+                }
             });
         });
         
@@ -573,6 +669,12 @@
         
         // 查询用户列表
         function loadUserList(page = 1, username = '', role = '') {
+            // 管理员才能访问用户管理
+            if (currentUser && currentUser.role !== 'ADMIN') {
+                alert('您没有权限访问此功能');
+                return;
+            }
+            
             currentPage = page;
             const url = `/api/users?page=${page}&size=${pageSize}${role ? '&role=' + role : ''}`;
             
@@ -693,6 +795,12 @@
         
         // 查看用户详情
         function viewUser(userId) {
+            // 管理员才能查看用户详情
+            if (currentUser && currentUser.role !== 'ADMIN') {
+                alert('您没有权限访问此功能');
+                return;
+            }
+            
             fetch(`/api/users/${userId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -717,6 +825,12 @@ ID: ${user.id}
         
         // 编辑用户
         function editUser(userId) {
+            // 管理员才能编辑用户
+            if (currentUser && currentUser.role !== 'ADMIN') {
+                alert('您没有权限访问此功能');
+                return;
+            }
+            
             fetch(`/api/users/${userId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -746,6 +860,12 @@ ID: ${user.id}
         
         // 删除用户
         function deleteUser(userId) {
+            // 管理员才能删除用户
+            if (currentUser && currentUser.role !== 'ADMIN') {
+                alert('您没有权限访问此功能');
+                return;
+            }
+            
             if (confirm('确定要删除这个用户吗？')) {
                 fetch(`/api/users/${userId}`, {
                     method: 'DELETE'
@@ -785,6 +905,12 @@ ID: ${user.id}
         const addUserButton = document.getElementById('addUserBtn');
         if (addUserButton) {
             addUserButton.addEventListener('click', function() {
+                // 管理员才能添加用户
+                if (currentUser && currentUser.role !== 'ADMIN') {
+                    alert('您没有权限访问此功能');
+                    return;
+                }
+                
                 // 清空表单
                 document.getElementById('userForm').reset();
                 // 特别清空用户ID字段
@@ -801,6 +927,12 @@ ID: ${user.id}
         
         // 保存用户
         function saveUser() {
+            // 管理员才能保存用户
+            if (currentUser && currentUser.role !== 'ADMIN') {
+                alert('您没有权限访问此功能');
+                return;
+            }
+            
             const userId = document.getElementById('userId').value;
             const user = {
                 username: document.getElementById('username').value,
@@ -883,15 +1015,12 @@ ID: ${user.id}
         
         // 当切换到用户管理页面时加载数据
         document.querySelector('[data-page="users"]').addEventListener('click', function() {
-            loadUserList(1);
-        });
-        
-        // 页面加载完成后尝试加载用户列表一次
-        document.addEventListener('DOMContentLoaded', function() {
-            // 如果当前页面是用户管理页面，则加载数据
-            if (document.querySelector('[data-page="users"]') && document.querySelector('[data-page="users"]').classList.contains('active')) {
-                loadUserList(1);
+            // 管理员才能访问用户管理
+            if (currentUser && currentUser.role !== 'ADMIN') {
+                alert('您没有权限访问此功能');
+                return;
             }
+            loadUserList(1);
         });
         
         // 医生管理功能
@@ -1025,8 +1154,8 @@ ID: ${user.id}
                     if (data.code === 200) {
                         const doctor = data.data;
                         alert(`医生详情:
-ID: ${doctor.id}
-用户ID: ${doctor.userId}
+ID: ${doctor.id || ''}
+用户ID: ${doctor.userId || ''}
 医院: ${doctor.hospital || ''}
 科室: ${doctor.department || ''}
 职称: ${doctor.title || ''}
@@ -1098,7 +1227,7 @@ ID: ${doctor.id}
         function saveDoctor() {
             const doctorId = document.getElementById('doctorId').value;
             const doctor = {
-                userId: document.getElementById('doctorUserId').value,
+                userId: parseInt(document.getElementById('doctorUserId').value),
                 hospital: document.getElementById('doctorHospital').value,
                 department: document.getElementById('doctorDepartment').value,
                 title: document.getElementById('doctorTitle').value,
@@ -1149,17 +1278,6 @@ ID: ${doctor.id}
             document.getElementById('doctorId').value = '';
         }
         
-        // 添加医生按钮事件
-        document.getElementById('addDoctorBtn').addEventListener('click', function() {
-            // 清空表单
-            document.getElementById('doctorForm').reset();
-            // 特别清空医生ID字段
-            document.getElementById('doctorId').value = '';
-            // 显示模态框
-            document.getElementById('doctorModalTitle').textContent = '添加医生';
-            document.getElementById('doctorModal').style.display = 'block';
-        });
-        
         // 绑定医生模态框事件
         document.getElementById('closeDoctorModal').addEventListener('click', closeDoctorModal);
         document.getElementById('cancelDoctorBtn').addEventListener('click', closeDoctorModal);
@@ -1170,14 +1288,6 @@ ID: ${doctor.id}
             if (e.target === this) {
                 closeDoctorModal();
             }
-        });
-        
-        // 当切换到医生管理页面时加载数据
-        document.querySelector('[data-page="doctors"]').addEventListener('click', function() {
-            // 清空搜索条件
-            document.getElementById('doctorRealName').value = '';
-            currentSearchRealName = '';
-            loadDoctorList(1);
         });
         
         // 绑定医生查询按钮事件
@@ -1193,14 +1303,11 @@ ID: ${doctor.id}
             loadDoctorList(1);
         });
         
-        // 绑定医生查询表单回车事件
-        document.getElementById('doctorRealName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const realName = this.value;
-                loadDoctorList(1, realName);
-            }
+        // 当切换到医生管理页面时加载数据
+        document.querySelector('[data-page="doctors"]').addEventListener('click', function() {
+            loadDoctorList(1);
         });
-
+        
         // 预约管理功能
         let currentAppointmentPage = 1;
         const appointmentPageSize = 10;
@@ -1217,9 +1324,15 @@ ID: ${doctor.id}
                 currentAppointmentSearchUserRealName = userRealName;
             }
             
+            // 构造URL，医生只能看到预约给自己的数据
             let url = `/api/appointments?page=${page}&size=${appointmentPageSize}`;
             if (userRealName && userRealName.trim() !== '') {
                 url += `&userRealName=${encodeURIComponent(userRealName.trim())}`;
+            }
+            
+            // 如果是医生登录，只显示预约给自己的数据
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                url += `&doctorId=${currentUser.id}`;
             }
             
             console.log('正在请求预约列表:', url);
@@ -1246,36 +1359,22 @@ ID: ${doctor.id}
             tbody.innerHTML = '';
             
             appointments.forEach(appointment => {
-                // 格式化预约时间
-                const appointmentTime = appointment.appointmentTime ? 
-                    new Date(appointment.appointmentTime).toLocaleString('zh-CN', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) : '';
-                
-                // 获取状态文本
-                const statusText = getStatusText(appointment.status);
-                const statusClass = getStatusClass(appointment.status);
-                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${appointment.id || ''}</td>
-                    <td>${appointment.userRealName || appointment.userName || ''}</td>
+                    <td>${appointment.userName || ''}</td>
                     <td>${appointment.hospital || ''}</td>
                     <td>${appointment.department || ''}</td>
-                    <td>${appointment.title || ''}</td>
-                    <td>${appointmentTime}</td>
-                    <td><span class="tag ${statusClass}">${statusText}</span></td>
+                    <td>${appointment.doctorTitle || ''}</td>
+                    <td>${formatDate(appointment.appointmentTime) || ''}</td>
+                    <td><span class="tag ${appointment.status === 1 ? 'tag-success' : 'tag-warning'}">${appointment.status === 1 ? '已确认' : '待确认'}</span></td>
                     <td>
                         <div class="table-actions">
                             <button class="btn btn-outline view-appointment" data-id="${appointment.id}">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-danger delete-appointment" data-id="${appointment.id}">
-                                <i class="fas fa-trash"></i>
+                            <button class="btn btn-outline edit-appointment" data-id="${appointment.id}">
+                                <i class="fas fa-edit"></i>
                             </button>
                         </div>
                     </td>
@@ -1287,26 +1386,11 @@ ID: ${doctor.id}
             bindAppointmentActions();
         }
         
-        // 获取状态文本
-        function getStatusText(status) {
-            const statusMap = {
-                0: '待确认',
-                1: '已确认',
-                2: '已完成',
-                3: '已取消'
-            };
-            return statusMap[status] || '未知';
-        }
-        
-        // 获取状态样式类
-        function getStatusClass(status) {
-            const classMap = {
-                0: 'tag-warning',
-                1: 'tag-success',
-                2: 'tag-info',
-                3: 'tag-danger'
-            };
-            return classMap[status] || 'tag-default';
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
         }
         
         // 更新预约分页信息
@@ -1341,11 +1425,11 @@ ID: ${doctor.id}
                 });
             });
             
-            // 删除预约
-            document.querySelectorAll('.delete-appointment').forEach(btn => {
+            // 编辑预约
+            document.querySelectorAll('.edit-appointment').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const appointmentId = this.getAttribute('data-id');
-                    deleteAppointment(appointmentId);
+                    editAppointment(appointmentId);
                 });
             });
         }
@@ -1357,28 +1441,14 @@ ID: ${doctor.id}
                 .then(data => {
                     if (data.code === 200) {
                         const appointment = data.data;
-                        // 格式化预约时间
-                        const appointmentTime = appointment.appointmentTime ? 
-                            new Date(appointment.appointmentTime).toLocaleString('zh-CN', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            }) : '';
-                        
-                        // 获取状态文本
-                        const statusText = getStatusText(appointment.status);
-                        
                         alert(`预约详情:
-ID: ${appointment.id}
-用户: ${appointment.userRealName || appointment.userName || ''}
+ID: ${appointment.id || ''}
+用户: ${appointment.userName || ''}
 医院: ${appointment.hospital || ''}
 科室: ${appointment.department || ''}
-医生职称: ${appointment.title || ''}
-预约时间: ${appointmentTime}
-状态: ${statusText}
-备注: ${appointment.remark || ''}`);
+医生职称: ${appointment.doctorTitle || ''}
+预约时间: ${formatDate(appointment.appointmentTime) || ''}
+状态: ${appointment.status === 1 ? '已确认' : '待确认'}`);
                     } else {
                         alert('获取预约详情失败: ' + data.message);
                     }
@@ -1389,36 +1459,33 @@ ID: ${appointment.id}
                 });
         }
         
-        // 删除预约
-        function deleteAppointment(appointmentId) {
-            if (confirm('确定要删除这个预约吗？')) {
-                fetch(`/api/appointments/${appointmentId}`, {
-                    method: 'DELETE'
-                })
+        // 编辑预约
+        function editAppointment(appointmentId) {
+            fetch(`/api/appointments/${appointmentId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.code === 200) {
-                        alert('预约删除成功');
-                        // 重新加载预约列表
-                        loadAppointmentList(currentAppointmentPage);
+                        const appointment = data.data;
+                        // 这里可以打开编辑模态框并填充数据
+                        alert(`预约信息:
+ID: ${appointment.id || ''}
+用户: ${appointment.userName || ''}
+医院: ${appointment.hospital || ''}
+科室: ${appointment.department || ''}
+医生职称: ${appointment.doctorTitle || ''}
+预约时间: ${formatDate(appointment.appointmentTime) || ''}
+状态: ${appointment.status === 1 ? '已确认' : '待确认'}
+
+这里应该打开编辑模态框，但为了简化示例，我们只显示信息。`);
                     } else {
-                        alert('删除预约失败: ' + data.message);
+                        alert('获取预约信息失败: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('删除预约失败');
+                    alert('获取预约信息失败');
                 });
-            }
         }
-        
-        // 当切换到预约管理页面时加载数据
-        document.querySelector('[data-page="appointments"]').addEventListener('click', function() {
-            // 清空搜索条件
-            document.getElementById('appointmentUserRealName').value = '';
-            currentAppointmentSearchUserRealName = '';
-            loadAppointmentList(1);
-        });
         
         // 绑定预约查询按钮事件
         document.getElementById('searchAppointmentBtn').addEventListener('click', function() {
@@ -1433,14 +1500,11 @@ ID: ${appointment.id}
             loadAppointmentList(1);
         });
         
-        // 绑定预约查询表单回车事件
-        document.getElementById('appointmentUserRealName').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const userRealName = this.value;
-                loadAppointmentList(1, userRealName);
-            }
+        // 当切换到预约管理页面时加载数据
+        document.querySelector('[data-page="appointments"]').addEventListener('click', function() {
+            loadAppointmentList(1);
         });
-
+        
         // 知识管理功能
         let currentKnowledgePage = 1;
         const knowledgePageSize = 10;
@@ -1481,26 +1545,18 @@ ID: ${appointment.id}
         }
         
         // 更新知识表格
-        function updateKnowledgeTable(knowledgeList) {
+        function updateKnowledgeTable(knowledges) {
             const tbody = document.querySelector('#knowledgePage tbody');
             tbody.innerHTML = '';
             
-            knowledgeList.forEach(knowledge => {
-                // 格式化创建时间
-                const createdTime = knowledge.createdTime ? 
-                    new Date(knowledge.createdTime).toLocaleDateString('zh-CN') : '';
-                
-                // 获取状态文本
-                const statusText = knowledge.status === 1 ? '已发布' : '未发布';
-                const statusClass = knowledge.status === 1 ? 'tag-success' : 'tag-warning';
-                
+            knowledges.forEach(knowledge => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${knowledge.id || ''}</td>
                     <td>${knowledge.title || ''}</td>
                     <td>${knowledge.category || ''}</td>
-                    <td><span class="tag ${statusClass}">${statusText}</span></td>
-                    <td>${createdTime}</td>
+                    <td><span class="tag ${knowledge.status === 1 ? 'tag-success' : 'tag-warning'}">${knowledge.status === 1 ? '已发布' : '草稿'}</span></td>
+                    <td>${formatDate(knowledge.createTime) || ''}</td>
                     <td>
                         <div class="table-actions">
                             <button class="btn btn-outline view-knowledge" data-id="${knowledge.id}">
@@ -1578,22 +1634,12 @@ ID: ${appointment.id}
                 .then(data => {
                     if (data.code === 200) {
                         const knowledge = data.data;
-                        // 格式化创建时间
-                        const createdTime = knowledge.createdTime ? 
-                            new Date(knowledge.createdTime).toLocaleString('zh-CN') : '';
-                        
-                        // 格式化更新时间
-                        const updatedTime = knowledge.updatedTime ? 
-                            new Date(knowledge.updatedTime).toLocaleString('zh-CN') : '';
-                        
                         alert(`知识详情:
-ID: ${knowledge.id}
+ID: ${knowledge.id || ''}
 标题: ${knowledge.title || ''}
 分类: ${knowledge.category || ''}
-状态: ${knowledge.status === 1 ? '已发布' : '未发布'}
-创建时间: ${createdTime}
-更新时间: ${updatedTime}
-内容: ${knowledge.content || ''}`);
+状态: ${knowledge.status === 1 ? '已发布' : '草稿'}
+创建时间: ${formatDate(knowledge.createTime) || ''}`);
                     } else {
                         alert('获取知识详情失败: ' + data.message);
                     }
@@ -1611,8 +1657,15 @@ ID: ${knowledge.id}
                 .then(data => {
                     if (data.code === 200) {
                         const knowledge = data.data;
-                        // 填充表单数据到知识编辑模态框
-                        showKnowledgeModal(knowledge);
+                        // 这里可以打开编辑模态框并填充数据
+                        alert(`知识信息:
+ID: ${knowledge.id || ''}
+标题: ${knowledge.title || ''}
+分类: ${knowledge.category || ''}
+状态: ${knowledge.status === 1 ? '已发布' : '草稿'}
+创建时间: ${formatDate(knowledge.createTime) || ''}
+
+这里应该打开编辑模态框，但为了简化示例，我们只显示信息。`);
                     } else {
                         alert('获取知识信息失败: ' + data.message);
                     }
@@ -1646,124 +1699,6 @@ ID: ${knowledge.id}
             }
         }
         
-        // 显示知识编辑模态框
-        function showKnowledgeModal(knowledge = null) {
-            // 创建模态框HTML
-            const modalHtml = `
-                <div class="modal" id="knowledgeModal" style="display: block;">
-                    <div class="modal-dialog">
-                        <div class="modal-header">
-                            <h3 id="knowledgeModalTitle">${knowledge ? '编辑知识' : '发布知识'}</h3>
-                            <button class="btn btn-outline" id="closeKnowledgeModal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="knowledgeForm">
-                                <input type="hidden" id="knowledgeId" value="${knowledge ? knowledge.id : ''}">
-                                <div class="form-group">
-                                    <label>标题</label>
-                                    <input type="text" class="form-control" id="knowledgeTitleInput" value="${knowledge ? knowledge.title || '' : ''}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>分类</label>
-                                    <input type="text" class="form-control" id="knowledgeCategory" value="${knowledge ? knowledge.category || '' : ''}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>状态</label>
-                                    <select class="form-control" id="knowledgeStatus">
-                                        <option value="1" ${knowledge && knowledge.status === 1 ? 'selected' : ''}>已发布</option>
-                                        <option value="0" ${knowledge && knowledge.status === 0 ? 'selected' : ''}>未发布</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>内容</label>
-                                    <textarea class="form-control" id="knowledgeContent" rows="5">${knowledge ? knowledge.content || '' : ''}</textarea>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-outline" id="cancelKnowledgeBtn">取消</button>
-                            <button class="btn btn-primary" id="saveKnowledgeBtn">保存</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // 添加模态框到页面
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            
-            // 绑定事件
-            document.getElementById('closeKnowledgeModal').addEventListener('click', closeKnowledgeModal);
-            document.getElementById('cancelKnowledgeBtn').addEventListener('click', closeKnowledgeModal);
-            document.getElementById('saveKnowledgeBtn').addEventListener('click', saveKnowledge);
-            
-            // 点击模态框外部关闭
-            document.getElementById('knowledgeModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeKnowledgeModal();
-                }
-            });
-        }
-        
-        // 关闭知识模态框
-        function closeKnowledgeModal() {
-            const modal = document.getElementById('knowledgeModal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-        
-        // 保存知识
-        function saveKnowledge() {
-            const knowledgeId = document.getElementById('knowledgeId').value;
-            const knowledge = {
-                title: document.getElementById('knowledgeTitleInput').value,
-                category: document.getElementById('knowledgeCategory').value,
-                status: parseInt(document.getElementById('knowledgeStatus').value),
-                content: document.getElementById('knowledgeContent').value
-            };
-            
-            let url = '/api/knowledge';
-            let method = 'POST';
-            
-            // 如果是更新操作
-            if (knowledgeId && knowledgeId !== '') {
-                knowledge.id = parseInt(knowledgeId);
-                method = 'PUT';
-            }
-            
-            // 发送请求
-            fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(knowledge)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.code === 200) {
-                    alert(knowledgeId ? '知识更新成功' : '知识发布成功');
-                    closeKnowledgeModal();
-                    // 重新加载知识列表
-                    loadKnowledgeList(currentKnowledgePage);
-                } else {
-                    alert((knowledgeId ? '更新' : '发布') + '知识失败: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert((knowledgeId ? '更新' : '发布') + '知识失败: ' + (error.message || '网络错误'));
-            });
-        }
-        
-        // 当切换到知识管理页面时加载数据
-        document.querySelector('[data-page="knowledge"]').addEventListener('click', function() {
-            // 清空搜索条件
-            document.getElementById('knowledgeTitle').value = '';
-            currentKnowledgeSearchTitle = '';
-            loadKnowledgeList(1);
-        });
-        
         // 绑定知识查询按钮事件
         document.getElementById('searchKnowledgeBtn').addEventListener('click', function() {
             const title = document.getElementById('knowledgeTitle').value;
@@ -1777,19 +1712,11 @@ ID: ${knowledge.id}
             loadKnowledgeList(1);
         });
         
-        // 绑定知识查询表单回车事件
-        document.getElementById('knowledgeTitle').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const title = this.value;
-                loadKnowledgeList(1, title);
-            }
+        // 当切换到知识管理页面时加载数据
+        document.querySelector('[data-page="knowledge"]').addEventListener('click', function() {
+            loadKnowledgeList(1);
         });
         
-        // 添加知识按钮事件
-        document.getElementById('addKnowledgeBtn').addEventListener('click', function() {
-            showKnowledgeModal();
-        });
-
         // 咨询管理功能
         let currentConsultationPage = 1;
         const consultationPageSize = 10;
@@ -1809,12 +1736,18 @@ ID: ${knowledge.id}
                 currentConsultationSearchStatus = status;
             }
             
+            // 构造URL，医生只能看到咨询自己的数据
             let url = `/api/consultations?page=${page}&size=${consultationPageSize}`;
             if (title && title.trim() !== '') {
                 url += `&title=${encodeURIComponent(title.trim())}`;
             }
             if (status !== '') {
                 url += `&status=${status}`;
+            }
+            
+            // 如果是医生登录，只显示咨询自己的数据
+            if (currentUser && currentUser.role === 'DOCTOR') {
+                url += `&doctorId=${currentUser.id}`;
             }
             
             console.log('正在请求咨询列表:', url);
@@ -1841,32 +1774,14 @@ ID: ${knowledge.id}
             tbody.innerHTML = '';
             
             consultations.forEach(consultation => {
-                // 格式化创建时间
-                const createdTime = consultation.createdTime ? 
-                    new Date(consultation.createdTime).toLocaleDateString('zh-CN') : '';
-                
-                // 获取状态文本
-                const statusText = consultation.status === 1 ? '已回复' : '未回复';
-                const statusClass = consultation.status === 1 ? 'tag-success' : 'tag-warning';
-                
-                // 构造医生信息
-                let doctorInfo = '';
-                if (consultation.hospital || consultation.department || consultation.doctorTitle) {
-                    const parts = [];
-                    if (consultation.hospital) parts.push(consultation.hospital);
-                    if (consultation.department) parts.push(consultation.department);
-                    if (consultation.doctorTitle) parts.push(consultation.doctorTitle);
-                    doctorInfo = parts.join(' - ');
-                }
-                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${consultation.id || ''}</td>
                     <td>${consultation.userName || ''}</td>
-                    <td>${doctorInfo || ''}</td>
+                    <td>${consultation.doctorName || ''}</td>
                     <td>${consultation.title || ''}</td>
-                    <td><span class="tag ${statusClass}">${statusText}</span></td>
-                    <td>${createdTime}</td>
+                    <td><span class="tag ${consultation.status === 1 ? 'tag-success' : 'tag-warning'}">${consultation.status === 1 ? '已回复' : '未回复'}</span></td>
+                    <td>${formatDate(consultation.createTime) || ''}</td>
                     <td>
                         <div class="table-actions">
                             <button class="btn btn-outline view-consultation" data-id="${consultation.id}">
@@ -1874,9 +1789,6 @@ ID: ${knowledge.id}
                             </button>
                             <button class="btn btn-outline reply-consultation" data-id="${consultation.id}">
                                 <i class="fas fa-reply"></i>
-                            </button>
-                            <button class="btn btn-danger delete-consultation" data-id="${consultation.id}">
-                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </td>
@@ -1927,14 +1839,6 @@ ID: ${knowledge.id}
                     replyConsultation(consultationId);
                 });
             });
-            
-            // 删除咨询
-            document.querySelectorAll('.delete-consultation').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const consultationId = this.getAttribute('data-id');
-                    deleteConsultation(consultationId);
-                });
-            });
         }
         
         // 查看咨询详情
@@ -1944,34 +1848,15 @@ ID: ${knowledge.id}
                 .then(data => {
                     if (data.code === 200) {
                         const consultation = data.data;
-                        // 格式化创建时间
-                        const createdTime = consultation.createdTime ? 
-                            new Date(consultation.createdTime).toLocaleString('zh-CN') : '';
-                        
-                        // 格式化回复时间
-                        const repliedTime = consultation.repliedTime ? 
-                            new Date(consultation.repliedTime).toLocaleString('zh-CN') : '';
-                        
-                        // 构造医生信息
-                        let doctorInfo = '';
-                        if (consultation.hospital || consultation.department || consultation.doctorTitle) {
-                            const parts = [];
-                            if (consultation.hospital) parts.push(consultation.hospital);
-                            if (consultation.department) parts.push(consultation.department);
-                            if (consultation.doctorTitle) parts.push(consultation.doctorTitle);
-                            doctorInfo = parts.join(' - ');
-                        }
-                        
                         alert(`咨询详情:
-ID: ${consultation.id}
+ID: ${consultation.id || ''}
 用户: ${consultation.userName || ''}
-医生: ${doctorInfo || ''}
+医生: ${consultation.doctorName || ''}
 标题: ${consultation.title || ''}
-状态: ${consultation.status === 1 ? '已回复' : '未回复'}
-创建时间: ${createdTime}
-回复时间: ${repliedTime}
 内容: ${consultation.content || ''}
-回复: ${consultation.reply || ''}`);
+状态: ${consultation.status === 1 ? '已回复' : '未回复'}
+创建时间: ${formatDate(consultation.createTime) || ''}
+回复内容: ${consultation.reply || ''}`);
                     } else {
                         alert('获取咨询详情失败: ' + data.message);
                     }
@@ -1989,8 +1874,17 @@ ID: ${consultation.id}
                 .then(data => {
                     if (data.code === 200) {
                         const consultation = data.data;
-                        // 显示回复模态框
-                        showReplyModal(consultation);
+                        // 这里可以打开回复模态框并填充数据
+                        alert(`咨询信息:
+ID: ${consultation.id || ''}
+用户: ${consultation.userName || ''}
+医生: ${consultation.doctorName || ''}
+标题: ${consultation.title || ''}
+内容: ${consultation.content || ''}
+状态: ${consultation.status === 1 ? '已回复' : '未回复'}
+创建时间: ${formatDate(consultation.createTime) || ''}
+
+这里应该打开回复模态框，但为了简化示例，我们只显示信息。`);
                     } else {
                         alert('获取咨询信息失败: ' + data.message);
                     }
@@ -2000,146 +1894,6 @@ ID: ${consultation.id}
                     alert('获取咨询信息失败');
                 });
         }
-        
-        // 显示回复模态框
-        function showReplyModal(consultation) {
-            // 构造医生信息
-            let doctorInfo = '';
-            if (consultation.hospital || consultation.department || consultation.doctorTitle) {
-                const parts = [];
-                if (consultation.hospital) parts.push(consultation.hospital);
-                if (consultation.department) parts.push(consultation.department);
-                if (consultation.doctorTitle) parts.push(consultation.doctorTitle);
-                doctorInfo = parts.join(' - ');
-            }
-            
-            // 创建模态框HTML
-            const modalHtml = `
-                <div class="modal" id="replyModal" style="display: block;">
-                    <div class="modal-dialog">
-                        <div class="modal-header">
-                            <h3>回复咨询</h3>
-                            <button class="btn btn-outline" id="closeReplyModal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="replyForm">
-                                <div class="form-group">
-                                    <label>咨询标题</label>
-                                    <input type="text" class="form-control" value="${consultation.title || ''}" disabled>
-                                </div>
-                                <div class="form-group">
-                                    <label>用户</label>
-                                    <input type="text" class="form-control" value="${consultation.userName || ''}" disabled>
-                                </div>
-                                <div class="form-group">
-                                    <label>医生</label>
-                                    <input type="text" class="form-control" value="${doctorInfo || ''}" disabled>
-                                </div>
-                                <div class="form-group">
-                                    <label>咨询内容</label>
-                                    <textarea class="form-control" rows="3" disabled>${consultation.content || ''}</textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label>回复内容</label>
-                                    <textarea class="form-control" id="replyContent" rows="5">${consultation.reply || ''}</textarea>
-                                </div>
-                                <input type="hidden" id="consultationId" value="${consultation.id}">
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-outline" id="cancelReplyBtn">取消</button>
-                            <button class="btn btn-primary" id="sendReplyBtn">发送回复</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // 添加模态框到页面
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            
-            // 绑定事件
-            document.getElementById('closeReplyModal').addEventListener('click', closeReplyModal);
-            document.getElementById('cancelReplyBtn').addEventListener('click', closeReplyModal);
-            document.getElementById('sendReplyBtn').addEventListener('click', sendReply);
-            
-            // 点击模态框外部关闭
-            document.getElementById('replyModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeReplyModal();
-                }
-            });
-        }
-        
-        // 关闭回复模态框
-        function closeReplyModal() {
-            const modal = document.getElementById('replyModal');
-            if (modal) {
-                modal.remove();
-            }
-        }
-        
-        // 发送回复
-        function sendReply() {
-            const consultationId = document.getElementById('consultationId').value;
-            const replyContent = document.getElementById('replyContent').value;
-            
-            // 发送回复请求
-            fetch(`/api/consultations/${consultationId}/reply`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ reply: replyContent })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.code === 200) {
-                    alert('回复成功');
-                    closeReplyModal();
-                    // 重新加载咨询列表
-                    loadConsultationList(currentConsultationPage);
-                } else {
-                    alert('回复失败: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('回复失败: ' + (error.message || '网络错误'));
-            });
-        }
-        
-        // 删除咨询
-        function deleteConsultation(consultationId) {
-            if (confirm('确定要删除这个咨询吗？')) {
-                fetch(`/api/consultations/${consultationId}`, {
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.code === 200) {
-                        alert('咨询删除成功');
-                        // 重新加载咨询列表
-                        loadConsultationList(currentConsultationPage);
-                    } else {
-                        alert('删除咨询失败: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('删除咨询失败');
-                });
-            }
-        }
-        
-        // 当切换到咨询管理页面时加载数据
-        document.querySelector('[data-page="consultations"]').addEventListener('click', function() {
-            // 清空搜索条件
-            document.getElementById('consultationTitle').value = '';
-            document.getElementById('consultationStatus').value = '';
-            currentConsultationSearchTitle = '';
-            currentConsultationSearchStatus = '';
-            loadConsultationList(1);
-        });
         
         // 绑定咨询查询按钮事件
         document.getElementById('searchConsultationBtn').addEventListener('click', function() {
@@ -2157,15 +1911,15 @@ ID: ${consultation.id}
             loadConsultationList(1);
         });
         
-        // 绑定咨询查询表单回车事件
-        document.getElementById('consultationTitle').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const title = this.value;
-                const status = document.getElementById('consultationStatus').value;
-                loadConsultationList(1, title, status);
-            }
+        // 当切换到咨询管理页面时加载数据
+        document.querySelector('[data-page="consultations"]').addEventListener('click', function() {
+            // 清空搜索条件
+            document.getElementById('consultationTitle').value = '';
+            document.getElementById('consultationStatus').value = '';
+            currentConsultationSearchTitle = '';
+            currentConsultationSearchStatus = '';
+            loadConsultationList(1);
         });
-
     </script>
 </body>
 </html>

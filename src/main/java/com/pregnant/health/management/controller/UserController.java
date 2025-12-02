@@ -33,6 +33,26 @@ public class UserController {
         }
     }
     
+    @PostMapping("/admin-login")
+    public Result<User> adminLogin(@RequestBody User loginUser) {
+        User user = userService.login(loginUser.getUsername(), loginUser.getPassword());
+        if (user != null) {
+            // 验证角色是否匹配
+            if (loginUser.getRole() != null && !loginUser.getRole().equals(user.getRole())) {
+                return Result.error("用户角色不匹配");
+            }
+            
+            // 只允许管理员和医生登录管理后台
+            if (!"ADMIN".equals(user.getRole()) && !"DOCTOR".equals(user.getRole())) {
+                return Result.error("您没有权限登录管理后台");
+            }
+            
+            return Result.success(user);
+        } else {
+            return Result.error("用户名或密码错误");
+        }
+    }
+    
     @GetMapping("/{id}")
     public Result<User> getUserById(@PathVariable Long id) {
         User user = userService.getById(id);
