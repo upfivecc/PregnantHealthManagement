@@ -149,6 +149,9 @@
                                         // 将用户信息保存到localStorage
                                         localStorage.setItem('currentUser', JSON.stringify(response.data.data));
                                         
+                                        // 将用户信息保存到session storage
+                                        sessionStorage.setItem('currentUser', JSON.stringify(response.data.data));
+                                        
                                         // 根据角色跳转到不同的页面
                                         if (this.loginForm.role === 'ADMIN') {
                                             // 管理员跳转到完整管理后台

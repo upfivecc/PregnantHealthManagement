@@ -518,7 +518,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <script>
         // 全局变量存储当前用户信息
@@ -544,6 +543,17 @@
                 
                 // 根据用户角色调整界面显示
                 adjustUIByRole(currentUser.role);
+                
+                // 将用户信息保存到session中，供后端拦截器使用
+                fetch('/api/users/set-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(currentUser)
+                }).catch(error => {
+                    console.error('设置session失败:', error);
+                });
             } else {
                 // 未登录，跳转到登录页面
                 window.location.href = './admin-login.html';
@@ -553,8 +563,18 @@
             document.getElementById('logoutBtn').addEventListener('click', function() {
                 // 清除用户信息
                 localStorage.removeItem('currentUser');
-                // 跳转到登录页面
-                window.location.href = './admin-login.html';
+                
+                // 调用后端接口清除session
+                fetch('/api/users/clear-session', {
+                    method: 'POST'
+                }).then(() => {
+                    // 跳转到登录页面
+                    window.location.href = './admin-login.html';
+                }).catch(error => {
+                    console.error('清除session失败:', error);
+                    // 即使失败也跳转到登录页面
+                    window.location.href = './admin-login.html';
+                });
             });
         });
         

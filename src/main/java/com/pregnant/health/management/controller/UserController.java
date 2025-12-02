@@ -6,6 +6,8 @@ import com.pregnant.health.management.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -24,9 +26,11 @@ public class UserController {
     }
     
     @PostMapping("/login")
-    public Result<User> login(@RequestBody User loginUser) {
+    public Result<User> login(@RequestBody User loginUser, HttpServletRequest request) {
         User user = userService.login(loginUser.getUsername(), loginUser.getPassword());
         if (user != null) {
+            // 将用户信息保存到session中
+            request.getSession().setAttribute("currentUser", user);
             return Result.success(user);
         } else {
             return Result.error("用户名或密码错误");
@@ -34,7 +38,7 @@ public class UserController {
     }
     
     @PostMapping("/admin-login")
-    public Result<User> adminLogin(@RequestBody User loginUser) {
+    public Result<User> adminLogin(@RequestBody User loginUser, HttpServletRequest request) {
         User user = userService.login(loginUser.getUsername(), loginUser.getPassword());
         if (user != null) {
             // 验证角色是否匹配
@@ -47,10 +51,27 @@ public class UserController {
                 return Result.error("您没有权限登录管理后台");
             }
             
+            // 将用户信息保存到session中
+            request.getSession().setAttribute("currentUser", user);
+            
             return Result.success(user);
         } else {
             return Result.error("用户名或密码错误");
         }
+    }
+    
+    @PostMapping("/set-session")
+    public Result<String> setSession(@RequestBody User user, HttpServletRequest request) {
+        // 将用户信息保存到session中
+        request.getSession().setAttribute("currentUser", user);
+        return Result.success("Session设置成功");
+    }
+    
+    @PostMapping("/clear-session")
+    public Result<String> clearSession(HttpServletRequest request) {
+        // 清除session中的用户信息
+        request.getSession().removeAttribute("currentUser");
+        return Result.success("Session清除成功");
     }
     
     @GetMapping("/{id}")

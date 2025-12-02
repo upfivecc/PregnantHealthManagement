@@ -23,6 +23,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         if (uri.startsWith("/api/users/login") || 
             uri.startsWith("/api/users/admin-login") || 
             uri.startsWith("/api/users/register") ||
+            uri.startsWith("/api/users/set-session") ||
+            uri.startsWith("/api/users/clear-session") ||
             uri.equals("/") || 
             uri.startsWith("/login") || 
             uri.startsWith("/admin-login") ||
