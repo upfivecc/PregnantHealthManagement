@@ -34,6 +34,14 @@ public class DoctorServiceImpl implements DoctorService {
     }
     
     @Override
+    public PageResult<Doctor> getDoctorListByName(String realName, Integer page, Integer size) {
+        int offset = (page - 1) * size;
+        List<Doctor> doctors = doctorMapper.selectByRealName(realName, offset, size);
+        Long total = doctorMapper.countByRealName(realName);
+        return new PageResult<>(doctors, total, page, size);
+    }
+    
+    @Override
     public boolean saveDoctor(Doctor doctor) {
         return doctorMapper.insert(doctor) > 0;
     }

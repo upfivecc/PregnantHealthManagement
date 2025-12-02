@@ -36,8 +36,16 @@ public class DoctorController {
     @GetMapping
     public Result<PageResult<Doctor>> getDoctorList(
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-        PageResult<Doctor> result = doctorService.getDoctorList(page, size);
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String realName) {
+        PageResult<Doctor> result;
+        if (realName != null && !realName.isEmpty()) {
+            // 按姓名查询
+            result = doctorService.getDoctorListByName(realName, page, size);
+        } else {
+            // 查询所有
+            result = doctorService.getDoctorList(page, size);
+        }
         return Result.success(result);
     }
     

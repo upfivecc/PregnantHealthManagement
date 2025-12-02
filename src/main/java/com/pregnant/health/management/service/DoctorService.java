@@ -11,6 +11,9 @@ public interface DoctorService {
     
     PageResult<Doctor> getDoctorList(Integer page, Integer size);
     
+    // 按姓名查询医生列表
+    PageResult<Doctor> getDoctorListByName(String realName, Integer page, Integer size);
+    
     boolean saveDoctor(Doctor doctor);
     
     boolean updateDoctor(Doctor doctor);
