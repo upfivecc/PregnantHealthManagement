@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孕妇健康管理系统 - 用户端</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="./css/user.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 顶部导航栏 -->
+        <el-container>
+            <el-header>
+                <div class="header-content">
+                    <div class="logo">孕妇健康管理系统</div>
+                    <div class="user-info">
+                        <el-dropdown @command="handleUserCommand">
+                            <span class="el-dropdown-link">
+                                张三<i class="el-icon-arrow-down el-icon--right"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item command="profile">个人资料</el-dropdown-item>
+                                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </div>
+                </div>
+            </el-header>
+            
+            <el-container>
+                <!-- 侧边栏 -->
+                <el-aside width="200px">
+                    <el-menu
+                        :default-active="activeMenu"
+                        class="el-menu-vertical-demo"
+                        @select="handleMenuSelect"
+                        background-color="#545c64"
+                        text-color="#fff"
+                        active-text-color="#ffd04b">
+                        <el-menu-item index="dashboard">
+                            <i class="el-icon-house"></i>
+                            <span slot="title">首页</span>
+                        </el-menu-item>
+                        <el-menu-item index="doctors">
+                            <i class="el-icon-first-aid-kit"></i>
+                            <span slot="title">医生列表</span>
+                        </el-menu-item>
+                        <el-menu-item index="consultations">
+                            <i class="el-icon-chat-dot-round"></i>
+                            <span slot="title">我的咨询</span>
+                        </el-menu-item>
+                        <el-menu-item index="records">
+                            <i class="el-icon-edit"></i>
+                            <span slot="title">孕期档案</span>
+                        </el-menu-item>
+                        <el-menu-item index="knowledge">
+                            <i class="el-icon-document"></i>
+                            <span slot="title">孕期知识</span>
+                        </el-menu-item>
+                    </el-menu>
+                </el-aside>
+                
+                <!-- 主内容区 -->
+                <el-main>
+                    <!-- 首页 -->
+                    <div v-if="currentPage === 'dashboard'" class="dashboard">
+                        <el-row :gutter="20">
+                            <el-col :span="24">
+                                <el-card>
+                                    <div slot="header">欢迎使用孕妇健康管理系统</div>
+                                    <div>您好，张三！这里是您的健康管理平台。</div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                        
+                        <el-row :gutter="20" style="margin-top: 20px;">
+                            <el-col :span="12">
+                                <el-card>
+                                    <div slot="header">最新咨询</div>
+                                    <div>暂无新的咨询回复</div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-card>
+                                    <div slot="header">健康提醒</div>
+                                    <div>记得按时产检哦！</div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                    </div>
+                    
+                    <!-- 医生列表页面 -->
+                    <div v-if="currentPage === 'doctors'" class="doctors">
+                        <el-card>
+                            <div slot="header">
+                                <span>医生列表</span>
+                            </div>
+                            
+                            <el-table :data="doctorList" style="width: 100%">
+                                <el-table-column prop="realName" label="医生姓名"></el-table-column>
+                                <el-table-column prop="hospital" label="医院"></el-table-column>
+                                <el-table-column prop="department" label="科室"></el-table-column>
+                                <el-table-column prop="title" label="职称"></el-table-column>
+                                <el-table-column prop="specialty" label="专长"></el-table-column>
+                                <el-table-column label="操作" width="150">
+                                    <template slot-scope="scope">
+                                        <el-button size="mini" @click="consultDoctor(scope.row)">咨询</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            
+                            <el-pagination
+                                @size-change="handleDoctorSizeChange"
+                                @current-change="handleDoctorCurrentChange"
+                                :current-page="doctorPage.currentPage"
+                                :page-sizes="[10, 20, 50]"
+                                :page-size="doctorPage.pageSize"
+                                layout="total, sizes, prev, pager, next, jumper"
+                                :total="doctorPage.total">
+                            </el-pagination>
+                        </el-card>
+                    </div>
+                    
+                    <!-- 我的咨询页面 -->
+                    <div v-if="currentPage === 'consultations'" class="consultations">
+                        <el-card>
+                            <div slot="header">
+                                <span>我的咨询</span>
+                                <el-button style="float: right; padding: 3px 0" type="text" @click="showConsultDialog">发起咨询</el-button>
+                            </div>
+                            
+                            <el-table :data="consultationList" style="width: 100%">
+                                <el-table-column prop="title" label="咨询标题"></el-table-column>
+                                <el-table-column prop="doctorName" label="医生"></el-table-column>
+                                <el-table-column prop="status" label="状态">
+                                    <template slot-scope="scope">
+                                        <el-tag v-if="scope.row.status === 0">未回复</el-tag>
+                                        <el-tag v-else type="success">已回复</el-tag>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="createdTime" label="创建时间"></el-table-column>
+                                <el-table-column label="操作" width="100">
+                                    <template slot-scope="scope">
+                                        <el-button size="mini" @click="viewConsultation(scope.row)">查看</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            
+                            <el-pagination
+                                @size-change="handleConsultationSizeChange"
+                                @current-change="handleConsultationCurrentChange"
+                                :current-page="consultationPage.currentPage"
+                                :page-sizes="[10, 20, 50]"
+                                :page-size="consultationPage.pageSize"
+                                layout="total, sizes, prev, pager, next, jumper"
+                                :total="consultationPage.total">
+                            </el-pagination>
+                        </el-card>
+                    </div>
+                    
+                    <!-- 孕期档案页面 -->
+                    <div v-if="currentPage === 'records'" class="records">
+                        <el-card>
+                            <div slot="header">
+                                <span>孕期档案</span>
+                                <el-button style="float: right; padding: 3px 0" type="text" @click="showRecordDialog">添加记录</el-button>
+                            </div>
+                            
+                            <el-table :data="recordList" style="width: 100%">
+                                <el-table-column prop="recordDate" label="记录日期"></el-table-column>
+                                <el-table-column prop="height" label="身高(cm)"></el-table-column>
+                                <el-table-column prop="weight" label="体重(kg)"></el-table-column>
+                                <el-table-column prop="bloodPressureHigh" label="血压(高压)"></el-table-column>
+                                <el-table-column prop="bloodPressureLow" label="血压(低压)"></el-table-column>
+                                <el-table-column prop="fetalMovementCount" label="胎动次数"></el-table-column>
+                                <el-table-column label="操作" width="150">
+                                    <template slot-scope="scope">
+                                        <el-button size="mini" @click="viewRecord(scope.row)">查看</el-button>
+                                        <el-button size="mini" @click="editRecord(scope.row)">编辑</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-card>
+                    </div>
+                    
+                    <!-- 孕期知识页面 -->
+                    <div v-if="currentPage === 'knowledge'" class="knowledge">
+                        <el-card>
+                            <div slot="header">
+                                <span>孕期知识</span>
+                            </div>
+                            
+                            <el-table :data="knowledgeList" style="width: 100%">
+                                <el-table-column prop="title" label="标题"></el-table-column>
+                                <el-table-column prop="category" label="分类"></el-table-column>
+                                <el-table-column prop="createdTime" label="发布时间"></el-table-column>
+                                <el-table-column label="操作" width="100">
+                                    <template slot-scope="scope">
+                                        <el-button size="mini" @click="viewKnowledge(scope.row)">查看</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            
+                            <el-pagination
+                                @size-change="handleKnowledgeSizeChange"
+                                @current-change="handleKnowledgeCurrentChange"
+                                :current-page="knowledgePage.currentPage"
+                                :page-sizes="[10, 20, 50]"
+                                :page-size="knowledgePage.pageSize"
+                                layout="total, sizes, prev, pager, next, jumper"
+                                :total="knowledgePage.total">
+                            </el-pagination>
+                        </el-card>
+                    </div>
+                </el-main>
+            </el-container>
+        </el-container>
+        
+        <!-- 咨询医生对话框 -->
+        <el-dialog title="咨询医生" :visible.sync="consultDialogVisible" width="600px">
+            <el-form :model="consultForm" :rules="consultRules" ref="consultForm">
+                <el-form-item label="咨询标题" prop="title">
+                    <el-input v-model="consultForm.title"></el-input>
+                </el-form-item>
+                <el-form-item label="咨询内容" prop="content">
+                    <el-input type="textarea" v-model="consultForm.content" :rows="6"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="consultDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="submitConsultation">提 交</el-button>
+            </span>
+        </el-dialog>
+        
+        <!-- 孕期档案对话框 -->
+        <el-dialog :title="recordFormTitle" :visible.sync="recordDialogVisible" width="600px">
+            <el-form :model="recordForm" :rules="recordRules" ref="recordForm">
+                <el-form-item label="记录日期" prop="recordDate">
+                    <el-date-picker
+                        v-model="recordForm.recordDate"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="选择日期">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="身高(cm)" prop="height">
+                    <el-input-number v-model="recordForm.height" :min="0" :step="0.1"></el-input-number>
+                </el-form-item>
+                <el-form-item label="体重(kg)" prop="weight">
+                    <el-input-number v-model="recordForm.weight" :min="0" :step="0.1"></el-input-number>
+                </el-form-item>
+                <el-form-item label="血压高压" prop="bloodPressureHigh">
+                    <el-input-number v-model="recordForm.bloodPressureHigh" :min="0"></el-input-number>
+                </el-form-item>
+                <el-form-item label="血压低压" prop="bloodPressureLow">
+                    <el-input-number v-model="recordForm.bloodPressureLow" :min="0"></el-input-number>
+                </el-form-item>
+                <el-form-item label="胎动次数" prop="fetalMovementCount">
+                    <el-input-number v-model="recordForm.fetalMovementCount" :min="0"></el-input-number>
+                </el-form-item>
+                <el-form-item label="备注" prop="remark">
+                    <el-input type="textarea" v-model="recordForm.remark"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="recordDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveRecord">保 存</el-button>
+            </span>
+        </el-dialog>
+        
+        <!-- 知识详情对话框 -->
+        <el-dialog :title="knowledgeDetail.title" :visible.sync="knowledgeDialogVisible" width="600px">
+            <div v-html="knowledgeDetail.content"></div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="knowledgeDialogVisible = false">关 闭</el-button>
+            </span>
+        </el-dialog>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+    <script src="./js/user.js"></script>
+</body>
+</html>

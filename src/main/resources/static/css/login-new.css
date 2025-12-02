@@ -1,0 +1,266 @@
+/* 现代化登录页面样式 */
+:root {
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --success-color: #4cc9f0;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --gray-color: #6c757d;
+  --border-color: #dee2e6;
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.login-container {
+  display: flex;
+  width: 900px;
+  height: 500px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* 左侧装饰区域 */
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-left::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  top: -100px;
+  right: -100px;
+}
+
+.login-left::after {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  bottom: -80px;
+  left: -80px;
+}
+
+.login-left h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.login-left p {
+  font-size: 16px;
+  line-height: 1.6;
+  opacity: 0.9;
+  position: relative;
+  z-index: 2;
+}
+
+.features {
+  margin-top: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.feature i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* 右侧登录表单区域 */
+.login-right {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-right h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--dark-color);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.login-right p {
+  color: var(--gray-color);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* 标签页 */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 30px;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 15px 0;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--gray-color);
+  transition: var(--transition);
+}
+
+.tab.active {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+/* 表单样式 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+/* 按钮样式 */
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--secondary-color);
+}
+
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* 响应式设计 */
+@media (max-width: 992px) {
+  .login-container {
+    width: 90%;
+    max-width: 500px;
+    height: auto;
+  }
+  
+  .login-left {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-container {
+    width: 95%;
+    padding: 20px;
+  }
+  
+  .login-right {
+    padding: 20px;
+  }
+  
+  .login-right h2 {
+    font-size: 24px;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-right {
+  animation: fadeIn 0.5s ease forwards;
+}
