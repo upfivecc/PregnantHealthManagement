@@ -659,6 +659,9 @@
                         document.getElementById('doctorCount').textContent = data.data.doctorCount || 0;
                         document.getElementById('todayAppointmentCount').textContent = data.data.todayAppointmentCount || 0;
                         document.getElementById('unrepliedCount').textContent = data.data.unrepliedCount || 0;
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     }
                 })
                 .catch(error => {
@@ -672,6 +675,9 @@
                     if (data.code === 200) {
                         // 创建预约趋势图表
                         createAppointmentChart(data.data);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     }
                 })
                 .catch(error => {
@@ -685,6 +691,9 @@
                     if (data.code === 200) {
                         // 创建病人数量图表
                         createPatientChart(data.data);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     }
                 })
                 .catch(error => {
@@ -986,6 +995,9 @@
                     if (data.code === 200) {
                         updateUserTable(data.data.records);
                         updatePagination(data.data);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取用户列表失败: ' + data.message);
                     }
@@ -1110,6 +1122,9 @@ ID: ${user.id}
 真实姓名: ${user.realName || ''}
 角色: ${getRoleName(user.role)}
 状态: ${user.status === 1 ? '启用' : '禁用'}`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取用户详情失败: ' + data.message);
                     }
@@ -1145,6 +1160,9 @@ ID: ${user.id}
                         // 显示模态框
                         document.getElementById('modalTitle').textContent = '编辑用户';
                         document.getElementById('userModal').style.display = 'block';
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取用户信息失败: ' + data.message);
                     }
@@ -1174,6 +1192,9 @@ ID: ${user.id}
                         alert('医生删除成功');
                         // 重新加载医生列表
                         loadDoctorList(currentDoctorPage);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('删除医生失败: ' + data.message);
                     }
@@ -1203,6 +1224,9 @@ ID: ${user.id}
                         alert('用户删除成功');
                         // 重新加载用户列表
                         loadUserList(currentPage);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('删除用户失败: ' + data.message);
                     }
@@ -1321,6 +1345,9 @@ ID: ${user.id}
                     closeUserModal();
                     // 重新加载用户列表
                     loadUserList(currentPage);
+                } else if (data.code === 500 && data.message === '请先登录') {
+                    // 未登录，跳转到登录页面
+                    window.location.href = './admin-login.html';
                 } else {
                     const errorMessage = data.message || '未知错误';
                     alert((userId ? '更新' : '添加') + '用户失败: ' + errorMessage);
@@ -1388,6 +1415,9 @@ ID: ${user.id}
                                 total: 1
                             };
                             updateDoctorPagination(fakePageData);
+                        } else if (data.code === 500 && data.message === '请先登录') {
+                            // 未登录，跳转到登录页面
+                            window.location.href = './admin-login.html';
                         } else {
                             alert('获取医生信息失败: ' + data.message);
                         }
@@ -1421,6 +1451,9 @@ ID: ${user.id}
                     if (data.code === 200) {
                         updateDoctorTable(data.data.records);
                         updateDoctorPagination(data.data);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取医生列表失败: ' + data.message);
                     }
@@ -1530,6 +1563,9 @@ ID: ${doctor.id || ''}
 职称: ${doctor.title || ''}
 专长: ${doctor.specialty || ''}
 简介: ${doctor.introduction || ''}`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取医生详情失败: ' + data.message);
                     }
@@ -1567,6 +1603,9 @@ ID: ${doctor.id || ''}
                             // 显示模态框
                             document.getElementById('doctorModalTitle').textContent = '编辑医生';
                             document.getElementById('doctorModal').style.display = 'block';
+                        } else if (data.code === 500 && data.message === '请先登录') {
+                            // 未登录，跳转到登录页面
+                            window.location.href = './admin-login.html';
                         } else {
                             alert('获取医生信息失败: ' + data.message);
                         }
@@ -1595,6 +1634,9 @@ ID: ${doctor.id || ''}
                         // 显示模态框
                         document.getElementById('doctorModalTitle').textContent = '编辑医生';
                         document.getElementById('doctorModal').style.display = 'block';
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取医生信息失败: ' + data.message);
                     }
@@ -1617,6 +1659,9 @@ ID: ${doctor.id || ''}
                         alert('医生删除成功');
                         // 重新加载医生列表
                         loadDoctorList(currentDoctorPage);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('删除医生失败: ' + data.message);
                     }
@@ -1649,6 +1694,9 @@ ID: ${doctor.id || ''}
                             
                             // 继续保存操作
                             performSaveDoctor();
+                        } else if (data.code === 500 && data.message === '请先登录') {
+                            // 未登录，跳转到登录页面
+                            window.location.href = './admin-login.html';
                         } else {
                             alert('获取医生信息失败: ' + data.message);
                         }
@@ -1700,6 +1748,9 @@ ID: ${doctor.id || ''}
                     closeDoctorModal();
                     // 重新加载医生列表
                     loadDoctorList(currentDoctorPage);
+                } else if (data.code === 500 && data.message === '请先登录') {
+                    // 未登录，跳转到登录页面
+                    window.location.href = './admin-login.html';
                 } else {
                     alert((doctorId ? '更新' : '添加') + '医生失败: ' + data.message);
                 }
@@ -1784,6 +1835,9 @@ ID: ${doctor.id || ''}
                     if (data.code === 200) {
                         updateAppointmentTable(data.data.records);
                         updateAppointmentPagination(data.data);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取预约列表失败: ' + data.message);
                     }
@@ -1890,6 +1944,9 @@ ID: ${appointment.id || ''}
 医生职称: ${appointment.doctorTitle || ''}
 预约时间: ${formatDate(appointment.appointmentTime) || ''}
 状态: ${appointment.status === 1 ? '已确认' : '待确认'}`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取预约详情失败: ' + data.message);
                     }
@@ -1918,6 +1975,9 @@ ID: ${appointment.id || ''}
 状态: ${appointment.status === 1 ? '已确认' : '待确认'}
 
 这里应该打开编辑模态框，但为了简化示例，我们只显示信息。`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取预约信息失败: ' + data.message);
                     }
@@ -1975,6 +2035,9 @@ ID: ${appointment.id || ''}
                     if (data.code === 200) {
                         updateKnowledgeTable(data.data.records);
                         updateKnowledgePagination(data.data);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取知识列表失败: ' + data.message);
                     }
@@ -2081,6 +2144,9 @@ ID: ${knowledge.id || ''}
 分类: ${knowledge.category || ''}
 状态: ${knowledge.status === 1 ? '已发布' : '草稿'}
 创建时间: ${formatDate(knowledge.createTime) || ''}`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取知识详情失败: ' + data.message);
                     }
@@ -2107,6 +2173,9 @@ ID: ${knowledge.id || ''}
 创建时间: ${formatDate(knowledge.createTime) || ''}
 
 这里应该打开编辑模态框，但为了简化示例，我们只显示信息。`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取知识信息失败: ' + data.message);
                     }
@@ -2129,6 +2198,9 @@ ID: ${knowledge.id || ''}
                         alert('知识删除成功');
                         // 重新加载知识列表
                         loadKnowledgeList(currentKnowledgePage);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('删除知识失败: ' + data.message);
                     }
@@ -2205,6 +2277,9 @@ ID: ${knowledge.id || ''}
                     if (data.code === 200) {
                         updateConsultationTable(data.data.records);
                         updateConsultationPagination(data.data);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取咨询列表失败: ' + data.message);
                     }
@@ -2304,6 +2379,9 @@ ID: ${consultation.id || ''}
 状态: ${consultation.status === 1 ? '已回复' : '未回复'}
 创建时间: ${formatDate(consultation.createTime) || ''}
 回复内容: ${consultation.reply || ''}`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取咨询详情失败: ' + data.message);
                     }
@@ -2332,6 +2410,9 @@ ID: ${consultation.id || ''}
 创建时间: ${formatDate(consultation.createTime) || ''}
 
 这里应该打开回复模态框，但为了简化示例，我们只显示信息。`);
+                    } else if (data.code === 500 && data.message === '请先登录') {
+                        // 未登录，跳转到登录页面
+                        window.location.href = './admin-login.html';
                     } else {
                         alert('获取咨询信息失败: ' + data.message);
                     }
