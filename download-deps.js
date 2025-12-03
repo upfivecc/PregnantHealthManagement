@@ -42,19 +42,19 @@ function downloadFile(url, dest) {
 // 定义要下载的文件
 const filesToDownload = [
   {
-    url: 'https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/theme-chalk/index.css',
+    url: 'https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.13/theme-chalk/index.css',
     dest: path.join(cssDir, 'element-ui.css')
   },
   {
-    url: 'https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js',
+    url: 'https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js',
     dest: path.join(jsDir, 'vue.js')
   },
   {
-    url: 'https://cdn.jsdelivr.net/npm/element-ui@2.15.13/lib/index.js',
+    url: 'https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.13/index.min.js',
     dest: path.join(jsDir, 'element-ui.js')
   },
   {
-    url: 'https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js',
+    url: 'https://cdn.bootcdn.net/ajax/libs/axios/0.27.2/axios.min.js',
     dest: path.join(jsDir, 'axios.min.js')
   }
 ];
