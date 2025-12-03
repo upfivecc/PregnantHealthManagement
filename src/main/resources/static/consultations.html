@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孕妇健康管理系统 - 咨询管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+    <div class="page fade-in" id="consultationsPage">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">咨询管理</div>
+            </div>
+            <div class="card-body">
+                <!-- 搜索表单 -->
+                <form class="search-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>标题:</label>
+                            <input type="text" id="consultationTitle" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>状态:</label>
+                            <select id="consultationStatus" class="form-control">
+                                <option value="">全部</option>
+                                <option value="0">未回复</option>
+                                <option value="1">已回复</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary" id="searchConsultationBtn">
+                                <i class="fas fa-search"></i> 查询
+                            </button>
+                            <button type="button" class="btn btn-outline" id="resetConsultationBtn">
+                                <i class="fas fa-redo"></i> 重置
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- 咨询表格 -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户</th>
+                                <th>医生</th>
+                                <th>标题</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consultationTableBody">
+                            <!-- 数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="pagination" id="consultationPagination">
+                    <button class="btn btn-outline" id="prevConsultationPage"><i class="fas fa-chevron-left"></i></button>
+                    <span id="consultationPageInfo">第 1 页，共 1 页</span>
+                    <button class="btn btn-outline" id="nextConsultationPage"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 咨询回复模态框 -->
+    <div class="modal" id="replyModal" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>回复咨询</h3>
+                <button class="btn btn-outline" id="closeReplyModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="replyForm">
+                    <input type="hidden" id="replyConsultationId">
+                    <div class="form-group">
+                        <label>咨询信息:</label>
+                        <div id="consultationInfo" class="info-box"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>回复内容:</label>
+                        <textarea id="replyContent" class="form-control" rows="5" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelReplyBtn">取消</button>
+                <button class="btn btn-primary" id="sendReplyBtn">发送回复</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./lib/js/vue.js"></script>
+    <script src="./lib/js/axios.min.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+        // 全局变量
+        let currentConsultationPage = 1;
+        let currentConsultationSearchTitle = '';
+        let currentConsultationSearchStatus = '';
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载咨询列表
+            loadConsultationList(1);
+            
+            // 绑定事件
+            bindConsultationEvents();
+        });
+        
+        // 绑定咨询相关事件
+        function bindConsultationEvents() {
+            // 咨询查询按钮
+            document.getElementById('searchConsultationBtn').addEventListener('click', function() {
+                currentConsultationSearchTitle = document.getElementById('consultationTitle').value;
+                currentConsultationSearchStatus = document.getElementById('consultationStatus').value;
+                loadConsultationList(1);
+            });
+            
+            // 咨询重置按钮
+            document.getElementById('resetConsultationBtn').addEventListener('click', function() {
+                document.getElementById('consultationTitle').value = '';
+                document.getElementById('consultationStatus').value = '';
+                currentConsultationSearchTitle = '';
+                currentConsultationSearchStatus = '';
+                loadConsultationList(1);
+            });
+            
+            // 上一页按钮
+            document.getElementById('prevConsultationPage').addEventListener('click', function() {
+                if (currentConsultationPage > 1) {
+                    loadConsultationList(currentConsultationPage - 1);
+                }
+            });
+            
+            // 下一页按钮
+            document.getElementById('nextConsultationPage').addEventListener('click', function() {
+                loadConsultationList(currentConsultationPage + 1);
+            });
+            
+            // 关闭回复模态框按钮
+            document.getElementById('closeReplyModal').addEventListener('click', function() {
+                document.getElementById('replyModal').style.display = 'none';
+            });
+            
+            // 取消回复按钮
+            document.getElementById('cancelReplyBtn').addEventListener('click', function() {
+                document.getElementById('replyModal').style.display = 'none';
+            });
+            
+            // 发送回复按钮
+            document.getElementById('sendReplyBtn').addEventListener('click', function() {
+                sendReply();
+            });
+        }
+        
+        // 加载咨询列表
+        function loadConsultationList(page, title = '', status = '') {
+            const params = new URLSearchParams();
+            params.append('page', page);
+            params.append('size', 10);
+            
+            if (title || currentConsultationSearchTitle) {
+                params.append('title', title || currentConsultationSearchTitle);
+            }
+            if (status || currentConsultationSearchStatus) {
+                params.append('status', status || currentConsultationSearchStatus);
+            }
+            
+            axios.get(`/api/consultations/page?${params.toString()}`)
+                .then(response => {
+                    if (response.data.code === 200) {
+                        const data = response.data.data;
+                        renderConsultationTable(data.records);
+                        updateConsultationPagination(data);
+                        currentConsultationPage = data.current;
+                    } else {
+                        alert('加载咨询列表失败: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('加载咨询列表失败');
+                });
+        }
+        
+        // 渲染咨询表格
+        function renderConsultationTable(consultations) {
+            const tbody = document.getElementById('consultationTableBody');
+            tbody.innerHTML = '';
+            
+            if (!consultations || consultations.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="7" class="text-center">暂无数据</td>';
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            consultations.forEach(consultation => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${consultation.id || ''}</td>
+                    <td>${consultation.userName || ''}</td>
+                    <td>${consultation.doctorName || ''}</td>
+                    <td>${consultation.title || ''}</td>
+                    <td>${getConsultationStatusName(consultation.status) || ''}</td>
+                    <td>${formatDate(consultation.createTime) || ''}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" onclick="viewConsultation(${consultation.id})">
+                            <i class="fas fa-eye"></i> 查看
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="replyConsultation(${consultation.id})" ${consultation.status == 1 ? 'disabled' : ''}>
+                            <i class="fas fa-reply"></i> 回复
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 更新分页信息
+        function updateConsultationPagination(pageInfo) {
+            document.getElementById('consultationPageInfo').textContent = 
+                `第 ${pageInfo.current} 页，共 ${pageInfo.pages} 页`;
+            
+            // 禁用/启用分页按钮
+            document.getElementById('prevConsultationPage').disabled = pageInfo.current === 1;
+            document.getElementById('nextConsultationPage').disabled = pageInfo.current === pageInfo.pages;
+        }
+        
+        // 查看咨询详情
+        function viewConsultation(consultationId) {
+            axios.get(`/api/consultations/${consultationId}`)
+                .then(response => {
+                    if (response.data.code === 200) {
+                        const consultation = response.data.data;
+                        alert(`咨询详情:
+ID: ${consultation.id || ''}
+用户: ${consultation.userName || ''}
+医生: ${consultation.doctorName || ''}
+标题: ${consultation.title || ''}
+内容: ${consultation.content || ''}
+状态: ${consultation.status === 1 ? '已回复' : '未回复'}
+创建时间: ${formatDate(consultation.createTime) || ''}
+回复内容: ${consultation.reply || ''}`);
+                    } else {
+                        alert('获取咨询详情失败: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取咨询详情失败');
+                });
+        }
+        
+        // 回复咨询
+        function replyConsultation(consultationId) {
+            axios.get(`/api/consultations/${consultationId}`)
+                .then(response => {
+                    if (response.data.code === 200) {
+                        const consultation = response.data.data;
+                        // 填充咨询信息
+                        document.getElementById('replyConsultationId').value = consultation.id;
+                        document.getElementById('consultationInfo').innerHTML = `
+                            <div><strong>用户:</strong> ${consultation.userName || ''}</div>
+                            <div><strong>医生:</strong> ${consultation.doctorName || ''}</div>
+                            <div><strong>标题:</strong> ${consultation.title || ''}</div>
+                            <div><strong>内容:</strong> ${consultation.content || ''}</div>
+                            <div><strong>创建时间:</strong> ${formatDate(consultation.createTime) || ''}</div>
+                        `;
+                        document.getElementById('replyContent').value = consultation.reply || '';
+                        document.getElementById('replyModal').style.display = 'block';
+                    } else {
+                        alert('获取咨询信息失败: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取咨询信息失败');
+                });
+        }
+        
+        // 发送回复
+        function sendReply() {
+            const consultationId = document.getElementById('replyConsultationId').value;
+            const replyContent = document.getElementById('replyContent').value;
+            
+            if (!replyContent.trim()) {
+                alert('请输入回复内容');
+                return;
+            }
+            
+            axios.put(`/api/consultations/${consultationId}/reply`, {
+                reply: replyContent
+            })
+                .then(response => {
+                    if (response.data.code === 200) {
+                        alert('回复成功');
+                        document.getElementById('replyModal').style.display = 'none';
+                        loadConsultationList(currentConsultationPage);
+                    } else {
+                        alert('回复失败: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('回复失败');
+                });
+        }
+        
+        // 获取咨询状态名称
+        function getConsultationStatusName(status) {
+            switch (status) {
+                case 0: return '未回复';
+                case 1: return '已回复';
+                default: return '';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -115,81 +115,8 @@
             </div>
             
             <!-- 内容区域 -->
-            <div class="content">
-                <!-- 仪表盘页面 -->
-                <div class="page fade-in" id="dashboardPage">
-                    <div class="stat-cards">
-                        <div class="stat-card">
-                            <div class="stat-icon users">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="userCount">0</h3>
-                                <p>用户总数</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon doctors">
-                                <i class="fas fa-user-md"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="doctorCount">0</h3>
-                                <p>医生总数</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon appointments">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="todayAppointmentCount">0</h3>
-                                <p>今日预约</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon consultations">
-                                <i class="fas fa-comments"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="unrepliedCount">0</h3>
-                                <p>未回复咨询</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 图表容器 -->
-                    <div class="chart-container">
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <h3>预约趋势</h3>
-                            </div>
-                            <div class="chart-body">
-                                <canvas id="appointmentChart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <div class="chart-card">
-                            <div class="chart-header">
-                                <h3>病人数量统计</h3>
-                            </div>
-                            <div class="chart-body">
-                                <canvas id="patientChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">系统公告</div>
-                        </div>
-                        <div class="card-body">
-                            <p>欢迎使用孕妇健康管理系统管理后台</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="content" id="contentArea">
+                <!-- 内容将通过Ajax动态加载 -->
                 
                 <!-- 用户编辑模态框 -->
                 <div class="modal" id="userModal" style="display: none;">

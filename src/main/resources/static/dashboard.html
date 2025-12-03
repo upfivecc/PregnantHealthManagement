@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孕妇健康管理系统 - 仪表盘</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        /* 图表容器样式 */
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .chart-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .chart-header {
+            margin-bottom: 15px;
+        }
+        
+        .chart-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+        
+        .chart-body {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-body {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page fade-in" id="dashboardPage">
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-icon users">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="userCount">0</h3>
+                    <p>用户总数</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon doctors">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="doctorCount">0</h3>
+                    <p>医生总数</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon appointments">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="todayAppointmentCount">0</h3>
+                    <p>今日预约</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon consultations">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="unrepliedCount">0</h3>
+                    <p>未回复咨询</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 图表容器 -->
+        <div class="chart-container">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>预约趋势</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="appointmentChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>病人数量统计</h3>
+                </div>
+                <div class="chart-body">
+                    <canvas id="patientChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">系统公告</div>
+            </div>
+            <div class="card-body">
+                <p>欢迎使用孕妇健康管理系统管理后台</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="./lib/js/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./lib/js/axios.min.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化图表
+            initCharts();
+            
+            // 加载统计数据
+            loadStatistics();
+        });
+        
+        // 初始化图表
+        function initCharts() {
+            const appointmentCtx = document.getElementById('appointmentChart').getContext('2d');
+            const patientCtx = document.getElementById('patientChart').getContext('2d');
+            
+            // 预约趋势图
+            appointmentChart = new Chart(appointmentCtx, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '预约数',
+                        data: [12, 19, 3, 5, 2, 3, 9],
+                        borderColor: '#409EFF',
+                        backgroundColor: 'rgba(64, 158, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // 病人数量统计图
+            patientChart = new Chart(patientCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['用户', '医生', '孕妇', '家属'],
+                    datasets: [{
+                        label: '人数',
+                        data: [120, 15, 80, 40],
+                        backgroundColor: [
+                            '#409EFF',
+                            '#67C23A',
+                            '#E6A23C',
+                            '#F56C6C'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载统计数据
+        function loadStatistics() {
+            // 获取用户总数
+            axios.get('/api/users/count')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        document.getElementById('userCount').textContent = response.data.data;
+                    }
+                })
+                .catch(error => {
+                    console.error('获取用户总数失败:', error);
+                });
+            
+            // 获取医生总数
+            axios.get('/api/doctors/count')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        document.getElementById('doctorCount').textContent = response.data.data;
+                    }
+                })
+                .catch(error => {
+                    console.error('获取医生总数失败:', error);
+                });
+            
+            // 获取今日预约数
+            axios.get('/api/appointments/today-count')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        document.getElementById('todayAppointmentCount').textContent = response.data.data;
+                    }
+                })
+                .catch(error => {
+                    console.error('获取今日预约数失败:', error);
+                });
+            
+            // 获取未回复咨询数
+            axios.get('/api/consultations/unreplied-count')
+                .then(response => {
+                    if (response.data.code === 200) {
+                        document.getElementById('unrepliedCount').textContent = response.data.data;
+                    }
+                })
+                .catch(error => {
+                    console.error('获取未回复咨询数失败:', error);
+                });
+        }
+    </script>
+</body>
+</html>

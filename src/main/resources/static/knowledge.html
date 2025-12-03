@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孕妇健康管理系统 - 知识管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+    <div class="page fade-in" id="knowledgePage">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">知识管理</div>
+                <div class="card-actions">
+                    <button class="btn btn-primary" id="addKnowledgeBtn">
+                        <i class="fas fa-plus"></i> 添加知识
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- 搜索表单 -->
+                <form class="search-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>标题:</label>
+                            <input type="text" id="knowledgeTitle" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>分类:</label>
+                            <select id="knowledgeCategory" class="form-control">
+                                <option value="">全部</option>
+                                <option value="孕期营养">孕期营养</option>
+                                <option value="产前检查">产前检查</option>
+                                <option value="分娩准备">分娩准备</option>
+                                <option value="产后护理">产后护理</option>
+                                <option value="新生儿护理">新生儿护理</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary" id="searchKnowledgeBtn">
+                                <i class="fas fa-search"></i> 查询
+                            </button>
+                            <button type="button" class="btn btn-outline" id="resetKnowledgeBtn">
+                                <i class="fas fa-redo"></i> 重置
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- 知识表格 -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>标题</th>
+                                <th>分类</th>
+                                <th>作者</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="knowledgeTableBody">
+                            <!-- 数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页 -->
+                <div class="pagination" id="knowledgePagination">
+                    <button class="btn btn-outline" id="prevKnowledgePage"><i class="fas fa-chevron-left"></i></button>
+                    <span id="knowledgePageInfo">第 1 页，共 1 页</span>
+                    <button class="btn btn-outline" id="nextKnowledgePage"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 知识编辑模态框 -->
+    <div class="modal" id="knowledgeModal" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="knowledgeModalTitle">编辑知识</h3>
+                <button class="btn btn-outline" id="closeKnowledgeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="knowledgeForm">
+                    <input type="hidden" id="knowledgeId">
+                    <div class="form-group">
+                        <label>标题:</label>
+                        <input type="text" id="modalKnowledgeTitle" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>分类:</label>
+                        <select id="modalKnowledgeCategory" class="form-control" required>
+                            <option value="孕期营养">孕期营养</option>
+                            <option value="产前检查">产前检查</option>
+                            <option value="分娩准备">分娩准备</option>
+                            <option value="产后护理">产后护理</option>
+                            <option value="新生儿护理">新生儿护理</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>作者:</label>
+                        <input type="text" id="modalKnowledgeAuthor" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>内容:</label>
+                        <textarea id="modalKnowledgeContent" class="form-control" rows="10" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelKnowledgeBtn">取消</button>
+                <button class="btn btn-primary" id="saveKnowledgeBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./lib/js/vue.js"></script>
+    <script src="./lib/js/axios.min.js"></script>
+    <script src="./js/main.js"></script>
+    <script>
+        // 全局变量
+        let currentKnowledgePage = 1;
+        let currentKnowledgeSearchTitle = '';
+        let currentKnowledgeSearchCategory = '';
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载知识列表
+            loadKnowledgeList(1);
+            
+            // 绑定事件
+            bindKnowledgeEvents();
+        });
+        
+        // 绑定知识相关事件
+        function bindKnowledgeEvents() {
+            // 添加知识按钮
+            document.getElementById('addKnowledgeBtn').addEventListener('click', function() {
+                // 清空表单
+                document.getElementById('knowledgeForm').reset();
+                document.getElementById('knowledgeId').value = '';
+                document.getElementById('knowledgeModalTitle').textContent = '添加知识';
+                document.getElementById('knowledgeModal').style.display = 'block';
+            });
+            
+            // 关闭模态框按钮
+            document.getElementById('closeKnowledgeModal').addEventListener('click', function() {
+                document.getElementById('knowledgeModal').style.display = 'none';
+            });
+            
+            // 取消按钮
+            document.getElementById('cancelKnowledgeBtn').addEventListener('click', function() {
+                document.getElementById('knowledgeModal').style.display = 'none';
+            });
+            
+            // 保存知识按钮
+            document.getElementById('saveKnowledgeBtn').addEventListener('click', function() {
+                saveKnowledge();
+            });
+            
+            // 知识查询按钮
+            document.getElementById('searchKnowledgeBtn').addEventListener('click', function() {
+                currentKnowledgeSearchTitle = document.getElementById('knowledgeTitle').value;
+                currentKnowledgeSearchCategory = document.getElementById('knowledgeCategory').value;
+                loadKnowledgeList(1);
+            });
+            
+            // 知识重置按钮
+            document.getElementById('resetKnowledgeBtn').addEventListener('click', function() {
+                document.getElementById('knowledgeTitle').value = '';
+                document.getElementById('knowledgeCategory').value = '';
+                currentKnowledgeSearchTitle = '';
+                currentKnowledgeSearchCategory = '';
+                loadKnowledgeList(1);
+            });
+            
+            // 上一页按钮
+            document.getElementById('prevKnowledgePage').addEventListener('click', function() {
+                if (currentKnowledgePage > 1) {
+                    loadKnowledgeList(currentKnowledgePage - 1);
+                }
+            });
+            
+            // 下一页按钮
+            document.getElementById('nextKnowledgePage').addEventListener('click', function() {
+                loadKnowledgeList(currentKnowledgePage + 1);
+            });
+        }
+        
+        // 加载知识列表
+        function loadKnowledgeList(page, title = '', category = '') {
+            const params = new URLSearchParams();
+            params.append('page', page);
+            params.append('size', 10);
+            
+            if (title || currentKnowledgeSearchTitle) {
+                params.append('title', title || currentKnowledgeSearchTitle);
+            }
+            if (category || currentKnowledgeSearchCategory) {
+                params.append('category', category || currentKnowledgeSearchCategory);
+            }
+            
+            axios.get(`/api/knowledge/page?${params.toString()}`)
+                .then(response => {
+                    if (response.data.code === 200) {
+                        const data = response.data.data;
+                        renderKnowledgeTable(data.records);
+                        updateKnowledgePagination(data);
+                        currentKnowledgePage = data.current;
+                    } else {
+                        alert('加载知识列表失败: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('加载知识列表失败');
+                });
+        }
+        
+        // 渲染知识表格
+        function renderKnowledgeTable(knowledges) {
+            const tbody = document.getElementById('knowledgeTableBody');
+            tbody.innerHTML = '';
+            
+            if (!knowledges || knowledges.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="6" class="text-center">暂无数据</td>';
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            knowledges.forEach(knowledge => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${knowledge.id || ''}</td>
+                    <td>${knowledge.title || ''}</td>
+                    <td>${knowledge.category || ''}</td>
+                    <td>${knowledge.author || ''}</td>
+                    <td>${formatDate(knowledge.createTime) || ''}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" onclick="editKnowledge(${knowledge.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteKnowledge(${knowledge.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 更新分页信息
+        function updateKnowledgePagination(pageInfo) {
+            document.getElementById('knowledgePageInfo').textContent = 
+                `第 ${pageInfo.current} 页，共 ${pageInfo.pages} 页`;
+            
+            // 禁用/启用分页按钮
+            document.getElementById('prevKnowledgePage').disabled = pageInfo.current === 1;
+            document.getElementById('nextKnowledgePage').disabled = pageInfo.current === pageInfo.pages;
+        }
+        
+        // 编辑知识
+        function editKnowledge(knowledgeId) {
+            axios.get(`/api/knowledge/${knowledgeId}`)
+                .then(response => {
+                    if (response.data.code === 200) {
+                        const knowledge = response.data.data;
+                        document.getElementById('knowledgeId').value = knowledge.id;
+                        document.getElementById('modalKnowledgeTitle').value = knowledge.title;
+                        document.getElementById('modalKnowledgeCategory').value = knowledge.category;
+                        document.getElementById('modalKnowledgeAuthor').value = knowledge.author;
+                        document.getElementById('modalKnowledgeContent').value = knowledge.content;
+                        document.getElementById('knowledgeModalTitle').textContent = '编辑知识';
+                        document.getElementById('knowledgeModal').style.display = 'block';
+                    } else {
+                        alert('获取知识信息失败: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('获取知识信息失败');
+                });
+        }
+        
+        // 保存知识
+        function saveKnowledge() {
+            const knowledgeId = document.getElementById('knowledgeId').value;
+            const knowledgeData = {
+                title: document.getElementById('modalKnowledgeTitle').value,
+                category: document.getElementById('modalKnowledgeCategory').value,
+                author: document.getElementById('modalKnowledgeAuthor').value,
+                content: document.getElementById('modalKnowledgeContent').value
+            };
+            
+            let url = '/api/knowledge';
+            let method = 'post';
+            
+            if (knowledgeId) {
+                url += '/' + knowledgeId;
+                method = 'put';
+            }
+            
+            axios({
+                method: method,
+                url: url,
+                data: knowledgeData
+            })
+                .then(response => {
+                    if (response.data.code === 200) {
+                        alert('保存成功');
+                        document.getElementById('knowledgeModal').style.display = 'none';
+                        loadKnowledgeList(currentKnowledgePage);
+                    } else {
+                        alert('保存失败: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('保存失败');
+                });
+        }
+        
+        // 删除知识
+        function deleteKnowledge(knowledgeId) {
+            if (confirm('确定要删除这个知识吗？')) {
+                axios.delete(`/api/knowledge/${knowledgeId}`)
+                    .then(response => {
+                        if (response.data.code === 200) {
+                            alert('删除成功');
+                            loadKnowledgeList(currentKnowledgePage);
+                        } else {
+                            alert('删除失败: ' + response.data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('删除失败');
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
