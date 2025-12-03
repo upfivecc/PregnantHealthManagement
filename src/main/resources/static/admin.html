@@ -118,6 +118,76 @@
             <div class="content" id="contentArea">
                 <!-- 内容将通过Ajax动态加载 -->
                 
+                <!-- 仪表盘页面 -->
+                <div class="page fade-in" id="dashboardPage" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">仪表盘</div>
+                        </div>
+                        <div class="card-body">
+                            <!-- 统计数据 -->
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-blue">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-value" id="userCount">0</div>
+                                        <div class="stat-label">用户总数</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-green">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-value" id="doctorCount">0</div>
+                                        <div class="stat-label">医生总数</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-orange">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-value" id="todayAppointmentCount">0</div>
+                                        <div class="stat-label">今日预约</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-red">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-value" id="unrepliedCount">0</div>
+                                        <div class="stat-label">未回复咨询</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 图表区域 -->
+                            <div class="chart-container">
+                                <div class="chart-card">
+                                    <div class="chart-header">
+                                        <h3>预约趋势</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="appointmentChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="chart-card">
+                                    <div class="chart-header">
+                                        <h3>病人统计</h3>
+                                    </div>
+                                    <div class="chart-body">
+                                        <canvas id="patientChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 用户编辑模态框 -->
                 <div class="modal" id="userModal" style="display: none;">
                     <div class="modal-dialog">
@@ -888,11 +958,7 @@
             });
         });
         
-        // 模拟统计数据
-        document.getElementById('userCount').textContent = '128';
-        document.getElementById('doctorCount').textContent = '15';
-        document.getElementById('todayAppointmentCount').textContent = '8';
-        document.getElementById('unrepliedCount').textContent = '3';
+        // 移除模拟统计数据，改为在loadDashboardData函数中加载真实数据
         
         // 用户管理功能
         let currentPage = 1;
