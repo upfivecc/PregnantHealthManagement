@@ -150,11 +150,7 @@ export default {
   box-sizing: border-box;
 }
 
-/* 确保Vue应用根元素占满整个屏幕 */
-#app {
-  height: 100vh;
-  width: 100vw;
-}
+/* 已在App.vue中定义 */
 
 .login-container {
   display: flex;
