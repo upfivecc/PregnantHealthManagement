@@ -28,7 +28,7 @@
           to="/admin/users" 
           class="menu-item admin-only" 
           :class="{ active: $route.name === 'Users' }"
-          v-if="userInfo.role && userInfo.role === 'ADMIN'"
+          v-if="userInfo.role && (userInfo.role === 'ADMIN' || userInfo.role === 'admin')"
         >
           <i class="fas fa-users"></i>
           <span v-if="!sidebarCollapsed">用户管理</span>
@@ -38,7 +38,7 @@
           to="/admin/doctors" 
           class="menu-item" 
           :class="{ active: $route.name === 'Doctors' }"
-          v-if="userInfo.role && userInfo.role !== 'DOCTOR'"
+          v-if="!userInfo.role || (userInfo.role !== 'DOCTOR' && userInfo.role !== 'doctor')"
         >
           <i class="fas fa-user-md"></i>
           <span v-if="!sidebarCollapsed">医生管理</span>
@@ -57,7 +57,7 @@
           to="/admin/knowledge" 
           class="menu-item" 
           :class="{ active: $route.name === 'Knowledge' }"
-          v-if="userInfo.role && userInfo.role !== 'DOCTOR'"
+          v-if="!userInfo.role || (userInfo.role !== 'DOCTOR' && userInfo.role !== 'doctor')"
         >
           <i class="fas fa-book-medical"></i>
           <span v-if="!sidebarCollapsed">知识管理</span>
