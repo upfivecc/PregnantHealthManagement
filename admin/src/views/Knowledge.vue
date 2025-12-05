@@ -85,8 +85,51 @@
       </div>
     </div>
     
+    <!-- 知识查看详情模态框 -->
+    <div class="modal" :style="{ display: showDetailModal ? 'flex' : 'none' }">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>知识详情</h3>
+          <button class="btn btn-outline" @click="closeDetailModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-item">
+            <span class="detail-label">ID</span>
+            <span class="detail-value">{{ detailData.id }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">标题</span>
+            <span class="detail-value">{{ detailData.title }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">分类</span>
+            <span class="detail-value">{{ detailData.category }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">作者</span>
+            <span class="detail-value">{{ detailData.author }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">状态</span>
+            <span class="detail-value">{{ detailData.status === 1 ? '已发布' : '草稿' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">创建时间</span>
+            <span class="detail-value">{{ formatDate(detailData.createdTime) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">内容</span>
+            <span class="detail-value">{{ detailData.content }}</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" @click="closeDetailModal">关闭</button>
+        </div>
+      </div>
+    </div>
+    
     <!-- 知识编辑模态框 -->
-    <div class="modal" :class="{ 'modal-show': showKnowledgeModal }">
+    <div class="modal" :style="{ display: showKnowledgeModal ? 'flex' : 'none' }">
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>{{ modalTitle }}</h3>
@@ -139,7 +182,11 @@ export default {
     // 数据
     const knowledgeList = ref([])
     const showKnowledgeModal = ref(false)
+    const showDetailModal = ref(false)
     const modalTitle = ref('添加知识')
+    
+    const detailData = ref({})
+    
     
     const searchForm = reactive({
       title: '',
@@ -251,20 +298,18 @@ export default {
       showKnowledgeModal.value = false
     }
     
+    // 关闭详情模态框
+    const closeDetailModal = () => {
+      showDetailModal.value = false
+    }
+    
     // 查看知识详情
     const viewKnowledge = async (knowledgeId) => {
       try {
         const response = await axios.get(`/api/knowledge/${knowledgeId}`)
         if (response.data.code === 200) {
-          const knowledge = response.data.data
-          alert(`知识详情:
-ID: ${knowledge.id}
-标题: ${knowledge.title}
-分类: ${knowledge.category}
-作者: ${knowledge.author}
-状态: ${knowledge.status === 1 ? '已发布' : '草稿'}
-创建时间: ${formatDate(knowledge.createdTime)}
-内容: ${knowledge.content}`)
+          detailData.value = response.data.data
+          showDetailModal.value = true
         }
       } catch (error) {
         console.error('获取知识详情失败:', error)
@@ -339,22 +384,25 @@ ID: ${knowledge.id}
     
     return {
       knowledgeList,
-      showKnowledgeModal,
-      modalTitle,
       searchForm,
-      knowledgeForm,
       pagination,
-      formatDate,
+      knowledgeForm,
+      detailData,
+      showKnowledgeModal,
+      showDetailModal,
+      modalTitle,
       searchKnowledge,
       resetSearch,
       prevPage,
       nextPage,
       showAddKnowledgeModal,
-      closeKnowledgeModal,
       viewKnowledge,
       editKnowledge,
+      saveKnowledge,
+      closeKnowledgeModal,
+      closeDetailModal,
       deleteKnowledge,
-      saveKnowledge
+      formatDate
     }
   }
 }
@@ -550,14 +598,6 @@ textarea.form-control {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s, opacity 0.3s ease;
-}
-
-.modal.modal-show {
-  visibility: visible;
-  opacity: 1;
 }
 
 .modal-dialog {
@@ -593,5 +633,21 @@ textarea.form-control {
   gap: 10px;
   padding: 20px;
   border-top: 1px solid #eee;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.detail-label {
+  width: 100px;
+  font-weight: 600;
+  color: #333;
+}
+
+.detail-value {
+  flex: 1;
+  color: #666;
 }
 </style>
