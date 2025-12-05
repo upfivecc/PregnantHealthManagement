@@ -15,60 +15,60 @@
       </div>
       
       <div class="sidebar-menu">
-        <div 
+        <router-link 
+          to="/admin/dashboard" 
           class="menu-item" 
           :class="{ active: $route.name === 'Dashboard' }"
-          @click="$router.push('/admin/dashboard')"
         >
           <i class="fas fa-home"></i>
           <span v-if="!sidebarCollapsed">仪表盘</span>
-        </div>
+        </router-link>
         
-        <div 
+        <router-link 
+          to="/admin/users" 
           class="menu-item admin-only" 
           :class="{ active: $route.name === 'Users' }"
-          @click="$router.push('/admin/users')"
           v-if="userInfo.role === 'ADMIN'"
         >
           <i class="fas fa-users"></i>
           <span v-if="!sidebarCollapsed">用户管理</span>
-        </div>
+        </router-link>
         
-        <div 
+        <router-link 
+          to="/admin/doctors" 
           class="menu-item" 
           :class="{ active: $route.name === 'Doctors' }"
-          @click="$router.push('/admin/doctors')"
         >
           <i class="fas fa-user-md"></i>
           <span v-if="!sidebarCollapsed">医生管理</span>
-        </div>
+        </router-link>
         
-        <div 
+        <router-link 
+          to="/admin/appointments" 
           class="menu-item" 
           :class="{ active: $route.name === 'Appointments' }"
-          @click="$router.push('/admin/appointments')"
         >
           <i class="fas fa-calendar-check"></i>
           <span v-if="!sidebarCollapsed">预约管理</span>
-        </div>
+        </router-link>
         
-        <div 
+        <router-link 
+          to="/admin/knowledge" 
           class="menu-item" 
           :class="{ active: $route.name === 'Knowledge' }"
-          @click="$router.push('/admin/knowledge')"
         >
           <i class="fas fa-book-medical"></i>
           <span v-if="!sidebarCollapsed">知识管理</span>
-        </div>
+        </router-link>
         
-        <div 
+        <router-link 
+          to="/admin/consultations" 
           class="menu-item" 
           :class="{ active: $route.name === 'Consultations' }"
-          @click="$router.push('/admin/consultations')"
         >
           <i class="fas fa-comments"></i>
           <span v-if="!sidebarCollapsed">咨询管理</span>
-        </div>
+        </router-link>
       </div>
     </div>
     
@@ -157,7 +157,20 @@ export default {
       // 获取用户信息
       const storedUserInfo = localStorage.getItem('userInfo')
       if (storedUserInfo) {
-        userInfo.value = JSON.parse(storedUserInfo)
+        try {
+          // 确保storedUserInfo是有效的JSON字符串
+          const parsedUserInfo = JSON.parse(storedUserInfo)
+          if (parsedUserInfo && typeof parsedUserInfo === 'object') {
+            userInfo.value = parsedUserInfo
+          } else {
+            // 如果解析后不是有效的对象，跳转到登录页面
+            router.push('/login')
+          }
+        } catch (error) {
+          console.error('解析用户信息失败:', error)
+          // 解析失败时跳转到登录页面
+          router.push('/login')
+        }
       } else {
         // 如果没有用户信息，跳转到登录页面
         router.push('/login')

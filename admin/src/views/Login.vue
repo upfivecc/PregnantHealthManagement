@@ -216,14 +216,18 @@ export default {
         if (response.data.code === 200) {
           // 登录成功，将token存储到localStorage
           localStorage.setItem('token', response.data.data.token)
-          localStorage.setItem('userInfo', JSON.stringify(response.data.data.userInfo))
+          
+          // 确保userInfo存在时才存储
+          if (response.data.data.userInfo) {
+            localStorage.setItem('userInfo', JSON.stringify(response.data.data.userInfo))
+          } else {
+            // 如果userInfo不存在，创建一个默认对象
+            localStorage.setItem('userInfo', JSON.stringify({}))
+          }
           
           // 根据角色跳转到不同页面
-          if (loginForm.value.role === 'ADMIN') {
-            router.push('/dashboard')
-          } else if (loginForm.value.role === 'DOCTOR') {
-            router.push('/doctor-dashboard')
-          }
+          // 统一跳转到admin dashboard，因为DoctorDashboard组件还未实现
+          router.push('/admin/dashboard')
         } else {
           // 登录失败，显示错误消息
           alert(response.data.message || '登录失败，请检查用户名和密码')
