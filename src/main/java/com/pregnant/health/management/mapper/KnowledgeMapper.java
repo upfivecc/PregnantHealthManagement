@@ -25,13 +25,39 @@ public interface KnowledgeMapper {
     @Select("SELECT COUNT(*) FROM knowledge WHERE title LIKE CONCAT('%', #{title}, '%')")
     Long countByTitle(@Param("title") String title);
     
-    @Insert("INSERT INTO knowledge(title, content, category, status, created_by) " +
-            "VALUES(#{title}, #{content}, #{category}, #{status}, #{createdBy})")
+    // 复合条件查询知识列表
+    @Select("<script>" +
+            "SELECT * FROM knowledge " +
+            "<where>" +
+            "  <if test='title != null and title != \"\"'> AND title LIKE CONCAT('%', #{title}, '%')</if>" +
+            "  <if test='category != null and category != \"\"'> AND category = #{category}</if>" +
+            "  <if test='status != null'> AND status = #{status}</if>" +
+            "</where>" +
+            " ORDER BY created_time DESC LIMIT #{offset}, #{limit}" +
+            "</script>")
+    List<Knowledge> selectByConditions(@Param("title") String title, @Param("category") String category, 
+                                     @Param("status") Integer status, @Param("offset") Integer offset, 
+                                     @Param("limit") Integer limit);
+    
+    // 复合条件查询知识总数
+    @Select("<script>" +
+            "SELECT COUNT(*) FROM knowledge " +
+            "<where>" +
+            "  <if test='title != null and title != \"\"'> AND title LIKE CONCAT('%', #{title}, '%')</if>" +
+            "  <if test='category != null and category != \"\"'> AND category = #{category}</if>" +
+            "  <if test='status != null'> AND status = #{status}</if>" +
+            "</where>" +
+            "</script>")
+    Long countByConditions(@Param("title") String title, @Param("category") String category, 
+                          @Param("status") Integer status);
+    
+    @Insert("INSERT INTO knowledge(title, content, category, status, created_by, author) " +
+            "VALUES(#{title}, #{content}, #{category}, #{status}, #{createdBy}, #{author})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Knowledge knowledge);
     
     @Update("UPDATE knowledge SET title=#{title}, content=#{content}, category=#{category}, " +
-            "status=#{status}, updated_time=NOW() WHERE id=#{id}")
+            "status=#{status}, author=#{author}, updated_time=NOW() WHERE id=#{id}")
     int update(Knowledge knowledge);
     
     @Delete("DELETE FROM knowledge WHERE id = #{id}")

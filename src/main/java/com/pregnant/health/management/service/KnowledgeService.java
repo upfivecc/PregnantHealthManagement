@@ -12,6 +12,9 @@ public interface KnowledgeService {
     // 按标题模糊查询知识列表
     PageResult<Knowledge> getKnowledgeListByTitle(String title, Integer page, Integer size);
     
+    // 复合条件查询知识列表
+    PageResult<Knowledge> getKnowledgeList(Integer page, Integer size, String title, String category, Integer status);
+    
     PageResult<Knowledge> getPublishedKnowledgeList(Integer page, Integer size);
     
     boolean saveKnowledge(Knowledge knowledge);

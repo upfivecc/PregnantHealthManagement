@@ -23,6 +23,17 @@ public class KnowledgeController {
         }
     }
     
+    @GetMapping("/page")
+    public Result<PageResult<Knowledge>> getKnowledgeList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Integer status) {
+        PageResult<Knowledge> result = knowledgeService.getKnowledgeList(page, size, title, category, status);
+        return Result.success(result);
+    }
+    
     @GetMapping
     public Result<PageResult<Knowledge>> getKnowledgeList(
             @RequestParam(defaultValue = "1") Integer page,
@@ -51,8 +62,9 @@ public class KnowledgeController {
         }
     }
     
-    @PutMapping
-    public Result<String> updateKnowledge(@RequestBody Knowledge knowledge) {
+    @PutMapping("/{id}")
+    public Result<String> updateKnowledge(@PathVariable Long id, @RequestBody Knowledge knowledge) {
+        knowledge.setId(id);
         boolean success = knowledgeService.updateKnowledge(knowledge);
         if (success) {
             return Result.success("更新成功");

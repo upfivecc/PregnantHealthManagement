@@ -37,6 +37,14 @@ public class KnowledgeServiceImpl implements KnowledgeService {
     }
     
     @Override
+    public PageResult<Knowledge> getKnowledgeList(Integer page, Integer size, String title, String category, Integer status) {
+        int offset = (page - 1) * size;
+        List<Knowledge> knowledgeList = knowledgeMapper.selectByConditions(title, category, status, offset, size);
+        Long total = knowledgeMapper.countByConditions(title, category, status);
+        return new PageResult<>(knowledgeList, total, page, size);
+    }
+    
+    @Override
     public PageResult<Knowledge> getPublishedKnowledgeList(Integer page, Integer size) {
         int offset = (page - 1) * size;
         List<Knowledge> knowledgeList = knowledgeMapper.selectPublished(offset, size);

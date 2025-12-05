@@ -6,6 +6,21 @@
     <title>孕妇健康管理系统 - 知识管理</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        /* 修复搜索表单按钮换行问题 */
+        .search-form .form-group:last-child {
+            display: flex;
+            align-items: flex-end;
+        }
+        
+        .search-form .form-group:last-child .btn {
+            margin-right: 10px;
+        }
+        
+        .search-form .form-group:last-child .btn:last-child {
+            margin-right: 0;
+        }
+    </style>
 </head>
 <body>
     <div class="page fade-in" id="knowledgePage">
@@ -38,6 +53,14 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>状态:</label>
+                            <select id="knowledgeStatus" class="form-control">
+                                <option value="">全部</option>
+                                <option value="1">已发布</option>
+                                <option value="0">草稿</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <button type="button" class="btn btn-primary" id="searchKnowledgeBtn">
                                 <i class="fas fa-search"></i> 查询
                             </button>
@@ -57,6 +80,7 @@
                                 <th>标题</th>
                                 <th>分类</th>
                                 <th>作者</th>
+                                <th>状态</th>
                                 <th>创建时间</th>
                                 <th>操作</th>
                             </tr>
@@ -94,6 +118,7 @@
                     <div class="form-group">
                         <label>分类:</label>
                         <select id="modalKnowledgeCategory" class="form-control" required>
+                            <option value="">请选择分类</option>
                             <option value="孕期营养">孕期营养</option>
                             <option value="产前检查">产前检查</option>
                             <option value="分娩准备">分娩准备</option>
@@ -106,6 +131,13 @@
                         <input type="text" id="modalKnowledgeAuthor" class="form-control" required>
                     </div>
                     <div class="form-group">
+                        <label>状态:</label>
+                        <select id="modalKnowledgeStatus" class="form-control" required>
+                            <option value="0">草稿</option>
+                            <option value="1">已发布</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>内容:</label>
                         <textarea id="modalKnowledgeContent" class="form-control" rows="10" required></textarea>
                     </div>
@@ -114,6 +146,7 @@
             <div class="modal-footer">
                 <button class="btn btn-outline" id="cancelKnowledgeBtn">取消</button>
                 <button class="btn btn-primary" id="saveKnowledgeBtn">保存</button>
+                <button class="btn btn-success" id="publishKnowledgeBtn">发布</button>
             </div>
         </div>
     </div>
@@ -126,9 +159,17 @@
         let currentKnowledgePage = 1;
         let currentKnowledgeSearchTitle = '';
         let currentKnowledgeSearchCategory = '';
+        let currentKnowledgeSearchStatus = '';
+        let currentUser = null;
         
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 从localStorage获取当前用户信息
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                currentUser = JSON.parse(userStr);
+            }
+            
             // 加载知识列表
             loadKnowledgeList(1);
             
@@ -144,6 +185,13 @@
                 document.getElementById('knowledgeForm').reset();
                 document.getElementById('knowledgeId').value = '';
                 document.getElementById('knowledgeModalTitle').textContent = '添加知识';
+                
+                // 设置默认作者为当前用户
+                if (currentUser) {
+                    document.getElementById('modalKnowledgeAuthor').value = currentUser.realName || currentUser.username;
+                }
+                
+                // 显示模态框
                 document.getElementById('knowledgeModal').style.display = 'block';
             });
             
@@ -159,13 +207,19 @@
             
             // 保存知识按钮
             document.getElementById('saveKnowledgeBtn').addEventListener('click', function() {
-                saveKnowledge();
+                saveKnowledge(false);
+            });
+            
+            // 发布知识按钮
+            document.getElementById('publishKnowledgeBtn').addEventListener('click', function() {
+                saveKnowledge(true);
             });
             
             // 知识查询按钮
             document.getElementById('searchKnowledgeBtn').addEventListener('click', function() {
                 currentKnowledgeSearchTitle = document.getElementById('knowledgeTitle').value;
                 currentKnowledgeSearchCategory = document.getElementById('knowledgeCategory').value;
+                currentKnowledgeSearchStatus = document.getElementById('knowledgeStatus').value;
                 loadKnowledgeList(1);
             });
             
@@ -173,8 +227,10 @@
             document.getElementById('resetKnowledgeBtn').addEventListener('click', function() {
                 document.getElementById('knowledgeTitle').value = '';
                 document.getElementById('knowledgeCategory').value = '';
+                document.getElementById('knowledgeStatus').value = '';
                 currentKnowledgeSearchTitle = '';
                 currentKnowledgeSearchCategory = '';
+                currentKnowledgeSearchStatus = '';
                 loadKnowledgeList(1);
             });
             
@@ -192,7 +248,7 @@
         }
         
         // 加载知识列表
-        function loadKnowledgeList(page, title = '', category = '') {
+        function loadKnowledgeList(page, title = '', category = '', status = '') {
             const params = new URLSearchParams();
             params.append('page', page);
             params.append('size', 10);
@@ -202,6 +258,9 @@
             }
             if (category || currentKnowledgeSearchCategory) {
                 params.append('category', category || currentKnowledgeSearchCategory);
+            }
+            if (status || currentKnowledgeSearchStatus) {
+                params.append('status', status || currentKnowledgeSearchStatus);
             }
             
             axios.get(`/api/knowledge/page?${params.toString()}`)
@@ -228,18 +287,30 @@
             
             if (!knowledges || knowledges.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = '<td colspan="6" class="text-center">暂无数据</td>';
+                tr.innerHTML = '<td colspan="7" class="text-center">暂无数据</td>';
                 tbody.appendChild(tr);
                 return;
             }
             
             knowledges.forEach(knowledge => {
+                // 状态转换
+                let statusText = '未知';
+                let statusClass = '';
+                if (knowledge.status === 1) {
+                    statusText = '已发布';
+                    statusClass = 'status-published';
+                } else if (knowledge.status === 0) {
+                    statusText = '草稿';
+                    statusClass = 'status-draft';
+                }
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${knowledge.id || ''}</td>
                     <td>${knowledge.title || ''}</td>
                     <td>${knowledge.category || ''}</td>
                     <td>${knowledge.author || ''}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     <td>${formatDate(knowledge.createdTime) || ''}</td>
                     <td>
                         <button class="btn btn-sm btn-outline" onclick="editKnowledge(${knowledge.id})">
@@ -274,6 +345,7 @@
                         document.getElementById('modalKnowledgeTitle').value = knowledge.title;
                         document.getElementById('modalKnowledgeCategory').value = knowledge.category;
                         document.getElementById('modalKnowledgeAuthor').value = knowledge.author;
+                        document.getElementById('modalKnowledgeStatus').value = knowledge.status;
                         document.getElementById('modalKnowledgeContent').value = knowledge.content;
                         document.getElementById('knowledgeModalTitle').textContent = '编辑知识';
                         document.getElementById('knowledgeModal').style.display = 'block';
@@ -288,14 +360,33 @@
         }
         
         // 保存知识
-        function saveKnowledge() {
+        function saveKnowledge(publish = false) {
             const knowledgeId = document.getElementById('knowledgeId').value;
             const knowledgeData = {
                 title: document.getElementById('modalKnowledgeTitle').value,
                 category: document.getElementById('modalKnowledgeCategory').value,
                 author: document.getElementById('modalKnowledgeAuthor').value,
-                content: document.getElementById('modalKnowledgeContent').value
+                content: document.getElementById('modalKnowledgeContent').value,
+                status: publish ? 1 : parseInt(document.getElementById('modalKnowledgeStatus').value)
             };
+            
+            // 表单验证
+            if (!knowledgeData.title) {
+                alert('请输入标题');
+                return;
+            }
+            if (!knowledgeData.category) {
+                alert('请选择分类');
+                return;
+            }
+            if (!knowledgeData.author) {
+                alert('请输入作者');
+                return;
+            }
+            if (!knowledgeData.content) {
+                alert('请输入内容');
+                return;
+            }
             
             let url = '/api/knowledge';
             let method = 'post';
@@ -312,7 +403,7 @@
             })
                 .then(response => {
                     if (response.data.code === 200) {
-                        alert('保存成功');
+                        alert(publish ? '发布成功' : '保存成功');
                         document.getElementById('knowledgeModal').style.display = 'none';
                         loadKnowledgeList(currentKnowledgePage);
                     } else {
@@ -342,6 +433,18 @@
                         alert('删除失败');
                     });
             }
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.getFullYear() + '-' + 
+                   String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(date.getDate()).padStart(2, '0') + ' ' + 
+                   String(date.getHours()).padStart(2, '0') + ':' + 
+                   String(date.getMinutes()).padStart(2, '0') + ':' + 
+                   String(date.getSeconds()).padStart(2, '0');
         }
     </script>
 </body>
