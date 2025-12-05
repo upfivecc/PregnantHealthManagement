@@ -635,9 +635,10 @@ export default {
 
 .selected-value {
   width: 100%;
-  padding: 12px 15px;
+  padding: 15px 20px 15px 50px;
   color: var(--dark-color);
   background: transparent;
+  box-sizing: border-box;
 }
 
 .custom-dropdown {
