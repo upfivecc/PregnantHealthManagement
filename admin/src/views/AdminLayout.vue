@@ -38,7 +38,7 @@
           to="/admin/doctors" 
           class="menu-item" 
           :class="{ active: $route.name === 'Doctors' }"
-          v-if="!userInfo.role || (userInfo.role !== 'DOCTOR' && userInfo.role !== 'doctor')"
+          v-if="!(userInfo.role === 'DOCTOR' || userInfo.role === 'doctor')"
         >
           <i class="fas fa-user-md"></i>
           <span v-if="!sidebarCollapsed">医生管理</span>
@@ -57,7 +57,7 @@
           to="/admin/knowledge" 
           class="menu-item" 
           :class="{ active: $route.name === 'Knowledge' }"
-          v-if="!userInfo.role || (userInfo.role !== 'DOCTOR' && userInfo.role !== 'doctor')"
+          v-if="!(userInfo.role === 'DOCTOR' || userInfo.role === 'doctor')"
         >
           <i class="fas fa-book-medical"></i>
           <span v-if="!sidebarCollapsed">知识管理</span>
@@ -163,7 +163,11 @@ export default {
           // 确保storedUserInfo是有效的JSON字符串
           const parsedUserInfo = JSON.parse(storedUserInfo)
           if (parsedUserInfo && typeof parsedUserInfo === 'object') {
-            userInfo.value = parsedUserInfo
+            // 添加默认角色
+            userInfo.value = { ...parsedUserInfo }
+            // 调试：打印用户信息
+            console.log('User info in AdminLayout:', userInfo.value)
+            console.log('User role:', userInfo.value.role)
           } else {
             // 如果解析后不是有效的对象，跳转到登录页面
             router.push('/login')

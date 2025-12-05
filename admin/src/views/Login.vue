@@ -216,10 +216,11 @@ export default {
         if (response.data.code === 200) {
           // 登录成功，将token存储到localStorage
           localStorage.setItem('token', response.data.data.token)
-          
           // 确保userInfo存在时才存储
-          if (response.data.data.userInfo) {
-            localStorage.setItem('userInfo', JSON.stringify(response.data.data.userInfo))
+          if (response.data.data) {
+            // 调试：打印服务器返回的userInfo
+            console.log('Server returned userInfo:', response.data.data)
+            localStorage.setItem('userInfo', JSON.stringify(response.data.data))
           } else {
             // 如果userInfo不存在，创建一个默认对象
             localStorage.setItem('userInfo', JSON.stringify({}))
