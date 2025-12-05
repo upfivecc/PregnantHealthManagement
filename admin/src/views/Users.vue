@@ -85,7 +85,7 @@
     </div>
     
     <!-- 用户编辑模态框 -->
-    <div class="modal" :style="{ display: showUserModal ? 'block' : 'none' }">
+    <div class="modal" :class="{ 'modal-show': showUserModal }">
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>{{ modalTitle }}</h3>
@@ -534,6 +534,14 @@ ID: ${user.id}
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s ease;
+}
+
+.modal.modal-show {
+  visibility: visible;
+  opacity: 1;
 }
 
 .modal-dialog {

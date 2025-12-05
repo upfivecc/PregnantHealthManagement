@@ -20,14 +20,16 @@
               <option value="2">已关闭</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-group search-buttons">
             <label>&nbsp;</label>
-            <button class="btn btn-primary" @click="searchConsultations">
-              <i class="fas fa-search"></i> 查询
-            </button>
-            <button class="btn btn-outline" @click="resetSearch">
-              <i class="fas fa-refresh"></i> 重置
-            </button>
+            <div class="button-group">
+              <button class="btn btn-primary" @click="searchConsultations">
+                <i class="fas fa-search"></i> 查询
+              </button>
+              <button class="btn btn-outline" @click="resetSearch">
+                <i class="fas fa-refresh"></i> 重置
+              </button>
+            </div>
           </div>
         </div>
         
@@ -417,6 +419,17 @@ export default {
   flex-wrap: wrap;
 }
 
+.search-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -426,6 +439,10 @@ export default {
 .form-group label {
   font-weight: 500;
   color: #333;
+}
+
+.form-group.search-buttons label {
+  visibility: hidden;
 }
 
 .form-control {

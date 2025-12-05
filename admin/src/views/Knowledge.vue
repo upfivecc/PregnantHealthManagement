@@ -18,14 +18,16 @@
             <label>分类</label>
             <input type="text" class="form-control" v-model="searchForm.category" placeholder="请输入分类">
           </div>
-          <div class="form-group">
+          <div class="form-group search-buttons">
             <label>&nbsp;</label>
-            <button class="btn btn-primary" @click="searchKnowledge">
-              <i class="fas fa-search"></i> 查询
-            </button>
-            <button class="btn btn-outline" @click="resetSearch">
-              <i class="fas fa-refresh"></i> 重置
-            </button>
+            <div class="button-group">
+              <button class="btn btn-primary" @click="searchKnowledge">
+                <i class="fas fa-search"></i> 查询
+              </button>
+              <button class="btn btn-outline" @click="resetSearch">
+                <i class="fas fa-refresh"></i> 重置
+              </button>
+            </div>
           </div>
         </div>
         
@@ -84,7 +86,7 @@
     </div>
     
     <!-- 知识编辑模态框 -->
-    <div class="modal" :style="{ display: showKnowledgeModal ? 'block' : 'none' }">
+    <div class="modal" :class="{ 'modal-show': showKnowledgeModal }">
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>{{ modalTitle }}</h3>
@@ -396,6 +398,17 @@ ID: ${knowledge.id}
   flex-wrap: wrap;
 }
 
+.search-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -405,6 +418,10 @@ ID: ${knowledge.id}
 .form-group label {
   font-weight: 500;
   color: #333;
+}
+
+.form-group.search-buttons label {
+  visibility: hidden;
 }
 
 .form-control {
@@ -527,6 +544,14 @@ textarea.form-control {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s ease;
+}
+
+.modal.modal-show {
+  visibility: visible;
+  opacity: 1;
 }
 
 .modal-dialog {

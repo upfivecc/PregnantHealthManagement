@@ -11,6 +11,7 @@ public class Knowledge {
     private String category;
     private Integer status;
     private Long createdBy;
+    private String author; // 前端传递的作者字段
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
 }

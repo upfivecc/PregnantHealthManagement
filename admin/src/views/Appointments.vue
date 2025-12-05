@@ -11,14 +11,16 @@
             <label>用户姓名</label>
             <input type="text" class="form-control" v-model="searchForm.userRealName" placeholder="请输入用户姓名">
           </div>
-          <div class="form-group">
+          <div class="form-group search-buttons">
             <label>&nbsp;</label>
-            <button class="btn btn-primary" @click="searchAppointments">
-              <i class="fas fa-search"></i> 查询
-            </button>
-            <button class="btn btn-outline" @click="resetSearch">
-              <i class="fas fa-refresh"></i> 重置
-            </button>
+            <div class="button-group">
+              <button class="btn btn-primary" @click="searchAppointments">
+                <i class="fas fa-search"></i> 查询
+              </button>
+              <button class="btn btn-outline" @click="resetSearch">
+                <i class="fas fa-refresh"></i> 重置
+              </button>
+            </div>
           </div>
         </div>
         
@@ -311,6 +313,17 @@ ID: ${appointment.id}
   flex-wrap: wrap;
 }
 
+.search-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -320,6 +333,10 @@ ID: ${appointment.id}
 .form-group label {
   font-weight: 500;
   color: #333;
+}
+
+.form-group.search-buttons label {
+  visibility: hidden;
 }
 
 .form-control {

@@ -51,13 +51,13 @@ public interface KnowledgeMapper {
     Long countByConditions(@Param("title") String title, @Param("category") String category, 
                           @Param("status") Integer status);
     
-    @Insert("INSERT INTO knowledge(title, content, category, status, created_by, author) " +
-            "VALUES(#{title}, #{content}, #{category}, #{status}, #{createdBy}, #{author})")
+    @Insert("INSERT INTO knowledge(title, content, category, status, created_by) " +
+            "VALUES(#{title}, #{content}, #{category}, #{status}, #{createdBy})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Knowledge knowledge);
     
     @Update("UPDATE knowledge SET title=#{title}, content=#{content}, category=#{category}, " +
-            "status=#{status}, author=#{author}, updated_time=NOW() WHERE id=#{id}")
+            "status=#{status}, updated_time=NOW() WHERE id=#{id}")
     int update(Knowledge knowledge);
     
     @Delete("DELETE FROM knowledge WHERE id = #{id}")
