@@ -34,8 +34,6 @@ body {
   height: 100vh;
   width: 100vw;
   display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* 确保在登录页面中，#app 元素正确居中内容 */

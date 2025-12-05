@@ -180,6 +180,7 @@ export default {
 .admin-layout {
   display: flex;
   height: 100vh;
+  width: 100vw; /* 添加这一行确保布局占满整个视口宽度 */
 }
 
 .sidebar {
@@ -189,6 +190,7 @@ export default {
   transition: width 0.3s ease;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0; /* 防止侧边栏被压缩 */
 }
 
 .sidebar.collapsed {
@@ -259,6 +261,7 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0; /* 防止内容溢出 */
 }
 
 .header {
@@ -270,6 +273,7 @@ export default {
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid #eee;
+  flex-shrink: 0; /* 防止头部被压缩 */
 }
 
 .header-left h1 {

@@ -107,10 +107,13 @@ export default {
         
         if (response.data.code === 200) {
           // 将用户信息保存到localStorage
-          localStorage.setItem('currentUser', JSON.stringify(response.data.data))
+          localStorage.setItem('userInfo', JSON.stringify({
+            ...response.data.data,
+            role: loginForm.value.role
+          }))
           
           // 跳转到管理后台
-          window.location.href = './admin.html'
+          router.push('/admin/dashboard')
         } else {
           alert('登录失败：' + response.data.message)
         }
@@ -156,12 +159,11 @@ export default {
   display: flex;
   width: 900px;
   height: 500px;
-  background: transparent;
+  background: white;
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   position: relative;
-  z-index: 10;
 }
 
 /* 左侧装饰区域 */
@@ -175,6 +177,7 @@ export default {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  z-index: 2;
 }
 
 .login-left::before {
@@ -186,6 +189,7 @@ export default {
   background: rgba(255, 255, 255, 0.1);
   top: -100px;
   right: -100px;
+  z-index: -1;
 }
 
 .login-left::after {
@@ -197,9 +201,8 @@ export default {
   background: rgba(255, 255, 255, 0.1);
   bottom: -80px;
   left: -80px;
+  z-index: -1;
 }
-
-
 
 .login-left h1 {
   font-size: 32px;
@@ -229,8 +232,6 @@ export default {
   margin-bottom: 15px;
 }
 
-
-
 .feature i {
   margin-right: 10px;
   font-size: 18px;
@@ -244,6 +245,8 @@ export default {
   flex-direction: column;
   justify-content: center;
   background: white;
+  position: relative;
+  z-index: 3;
   animation: fadeIn 0.5s ease forwards;
 }
 
@@ -299,7 +302,7 @@ export default {
   cursor: pointer;
   transition: var(--transition);
   position: relative;
-  z-index: 1;
+  z-index: 3;
   margin-top: 10px;
   margin-bottom: 20px;
 }
@@ -336,10 +339,6 @@ export default {
   0% { transform: translateY(-50%) rotate(0deg); }
   100% { transform: translateY(-50%) rotate(360deg); }
 }
-
-
-
-
 
 /* 响应式设计 */
 @media (max-width: 992px) {
