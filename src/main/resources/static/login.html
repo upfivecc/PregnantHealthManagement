@@ -6,6 +6,17 @@
     <title>孕妇健康管理系统 - 登录</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="./css/login-new.css">
+    <style>
+        /* 隐藏标签页底部边框 */
+        .tabs {
+            display: none;
+        }
+        
+        /* 调整登录表单位置 */
+        .auth-form {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
@@ -37,11 +48,6 @@
             <h2>欢迎登录</h2>
             <p>请使用您的账户登录系统</p>
             
-            <div class="tabs">
-                <div class="tab active" data-tab="login">登录</div>
-                <div class="tab" data-tab="register">注册</div>
-            </div>
-            
             <!-- 登录表单 -->
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
@@ -66,59 +72,10 @@
                     登录
                 </button>
             </form>
-            
-            <!-- 注册表单 -->
-            <form id="registerForm" class="auth-form" style="display: none;">
-                <div class="form-group">
-                    <label for="registerUsername">用户名</label>
-                    <input type="text" id="registerUsername" class="form-control" placeholder="请输入用户名" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="registerEmail">邮箱</label>
-                    <input type="email" id="registerEmail" class="form-control" placeholder="请输入邮箱" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="registerPassword">密码</label>
-                    <input type="password" id="registerPassword" class="form-control" placeholder="请输入密码" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="registerConfirmPassword">确认密码</label>
-                    <input type="password" id="registerConfirmPassword" class="form-control" placeholder="请确认密码" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary" id="registerBtn">
-                    注册
-                </button>
-            </form>
         </div>
     </div>
 
     <script>
-        // 标签页切换
-        const tabs = document.querySelectorAll('.tab');
-        const forms = document.querySelectorAll('.auth-form');
-        
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                // 移除所有标签的活动状态
-                tabs.forEach(t => t.classList.remove('active'));
-                // 添加当前标签的活动状态
-                this.classList.add('active');
-                
-                // 隐藏所有表单
-                forms.forEach(form => {
-                    form.style.display = 'none';
-                });
-                
-                // 显示选中的表单
-                const tabId = this.getAttribute('data-tab') + 'Form';
-                document.getElementById(tabId).style.display = 'block';
-            });
-        });
-        
         // 登录表单提交
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -174,79 +131,6 @@
                 
                 console.error('登录请求失败:', error);
                 alert('登录请求失败：' + error.message);
-            });
-        });
-        
-        // 注册表单提交
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('registerUsername').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            const registerBtn = document.getElementById('registerBtn');
-            
-            // 验证密码确认
-            if (password !== confirmPassword) {
-                alert('两次输入的密码不一致！');
-                return;
-            }
-            
-            // 显示加载状态
-            registerBtn.classList.add('btn-loading');
-            registerBtn.textContent = '注册中...';
-            
-            // 准备注册数据
-            const registerData = {
-                username: username,
-                password: password,
-                email: email,
-                role: 'USER' // 默认注册为普通用户
-            };
-            
-            // 发送注册请求
-            fetch('/api/users/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(registerData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // 恢复按钮状态
-                registerBtn.classList.remove('btn-loading');
-                registerBtn.textContent = '注册';
-                
-                if (data.code === 200) {
-                    // 注册成功
-                    alert('注册成功！请登录');
-                    
-                    // 切换到登录标签
-                    tabs.forEach(t => t.classList.remove('active'));
-                    document.querySelector('.tab[data-tab="login"]').classList.add('active');
-                    
-                    forms.forEach(form => {
-                        form.style.display = 'none';
-                    });
-                    
-                    document.getElementById('loginForm').style.display = 'block';
-                    
-                    // 清空注册表单
-                    document.getElementById('registerForm').reset();
-                } else {
-                    // 注册失败
-                    alert(data.message || '注册失败！');
-                }
-            })
-            .catch(error => {
-                // 恢复按钮状态
-                registerBtn.classList.remove('btn-loading');
-                registerBtn.textContent = '注册';
-                
-                console.error('注册请求失败:', error);
-                alert('注册请求失败：' + error.message);
             });
         });
     </script>

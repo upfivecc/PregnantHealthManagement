@@ -127,28 +127,6 @@ body {
   margin-bottom: 30px;
 }
 
-/* 标签页 */
-.tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 30px;
-}
-
-.tab {
-  flex: 1;
-  text-align: center;
-  padding: 15px 0;
-  cursor: pointer;
-  font-weight: 500;
-  color: var(--gray-color);
-  transition: var(--transition);
-}
-
-.tab.active {
-  color: var(--primary-color);
-  border-bottom: 2px solid var(--primary-color);
-}
-
 /* 表单样式 */
 .form-group {
   margin-bottom: 20px;
@@ -186,6 +164,10 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition);
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .btn-primary {
@@ -263,4 +245,9 @@ body {
 
 .login-right {
   animation: fadeIn 0.5s ease forwards;
+}
+
+/* 确保表单有足够的底部空间 */
+.auth-form {
+  margin-bottom: 20px;
 }
