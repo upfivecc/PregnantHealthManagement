@@ -570,7 +570,7 @@ export default {
 .form-control {
   width: 100%;
   padding: 15px 20px 15px 50px;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--primary-color);
   border-radius: 12px;
   font-size: 16px;
   transition: var(--transition);
