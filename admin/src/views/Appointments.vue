@@ -356,12 +356,15 @@ ID: ${appointment.id}
 }
 
 .btn-primary {
-  background: #409EFF;
+  background: linear-gradient(135deg, #ff6b8b, #ff8fab);
   color: white;
+  box-shadow: 0 2px 10px rgba(255, 107, 139, 0.2);
 }
 
 .btn-primary:hover {
-  background: #337ecc;
+  background: linear-gradient(135deg, #ff5271, #ff7591);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 139, 0.3);
 }
 
 .btn-outline {
@@ -382,13 +385,13 @@ ID: ${appointment.id}
 }
 
 .tag-success {
-  background: #67C23A;
+  background: #ff8fab;
   color: white;
 }
 
 .tag-warning {
-  background: #E6A23C;
-  color: white;
+  background: #ffc0cb;
+  color: #ff6b8b;
 }
 
 .table-container {

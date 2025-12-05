@@ -425,12 +425,15 @@ textarea.form-control {
 }
 
 .btn-primary {
-  background: #409EFF;
+  background: linear-gradient(135deg, #ff6b8b, #ff8fab);
   color: white;
+  box-shadow: 0 2px 10px rgba(255, 107, 139, 0.2);
 }
 
 .btn-primary:hover {
-  background: #337ecc;
+  background: linear-gradient(135deg, #ff5271, #ff7591);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 139, 0.3);
 }
 
 .btn-outline {
@@ -444,12 +447,15 @@ textarea.form-control {
 }
 
 .btn-danger {
-  background: #F56C6C;
+  background: linear-gradient(135deg, #ff5271, #ff7591);
   color: white;
+  box-shadow: 0 2px 10px rgba(255, 82, 113, 0.2);
 }
 
 .btn-danger:hover {
-  background: #dd6161;
+  background: linear-gradient(135deg, #ff3860, #ff5c79);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 82, 113, 0.3);
 }
 
 .table-container {
