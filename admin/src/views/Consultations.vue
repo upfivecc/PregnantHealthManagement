@@ -89,7 +89,7 @@
     </div>
     
     <!-- 咨询详情模态框 -->
-    <div class="modal" :style="{ display: showDetailModal ? 'block' : 'none' }">
+    <div class="modal" :style="{ display: showDetailModal ? 'flex' : 'none' }">
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>咨询详情</h3>
@@ -136,7 +136,7 @@
     </div>
     
     <!-- 回复咨询模态框 -->
-    <div class="modal" :style="{ display: showReplyModal ? 'block' : 'none' }">
+    <div class="modal" :style="{ display: showReplyModal ? 'flex' : 'none' }">
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>回复咨询</h3>
@@ -417,6 +417,9 @@ export default {
   gap: 15px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+  padding: 15px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
 }
 
 .search-buttons {
@@ -466,12 +469,15 @@ textarea.form-control {
 }
 
 .btn-primary {
-  background: #409EFF;
+  background: linear-gradient(135deg, #ff5271, #ff7591);
   color: white;
+  box-shadow: 0 2px 10px rgba(255, 82, 113, 0.2);
 }
 
 .btn-primary:hover {
-  background: #337ecc;
+  background: linear-gradient(135deg, #ff3860, #ff5c79);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 139, 0.3);
 }
 
 .btn-outline {
@@ -538,6 +544,9 @@ textarea.form-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 15px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
 }
 
 .page-info {
