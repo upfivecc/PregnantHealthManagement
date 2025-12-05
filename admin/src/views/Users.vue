@@ -84,6 +84,45 @@
       </div>
     </div>
     
+    <!-- 用户查看详情模态框 -->
+    <div class="modal" :class="{ 'modal-show': showDetailModal }">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>用户详情</h3>
+          <button class="btn btn-outline" @click="closeDetailModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-item">
+            <label>ID:</label>
+            <span>{{ detailData.id }}</span>
+          </div>
+          <div class="detail-item">
+            <label>用户名:</label>
+            <span>{{ detailData.username }}</span>
+          </div>
+          <div class="detail-item">
+            <label>邮箱:</label>
+            <span>{{ detailData.email || '无' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>真实姓名:</label>
+            <span>{{ detailData.realName || '无' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>角色:</label>
+            <span>{{ getRoleName(detailData.role) }}</span>
+          </div>
+          <div class="detail-item">
+            <label>状态:</label>
+            <span>{{ detailData.status === 1 ? '启用' : '禁用' }}</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" @click="closeDetailModal">关闭</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 用户编辑模态框 -->
     <div class="modal" :class="{ 'modal-show': showUserModal }">
       <div class="modal-dialog">
@@ -146,6 +185,15 @@ export default {
     // 数据
     const userList = ref([])
     const showUserModal = ref(false)
+    const showDetailModal = ref(false)
+    const detailData = reactive({
+      id: '',
+      username: '',
+      email: '',
+      realName: '',
+      role: '',
+      status: 1
+    })
     const modalTitle = ref('添加用户')
     
     const searchForm = reactive({
@@ -263,17 +311,19 @@ export default {
         const response = await axios.get(`/api/users/${userId}`)
         if (response.data.code === 200) {
           const user = response.data.data
-          alert(`用户详情:
-ID: ${user.id}
-用户名: ${user.username}
-邮箱: ${user.email || ''}
-真实姓名: ${user.realName || ''}
-角色: ${getRoleName(user.role)}
-状态: ${user.status === 1 ? '启用' : '禁用'}`)
+          Object.keys(detailData).forEach(key => {
+            detailData[key] = user[key] || ''
+          })
+          showDetailModal.value = true
         }
       } catch (error) {
         console.error('获取用户详情失败:', error)
       }
+    }
+
+    // 关闭详情模态框
+    const closeDetailModal = () => {
+      showDetailModal.value = false
     }
     
     // 编辑用户
@@ -345,6 +395,8 @@ ID: ${user.id}
     return {
       userList,
       showUserModal,
+      showDetailModal,
+      detailData,
       modalTitle,
       searchForm,
       userForm,
@@ -355,6 +407,7 @@ ID: ${user.id}
       nextPage,
       showAddUserModal,
       closeUserModal,
+      closeDetailModal,
       viewUser,
       editUser,
       deleteUser,
@@ -583,5 +636,21 @@ ID: ${user.id}
   gap: 10px;
   padding: 20px;
   border-top: 1px solid #eee;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.detail-item label {
+  font-weight: 600;
+  width: 100px;
+  color: #333;
+}
+
+.detail-item span {
+  flex: 1;
+  color: #666;
 }
 </style>

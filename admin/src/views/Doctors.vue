@@ -81,6 +81,49 @@
       </div>
     </div>
     
+    <!-- 医生查看详情模态框 -->
+    <div class="modal" :class="{ 'modal-show': showDetailModal }">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>医生详情</h3>
+          <button class="btn btn-outline" @click="closeDetailModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-item">
+            <label>ID:</label>
+            <span>{{ detailData.id }}</span>
+          </div>
+          <div class="detail-item">
+            <label>用户ID:</label>
+            <span>{{ detailData.userId }}</span>
+          </div>
+          <div class="detail-item">
+            <label>医院:</label>
+            <span>{{ detailData.hospital }}</span>
+          </div>
+          <div class="detail-item">
+            <label>科室:</label>
+            <span>{{ detailData.department }}</span>
+          </div>
+          <div class="detail-item">
+            <label>职称:</label>
+            <span>{{ detailData.title }}</span>
+          </div>
+          <div class="detail-item">
+            <label>专长:</label>
+            <span>{{ detailData.specialty }}</span>
+          </div>
+          <div class="detail-item">
+            <label>简介:</label>
+            <span>{{ detailData.introduction || '无' }}</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" @click="closeDetailModal">关闭</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 医生编辑模态框 -->
     <div class="modal" :class="{ 'modal-show': showDoctorModal }">
       <div class="modal-dialog">
@@ -136,6 +179,16 @@ export default {
     // 数据
     const doctorList = ref([])
     const showDoctorModal = ref(false)
+    const showDetailModal = ref(false)
+    const detailData = reactive({
+      id: '',
+      userId: '',
+      hospital: '',
+      department: '',
+      title: '',
+      specialty: '',
+      introduction: ''
+    })
     const modalTitle = ref('添加医生')
     
     const searchForm = reactive({
@@ -238,18 +291,19 @@ export default {
         const response = await axios.get(`/api/doctors/${doctorId}`)
         if (response.data.code === 200) {
           const doctor = response.data.data
-          alert(`医生详情:
-ID: ${doctor.id}
-用户ID: ${doctor.userId}
-医院: ${doctor.hospital}
-科室: ${doctor.department}
-职称: ${doctor.title}
-专长: ${doctor.specialty}
-简介: ${doctor.introduction || ''}`)
+          Object.keys(detailData).forEach(key => {
+            detailData[key] = doctor[key] || ''
+          })
+          showDetailModal.value = true
         }
       } catch (error) {
         console.error('获取医生详情失败:', error)
       }
+    }
+
+    // 关闭详情模态框
+    const closeDetailModal = () => {
+      showDetailModal.value = false
     }
     
     // 编辑医生
@@ -321,9 +375,11 @@ ID: ${doctor.id}
     return {
       doctorList,
       showDoctorModal,
+      showDetailModal,
       modalTitle,
       searchForm,
       doctorForm,
+      detailData,
       pagination,
       searchDoctors,
       resetSearch,
@@ -331,6 +387,7 @@ ID: ${doctor.id}
       nextPage,
       showAddDoctorModal,
       closeDoctorModal,
+      closeDetailModal,
       viewDoctor,
       editDoctor,
       deleteDoctor,
@@ -556,5 +613,21 @@ textarea.form-control {
   gap: 10px;
   padding: 20px;
   border-top: 1px solid #eee;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.detail-item label {
+  font-weight: 600;
+  width: 100px;
+  color: #333;
+}
+
+.detail-item span {
+  flex: 1;
+  color: #666;
 }
 </style>
