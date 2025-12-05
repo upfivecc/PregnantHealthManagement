@@ -7,19 +7,19 @@
       <div class="features">
         <div class="feature">
           <i class="fas fa-check-circle"></i>
-          专业的医生团队
+          <span>专业的医生团队</span>
         </div>
         <div class="feature">
           <i class="fas fa-check-circle"></i>
-          个性化的健康管理
+          <span>个性化的健康管理</span>
         </div>
         <div class="feature">
           <i class="fas fa-check-circle"></i>
-          便捷的在线咨询
+          <span>便捷的在线咨询</span>
         </div>
         <div class="feature">
           <i class="fas fa-check-circle"></i>
-          丰富的孕期知识
+          <span>丰富的孕期知识</span>
         </div>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <h2>欢迎登录</h2>
       <p>请使用您的账户登录系统</p>
       
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleLogin" class="auth-form">
         <div class="form-group">
           <label for="username">用户名</label>
           <input 
@@ -61,7 +61,7 @@
           </select>
         </div>
         
-        <button type="submit" class="login-btn" :class="{ 'btn-loading': loading }" :disabled="loading">
+        <button type="submit" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" id="loginBtn">
           {{ loading ? '登录中...' : '登录' }}
         </button>
       </form>
@@ -99,22 +99,18 @@ export default {
       
       try {
         // 调用实际的登录API
-        const response = await axios.post('/api/users/login', {
+        const response = await axios.post('/api/users/admin-login', {
           username: loginForm.value.username,
           password: loginForm.value.password,
           role: loginForm.value.role
         })
         
         if (response.data.code === 200) {
-          // 保存用户信息到localStorage
-          const userInfo = {
-            ...response.data.data,
-            role: loginForm.value.role
-          }
-          localStorage.setItem('userInfo', JSON.stringify(userInfo))
+          // 将用户信息保存到localStorage
+          localStorage.setItem('currentUser', JSON.stringify(response.data.data))
           
           // 跳转到管理后台
-          router.push('/admin/dashboard')
+          window.location.href = './admin.html'
         } else {
           alert('登录失败：' + response.data.message)
         }
@@ -154,24 +150,22 @@ export default {
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+/* 确保Vue应用根元素占满整个屏幕 */
+#app {
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  width: 100vw;
 }
 
 .login-container {
   display: flex;
   width: 900px;
   height: 500px;
-  background: white;
+  background: transparent;
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  position: relative;
+  z-index: 10;
 }
 
 /* 左侧装饰区域 */
@@ -253,9 +247,9 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background: white;
+  animation: fadeIn 0.5s ease forwards;
 }
-
-
 
 .login-right h2 {
   font-size: 28px;
@@ -299,7 +293,7 @@ body {
 }
 
 /* 按钮样式 */
-.login-btn {
+.btn {
   width: 100%;
   padding: 12px;
   border: none;
@@ -312,17 +306,15 @@ body {
   z-index: 1;
   margin-top: 10px;
   margin-bottom: 20px;
+}
+
+.btn-primary {
   background: var(--primary-color);
   color: white;
 }
 
-.login-btn:hover:not(:disabled) {
+.btn-primary:hover {
   background: var(--secondary-color);
-}
-
-.login-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 
 .btn-loading {
@@ -393,7 +385,9 @@ body {
   }
 }
 
-.login-right {
-  animation: fadeIn 0.5s ease forwards;
+/* 确整表单位置和间距 */
+.auth-form {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 </style>

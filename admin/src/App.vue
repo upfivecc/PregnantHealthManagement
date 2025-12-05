@@ -28,13 +28,17 @@ body {
 
 /* 登录页面背景样式 */
 body.login-page {
-  background: linear-gradient(135deg, #4361ee, #3f37c9);
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
+  background: linear-gradient(135deg, #4361ee, #3f37c9) !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
+
+/* 引入Font Awesome图标库 */
+@import url('https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 </style>
