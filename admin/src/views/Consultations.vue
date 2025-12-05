@@ -57,7 +57,7 @@
                     {{ getStatusText(consultation.status) }}
                   </span>
                 </td>
-                <td>{{ formatDate(consultation.createTime) }}</td>
+                <td>{{ formatDate(consultation.createdTime) }}</td>
                 <td>
                   <div class="table-actions">
                     <button class="btn btn-outline view-consultation" @click="viewConsultation(consultation.id)">
@@ -126,7 +126,7 @@
           </div>
           <div class="detail-item">
             <label>创建时间:</label>
-            <span>{{ formatDate(detailData.createTime) }}</span>
+            <span>{{ formatDate(detailData.createdTime) }}</span>
           </div>
         </div>
         <div class="modal-footer">

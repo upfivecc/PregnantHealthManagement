@@ -38,7 +38,7 @@
                 <th>ID</th>
                 <th>标题</th>
                 <th>分类</th>
-                <th>作者</th>
+
                 <th>状态</th>
                 <th>创建时间</th>
                 <th>操作</th>
@@ -49,7 +49,7 @@
                 <td>{{ knowledge.id }}</td>
                 <td>{{ knowledge.title }}</td>
                 <td>{{ knowledge.category }}</td>
-                <td>{{ knowledge.author }}</td>
+
                 <td><span class="tag" :class="knowledge.status === 1 ? 'tag-success' : 'tag-warning'">{{ knowledge.status === 1 ? '已发布' : '草稿' }}</span></td>
                 <td>{{ formatDate(knowledge.createdTime) }}</td>
                 <td>
@@ -105,10 +105,7 @@
             <span class="detail-label">分类</span>
             <span class="detail-value">{{ detailData.category }}</span>
           </div>
-          <div class="detail-item">
-            <span class="detail-label">作者</span>
-            <span class="detail-value">{{ detailData.author }}</span>
-          </div>
+
           <div class="detail-item">
             <span class="detail-label">状态</span>
             <span class="detail-value">{{ detailData.status === 1 ? '已发布' : '草稿' }}</span>
@@ -146,10 +143,7 @@
               <label>分类</label>
               <input type="text" class="form-control" v-model="knowledgeForm.category" required>
             </div>
-            <div class="form-group">
-              <label>作者</label>
-              <input type="text" class="form-control" v-model="knowledgeForm.author" required>
-            </div>
+
             <div class="form-group">
               <label>状态</label>
               <select class="form-control" v-model="knowledgeForm.status">
@@ -197,7 +191,7 @@ export default {
       id: '',
       title: '',
       category: '',
-      author: '',
+
       status: '1',
       content: ''
     })
