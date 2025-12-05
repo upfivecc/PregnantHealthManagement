@@ -621,6 +621,15 @@
                 document.getElementById('dashboardPage').style.display = 'block';
                 document.querySelector('[data-page="dashboard"]').classList.add('active');
                 
+                // 确保其他页面隐藏
+                const otherPages = ['users', 'doctors', 'appointments', 'knowledge', 'consultations'];
+                otherPages.forEach(page => {
+                    const pageElement = document.getElementById(`${page}Page`);
+                    if (pageElement) {
+                        pageElement.style.display = 'none';
+                    }
+                });
+                
                 // 加载仪表盘数据
                 loadDashboardData();
             } else {
@@ -909,7 +918,10 @@
                 
                 // 显示对应的页面
                 const pageId = this.getAttribute('data-page');
-                document.getElementById(`${pageId}Page`).style.display = 'block';
+                const pageElement = document.getElementById(`${pageId}Page`);
+                if (pageElement) {
+                    pageElement.style.display = 'block';
+                }
                 
                 // 根据用户角色调整界面显示
                 if (currentUser && currentUser.role === 'DOCTOR') {
@@ -922,14 +934,6 @@
                         this.classList.remove('active');
                         return;
                     }
-                } else if (currentUser && currentUser.role === 'ADMIN') {
-                    // 管理员可以看到所有菜单
-                    document.querySelector('[data-page="dashboard"]').style.display = 'flex';
-                    document.querySelector('[data-page="users"]').style.display = 'flex';
-                    document.querySelector('[data-page="doctors"]').style.display = 'flex';
-                    document.querySelector('[data-page="appointments"]').style.display = 'flex';
-                    document.querySelector('[data-page="knowledge"]').style.display = 'flex';
-                    document.querySelector('[data-page="consultations"]').style.display = 'flex';
                 }
                 
                 // 更新页面标题
