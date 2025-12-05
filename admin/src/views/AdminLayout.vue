@@ -198,7 +198,7 @@ export default {
 
 .sidebar {
   width: 250px;
-  background: #2c3e50;
+  background: linear-gradient(135deg, #ff6b8b, #ff8fab);
   color: white;
   transition: width 0.3s ease;
   display: flex;
@@ -246,6 +246,12 @@ export default {
   padding: 20px 0;
 }
 
+/* 确保router-link正确应用menu-item样式 */
+.sidebar-menu a {
+  width: 100%;
+  display: flex;
+}
+
 .menu-item {
   display: flex;
   align-items: center;
@@ -253,20 +259,30 @@ export default {
   padding: 15px 20px;
   cursor: pointer;
   transition: background 0.3s;
+  text-decoration: none;
+  color: white !important;
 }
 
 .menu-item:hover {
   background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
 }
 
 .menu-item.active {
-  background: #3498db;
+  background: rgba(255, 255, 255, 0.2);
+  border-right: 3px solid white;
+  text-decoration: none;
 }
 
 .menu-item i {
   font-size: 1.2rem;
   width: 20px;
   text-align: center;
+  color: white !important;
+}
+
+.menu-item span {
+  color: white !important;
 }
 
 .main-content {
@@ -284,15 +300,15 @@ export default {
   padding: 0 20px;
   height: 60px;
   background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid #eee;
+  box-shadow: 0 2px 10px rgba(255, 107, 139, 0.1);
+  border-bottom: 2px solid #ff6b8b;
   flex-shrink: 0; /* 防止头部被压缩 */
 }
 
 .header-left h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: #ff6b8b;
 }
 
 .header-right {
@@ -330,15 +346,18 @@ export default {
   align-items: center;
   gap: 5px;
   padding: 8px 15px;
-  background: #e74c3c;
+  background: linear-gradient(135deg, #ff6b8b, #ff8fab);
   color: white;
   border-radius: 5px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.3s;
+  box-shadow: 0 2px 10px rgba(255, 107, 139, 0.2);
 }
 
 .logout-btn:hover {
-  background: #c0392b;
+  background: linear-gradient(135deg, #ff5271, #ff7591);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 139, 0.3);
 }
 
 .content {

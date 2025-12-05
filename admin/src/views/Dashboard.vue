@@ -122,8 +122,8 @@ export default {
               datasets: [{
                 label: '预约数量',
                 data: values,
-                borderColor: '#409EFF',
-                backgroundColor: 'rgba(64, 158, 255, 0.1)',
+                borderColor: '#ff6b8b',
+                backgroundColor: 'rgba(255, 107, 139, 0.1)',
                 borderWidth: 2,
                 fill: true,
                 tension: 0.4
@@ -174,8 +174,8 @@ export default {
               datasets: [{
                 label: '病人数量',
                 data: values,
-                backgroundColor: '#67C23A',
-                borderColor: '#67C23A',
+                backgroundColor: '#ff8fab',
+                borderColor: '#ff6b8b',
                 borderWidth: 1
               }]
             },
@@ -275,19 +275,19 @@ export default {
 }
 
 .bg-blue {
-  background: #409EFF;
+  background: linear-gradient(135deg, #ff6b8b, #ff8fab);
 }
 
 .bg-green {
-  background: #67C23A;
+  background: linear-gradient(135deg, #ff8fab, #ff6b8b);
 }
 
 .bg-orange {
-  background: #E6A23C;
+  background: linear-gradient(135deg, #ffc0cb, #ffb6c1);
 }
 
 .bg-red {
-  background: #F56C6C;
+  background: linear-gradient(135deg, #ff5271, #ff6b8b);
 }
 
 .stat-info {
