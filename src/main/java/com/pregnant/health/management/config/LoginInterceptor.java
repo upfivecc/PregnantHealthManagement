@@ -16,31 +16,28 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 获取请求路径
-        String uri = request.getRequestURI();
-        
-        // 放行登录相关接口和静态资源
-        if (uri.startsWith("/api/users/login") || 
-            uri.startsWith("/api/users/admin-login") || 
-            uri.startsWith("/api/users/register") ||
-            uri.startsWith("/api/users/set-session") ||
-            uri.startsWith("/api/users/clear-session") ||
-            uri.equals("/") || 
-            uri.startsWith("/login") || 
-            uri.startsWith("/admin-login") ||
-            uri.startsWith("/css/") || 
-            uri.startsWith("/js/") || 
-            uri.startsWith("/images/")) {
-            return true;
-        }
-        
         // 检查session中是否有用户信息
         HttpSession session = request.getSession();
         Object currentUser = session.getAttribute("currentUser");
         
         if (currentUser == null) {
-            // 未登录，重定向到登录页面
-            response.sendRedirect("/login.html");
+            // 未登录，返回JSON格式的错误响应
+            response.setContentType("application/json;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
+            
+            // 创建错误响应对象
+            Result result = new Result();
+            result.setCode(401);
+            result.setMessage("未登录或登录已过期，请重新登录");
+            
+            // 转换为JSON字符串
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(result);
+            
+            writer.write(json);
+            writer.flush();
+            writer.close();
+            
             return false;
         }
         
