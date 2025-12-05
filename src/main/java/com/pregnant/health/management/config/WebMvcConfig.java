@@ -20,8 +20,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                                    "/api/users/admin-login",
                                    "/api/users/register",
                                    "/login.html",
-                                   "/admin-login.html",
-                                   "/login-new.html",
                                    "/",
                                    "/css/**",
                                    "/js/**",

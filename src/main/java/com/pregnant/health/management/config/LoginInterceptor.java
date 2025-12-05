@@ -39,14 +39,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         Object currentUser = session.getAttribute("currentUser");
         
         if (currentUser == null) {
-            // 未登录，返回未登录信息
-            response.setContentType("application/json;charset=utf-8");
-            PrintWriter out = response.getWriter();
-            Result<Object> result = Result.error("请先登录");
-            ObjectMapper mapper = new ObjectMapper();
-            out.write(mapper.writeValueAsString(result));
-            out.flush();
-            out.close();
+            // 未登录，重定向到登录页面
+            response.sendRedirect("/login.html");
             return false;
         }
         
