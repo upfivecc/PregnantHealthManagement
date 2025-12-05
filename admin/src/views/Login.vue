@@ -107,17 +107,27 @@
             
             <div class="form-group">
               <label for="role">角色</label>
-              <div class="input-wrapper select-wrapper">
-                <svg class="input-icon" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M12,16A2,2 0 0,1 14,14C14,12.89 13.1,12 12,12C10.89,12 10,12.89 10,14A2,2 0 0,1 12,16M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M17,8H7V6A3,3 0 0,1 10,3A3,3 0 0,1 13,6V8Z" />
-                </svg>
-                <select id="role" v-model="loginForm.role" class="form-control">
-                  <option value="ADMIN">管理员</option>
-                  <option value="DOCTOR">医生</option>
-                </select>
-                <svg class="select-icon" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
-                </svg>
+              <div class="custom-select-wrapper">
+                <div class="input-wrapper select-wrapper" @click="toggleDropdown">
+                  <svg class="input-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12,16A2,2 0 0,1 14,14C14,12.89 13.1,12 12,12C10.89,12 10,12.89 10,14A2,2 0 0,1 12,16M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M17,8H7V6A3,3 0 0,1 10,3A3,3 0 0,1 13,6V8Z" />
+                  </svg>
+                  <div class="selected-value">{{ selectedRoleText }}</div>
+                  <svg class="select-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M7,10L12,15L17,10H7Z" />
+                  </svg>
+                </div>
+                <div v-if="showDropdown" class="custom-dropdown">
+                  <div 
+                    v-for="role in roles" 
+                    :key="role.value"
+                    class="dropdown-option"
+                    :class="{ 'active': loginForm.role === role.value }"
+                    @click="selectRole(role.value)"
+                  >
+                    {{ role.text }}
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -132,7 +142,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -141,20 +151,56 @@ export default {
   mounted() {
     // 添加登录页面标识class
     document.body.classList.add('login-page');
+    // 添加点击外部关闭下拉框的事件监听
+    this.addClickOutsideListener();
   },
   beforeUnmount() {
     // 移除登录页面标识class
     document.body.classList.remove('login-page');
+    // 移除点击外部关闭下拉框的事件监听
+    this.removeClickOutsideListener();
   },
   setup() {
     const router = useRouter()
     const loading = ref(false)
+    const showDropdown = ref(false) // 控制下拉框显示/隐藏
+    
+    // 角色选项数据
+    const roles = ref([
+      { value: 'ADMIN', text: '管理员' },
+      { value: 'DOCTOR', text: '医生' }
+    ])
     
     const loginForm = ref({
       username: '',
       password: '',
       role: 'ADMIN'
     })
+    
+    // 计算当前选中的角色文本
+    const selectedRoleText = computed(() => {
+      const role = roles.value.find(r => r.value === loginForm.value.role)
+      return role ? role.text : ''
+    })
+    
+    // 切换下拉框显示状态
+    const toggleDropdown = () => {
+      showDropdown.value = !showDropdown.value
+    }
+    
+    // 选择角色
+    const selectRole = (value) => {
+      loginForm.value.role = value
+      showDropdown.value = false
+    }
+    
+    // 点击外部关闭下拉框
+    const handleClickOutside = (event) => {
+      const customSelect = document.querySelector('.custom-select-wrapper')
+      if (customSelect && !customSelect.contains(event.target)) {
+        showDropdown.value = false
+      }
+    }
     
     const handleLogin = async () => {
       loading.value = true
@@ -168,29 +214,50 @@ export default {
         })
         
         if (response.data.code === 200) {
-          // 将用户信息保存到localStorage
-          localStorage.setItem('userInfo', JSON.stringify({
-            ...response.data.data,
-            role: loginForm.value.role
-          }))
+          // 登录成功，将token存储到localStorage
+          localStorage.setItem('token', response.data.data.token)
+          localStorage.setItem('userInfo', JSON.stringify(response.data.data.userInfo))
           
-          // 跳转到管理后台
-          router.push('/admin/dashboard')
+          // 根据角色跳转到不同页面
+          if (loginForm.value.role === 'ADMIN') {
+            router.push('/dashboard')
+          } else if (loginForm.value.role === 'DOCTOR') {
+            router.push('/doctor-dashboard')
+          }
         } else {
-          alert('登录失败：' + response.data.message)
+          // 登录失败，显示错误消息
+          alert(response.data.message || '登录失败，请检查用户名和密码')
         }
       } catch (error) {
         console.error('登录失败:', error)
-        alert('登录失败，请检查用户名和密码')
+        alert('登录失败，请稍后重试')
       } finally {
         loading.value = false
       }
     }
     
+    // 在组件挂载时添加点击外部事件监听
+    const addClickOutsideListener = () => {
+      document.addEventListener('click', handleClickOutside)
+    }
+    
+    // 在组件卸载时移除点击外部事件监听
+    const removeClickOutsideListener = () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+    
     return {
-      loginForm,
+      router,
       loading,
-      handleLogin
+      loginForm,
+      showDropdown,
+      roles,
+      selectedRoleText,
+      toggleDropdown,
+      selectRole,
+      handleLogin,
+      addClickOutsideListener,
+      removeClickOutsideListener
     }
   }
 }
@@ -553,6 +620,68 @@ export default {
   pointer-events: none;
 }
 
+/* 下拉框选项样式 */
+.select-wrapper select option {
+  background: #ff8fab !important;
+  color: white !important;
+  padding: 10px !important;
+}
+
+/* 自定义下拉框样式 */
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.selected-value {
+  width: 100%;
+  padding: 12px 15px;
+  color: var(--dark-color);
+  background: transparent;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.dropdown-option {
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #ff6b8b, #ff8fab);
+  color: white;
+}
+
+.dropdown-option:hover {
+  background: linear-gradient(135deg, #ff8fab, #ff6b8b);
+  color: white;
+}
+
+.dropdown-option.active {
+  background: linear-gradient(135deg, #ff5277, #ff7390);
+  color: white;
+}
+
+/* 针对Firefox的下拉框选项样式 */
+.select-wrapper select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #000;
+}
+
+/* 增强下拉框的整体样式一致性 */
+.select-wrapper {
+  position: relative;
+}
+
 /* 按钮样式 */
 .btn {
   width: 100%;
@@ -572,7 +701,7 @@ export default {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(135deg, #ff6b8b, #ff8fab); /* 与左侧背景颜色保持一致 */
   color: white;
 }
 
