@@ -207,7 +207,7 @@
                 tr.innerHTML = `
                     <td>${appointment.id || ''}</td>
                     <td>${appointment.userName || ''}</td>
-                    <td>${appointment.doctorName || ''}</td>
+                    <td>${appointment.title || ''}</td>
                     <td>${formatDate(appointment.appointmentTime) || ''}</td>
                     <td>${getAppointmentStatusName(appointment.status) || ''}</td>
                     <td>${formatDate(appointment.createTime) || ''}</td>
@@ -255,7 +255,7 @@
                             </div>
                             <div class="detail-item">
                                 <label>医生:</label>
-                                <span>${appointment.doctorName || ''}</span>
+                                <span>${appointment.title || ''}</span>
                             </div>
                             <div class="detail-item">
                                 <label>预约时间:</label>

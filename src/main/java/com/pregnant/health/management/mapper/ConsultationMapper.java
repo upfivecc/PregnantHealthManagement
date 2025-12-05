@@ -11,10 +11,11 @@ public interface ConsultationMapper {
     @Select("SELECT * FROM consultations WHERE id = #{id}")
     Consultation selectById(Long id);
     
-    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title " +
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title, du.real_name as doctorName " +
             "FROM consultations c " +
             "LEFT JOIN users u ON c.user_id = u.id " +
             "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "LEFT JOIN users du ON d.user_id = du.id " +
             "ORDER BY c.created_time DESC " +
             "LIMIT #{offset}, #{limit}")
     List<Consultation> selectAll(@Param("offset") Integer offset, @Param("limit") Integer limit);
@@ -23,10 +24,11 @@ public interface ConsultationMapper {
     Long countAll();
     
     // 按标题模糊查询咨询列表
-    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title " +
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title, du.real_name as doctorName " +
             "FROM consultations c " +
             "LEFT JOIN users u ON c.user_id = u.id " +
             "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "LEFT JOIN users du ON d.user_id = du.id " +
             "WHERE c.title LIKE CONCAT('%', #{title}, '%') " +
             "ORDER BY c.created_time DESC " +
             "LIMIT #{offset}, #{limit}")
@@ -37,10 +39,11 @@ public interface ConsultationMapper {
     Long countByTitle(@Param("title") String title);
     
     // 按状态查询咨询列表
-    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title " +
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title, du.real_name as doctorName " +
             "FROM consultations c " +
             "LEFT JOIN users u ON c.user_id = u.id " +
             "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "LEFT JOIN users du ON d.user_id = du.id " +
             "WHERE c.status = #{status} " +
             "ORDER BY c.created_time DESC " +
             "LIMIT #{offset}, #{limit}")
@@ -51,10 +54,11 @@ public interface ConsultationMapper {
     Long countByStatus(@Param("status") Integer status);
     
     // 按标题和状态查询咨询列表
-    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title " +
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title, du.real_name as doctorName " +
             "FROM consultations c " +
             "LEFT JOIN users u ON c.user_id = u.id " +
             "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "LEFT JOIN users du ON d.user_id = du.id " +
             "WHERE c.title LIKE CONCAT('%', #{title}, '%') AND c.status = #{status} " +
             "ORDER BY c.created_time DESC " +
             "LIMIT #{offset}, #{limit}")
@@ -64,9 +68,11 @@ public interface ConsultationMapper {
     @Select("SELECT COUNT(*) FROM consultations WHERE title LIKE CONCAT('%', #{title}, '%') AND status = #{status}")
     Long countByTitleAndStatus(@Param("title") String title, @Param("status") Integer status);
     
-    @Select("SELECT c.*, u.username as userName " +
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title, du.real_name as doctorName " +
             "FROM consultations c " +
             "LEFT JOIN users u ON c.user_id = u.id " +
+            "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "LEFT JOIN users du ON d.user_id = du.id " +
             "WHERE c.doctor_id = #{doctorId} " +
             "ORDER BY c.created_time DESC " +
             "LIMIT #{offset}, #{limit}")

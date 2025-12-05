@@ -1860,7 +1860,7 @@ ID: ${doctor.id || ''}
                     <td>${appointment.userName || ''}</td>
                     <td>${appointment.hospital || ''}</td>
                     <td>${appointment.department || ''}</td>
-                    <td>${appointment.doctorTitle || ''}</td>
+                    <td>${appointment.title || ''}</td>
                     <td>${formatDate(appointment.appointmentTime) || ''}</td>
                     <td><span class="tag ${appointment.status === 1 ? 'tag-success' : 'tag-warning'}">${appointment.status === 1 ? '已确认' : '待确认'}</span></td>
                     <td>
@@ -1941,7 +1941,7 @@ ID: ${appointment.id || ''}
 用户: ${appointment.userName || ''}
 医院: ${appointment.hospital || ''}
 科室: ${appointment.department || ''}
-医生职称: ${appointment.doctorTitle || ''}
+医生职称: ${appointment.title || ''}
 预约时间: ${formatDate(appointment.appointmentTime) || ''}
 状态: ${appointment.status === 1 ? '已确认' : '待确认'}`);
                     } else if (data.code === 500 && data.message === '请先登录') {
@@ -1970,7 +1970,7 @@ ID: ${appointment.id || ''}
 用户: ${appointment.userName || ''}
 医院: ${appointment.hospital || ''}
 科室: ${appointment.department || ''}
-医生职称: ${appointment.doctorTitle || ''}
+医生职称: ${appointment.title || ''}
 预约时间: ${formatDate(appointment.appointmentTime) || ''}
 状态: ${appointment.status === 1 ? '已确认' : '待确认'}
 
@@ -2060,7 +2060,7 @@ ID: ${appointment.id || ''}
                     <td>${knowledge.title || ''}</td>
                     <td>${knowledge.category || ''}</td>
                     <td><span class="tag ${knowledge.status === 1 ? 'tag-success' : 'tag-warning'}">${knowledge.status === 1 ? '已发布' : '草稿'}</span></td>
-                    <td>${formatDate(knowledge.createTime) || ''}</td>
+                    <td>${formatDate(knowledge.createdTime) || ''}</td>
                     <td>
                         <div class="table-actions">
                             <button class="btn btn-outline view-knowledge" data-id="${knowledge.id}">
@@ -2143,7 +2143,7 @@ ID: ${knowledge.id || ''}
 标题: ${knowledge.title || ''}
 分类: ${knowledge.category || ''}
 状态: ${knowledge.status === 1 ? '已发布' : '草稿'}
-创建时间: ${formatDate(knowledge.createTime) || ''}`);
+创建时间: ${formatDate(knowledge.createdTime) || ''}`);
                     } else if (data.code === 500 && data.message === '请先登录') {
                         // 未登录，跳转到登录页面
                         window.location.href = './admin-login.html';
@@ -2170,7 +2170,7 @@ ID: ${knowledge.id || ''}
 标题: ${knowledge.title || ''}
 分类: ${knowledge.category || ''}
 状态: ${knowledge.status === 1 ? '已发布' : '草稿'}
-创建时间: ${formatDate(knowledge.createTime) || ''}
+创建时间: ${formatDate(knowledge.createdTime) || ''}
 
 这里应该打开编辑模态框，但为了简化示例，我们只显示信息。`);
                     } else if (data.code === 500 && data.message === '请先登录') {

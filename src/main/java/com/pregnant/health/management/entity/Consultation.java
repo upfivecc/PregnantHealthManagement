@@ -21,4 +21,5 @@ public class Consultation {
     private String hospital;
     private String department;
     private String doctorTitle;
+    private String doctorName;
 }
