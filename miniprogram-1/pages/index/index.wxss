@@ -91,22 +91,22 @@ page {
 
 .doctor-icon {
   background-color: #e3f2fd;
-  background-image: url('../../images/doctor.png');
+  background-image: url('https://youke2.picui.cn/s1/2025/12/13/693ca4928aa5a.png');
 }
 
 .record-icon {
   background-color: #f3e5f5;
-  background-image: url('../../images/record.png');
+  background-image: url('https://youke2.picui.cn/s1/2025/12/13/693ca4a7b1c29.png');
 }
 
 .knowledge-icon {
   background-color: #e8f5e8;
-  background-image: url('../../images/knowledge.png');
+  background-image: url('https://youke2.picui.cn/s1/2025/12/13/693ca4a777976.png');
 }
 
 .consult-icon {
   background-color: #fff3e0;
-  background-image: url('../../images/doctor.png');
+  background-image: url('https://youke2.picui.cn/s1/2025/12/13/693ca4928aa5a.png');
 }
 
 .function-name {
@@ -246,12 +246,12 @@ page {
 
 .nutrition-icon {
   background-color: #e8f5e8;
-  background-image: url('../../images/knowledge.png');
+  background-image: url('https://youke2.picui.cn/s1/2025/12/13/693ca4a777976.png');
 }
 
 .exercise-icon {
   background-color: #e3f2fd;
-  background-image: url('../../images/knowledge.png');
+  background-image: url('https://youke2.picui.cn/s1/2025/12/13/693ca4a777976.png');
 }
 
 .recommend-content {

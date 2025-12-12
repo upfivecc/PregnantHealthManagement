@@ -39,11 +39,15 @@ public class KnowledgeController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(defaultValue = "false") Boolean published,
-            @RequestParam(required = false) String title) {
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category) {  // 添加 category 参数
         PageResult<Knowledge> result;
         if (title != null && !title.isEmpty()) {
             // 按标题查询
             result = knowledgeService.getKnowledgeListByTitle(title, page, size);
+        } else if (category != null && !category.isEmpty()) {
+            // 按分类查询
+            result = knowledgeService.getKnowledgeList(page, size, null, category, null);
         } else if (published) {
             result = knowledgeService.getPublishedKnowledgeList(page, size);
         } else {
