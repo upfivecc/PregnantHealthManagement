@@ -1,0 +1,159 @@
+<!-- record.wxml -->
+<view class="container">
+  <!-- 表单区域 -->
+  <view class="form-section">
+    <view class="inner-content">
+      <view class="section-title">记录今日数据</view>
+      
+      <!-- 日期选择 -->
+      <view class="form-item">
+        <text class="label">记录日期</text>
+        <picker mode="date" value="{{formData.recordDate}}" bindchange="onDateChange">
+          <view class="picker">
+            {{formData.recordDate}}
+            <text class="arrow">▼</text>
+          </view>
+        </picker>
+      </view>
+      
+      <!-- 身高输入 -->
+      <view class="form-item">
+        <text class="label">身高（cm）</text>
+        <input 
+          type="digit" 
+          placeholder="请输入身高" 
+          value="{{formData.height}}" 
+          bindinput="onHeightInput"
+        />
+      </view>
+      
+      <!-- 体重输入 -->
+      <view class="form-item">
+        <text class="label">体重（kg）</text>
+        <input 
+          type="digit" 
+          placeholder="请输入体重" 
+          value="{{formData.weight}}" 
+          bindinput="onWeightInput"
+        />
+      </view>
+      
+      <!-- 血压输入 -->
+      <view class="form-item blood-pressure">
+        <text class="label">血压（mmHg）</text>
+        <view class="pressure-inputs">
+          <input 
+            type="number" 
+            placeholder="收缩压" 
+            value="{{formData.systolicPressure}}" 
+            bindinput="onSystolicPressureInput"
+            maxlength="3"
+          />
+          <text class="separator">/</text>
+          <input 
+            type="number" 
+            placeholder="舒张压" 
+            value="{{formData.diastolicPressure}}" 
+            bindinput="onDiastolicPressureInput"
+            maxlength="2"
+          />
+        </view>
+      </view>
+      
+      <!-- 胎动次数输入 -->
+      <view class="form-item">
+        <text class="label">胎动次数（次）</text>
+        <input 
+          type="number" 
+          placeholder="请输入12小时内胎动次数" 
+          value="{{formData.fetalMovements}}" 
+          bindinput="onFetalMovementsInput"
+          maxlength="2"
+        />
+      </view>
+      
+      <!-- 提交按钮 -->
+      <button 
+        class="submit-btn" 
+        type="primary" 
+        bindtap="submitRecord"
+        loading="{{loading}}"
+      >
+        保存记录
+      </button>
+    </view>
+  </view>
+  
+  <!-- 体重变化图表 -->
+  <view class="chart-section" wx:if="{{chartData.points.length > 1}}">
+    <view class="inner-content">
+      <view class="section-title">体重变化趋势</view>
+      <view class="chart-container">
+        <!-- 简单的体重变化图表（使用线条和点表示） -->
+        <view class="chart">
+          <view class="chart-lines">
+            <!-- 渲染图表点 -->
+            <block wx:for="{{chartData.points}}" wx:for-index="index" wx:key="index">
+              <view class="chart-point" style="left:{{item.left}}%;bottom:{{item.bottom}}%;" data-weight="{{item.weight}}">
+                <view class="tooltip">{{item.weight}}kg</view>
+              </view>
+              <!-- 渲染连接线 -->
+              <view wx:if="{{index < chartData.points.length - 1}}" class="chart-line">
+                <view class="line-connector" style="left:{{item.left}}%;right:{{100 - chartData.points[index + 1].left}}%;bottom:{{Math.min(item.bottom, chartData.points[index + 1].bottom)}}%;height:{{Math.abs(item.bottom - chartData.points[index + 1].bottom)}}%;transform-origin:left bottom;transform:rotate({{Math.atan(Math.abs(item.bottom - chartData.points[index + 1].bottom) / (chartData.points[index + 1].left - item.left)) * 180 / Math.PI}}deg);"></view>
+              </view>
+            </block>
+          </view>
+          <!-- 图表标签 -->
+          <view class="chart-labels">
+            <block wx:for="{{chartData.points}}" wx:for-index="index" wx:key="index">
+              <view class="chart-label" style="left:{{item.left}}%;">
+                {{item.date}}
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 历史记录列表 -->
+  <view class="records-section">
+    <view class="inner-content">
+      <view class="section-title">历史记录</view>
+      
+      <block wx:if="{{records.length === 0}}">
+        <view class="empty">暂无历史记录</view>
+      </block>
+      
+      <view class="records-list" wx:else>
+        <view 
+          class="record-item" 
+          wx:for="{{records}}" 
+          wx:key="id"
+          bindtap="viewRecordDetail"
+          data-record-id="{{item.id}}"
+        >
+          <view class="record-header">
+            <text class="record-date">{{item.recordDate}}</text>
+            <text class="delete-btn" bindtap="deleteRecord" data-record-id="{{item.id}}">删除</text>
+          </view>
+          
+          <view class="record-content">
+            <block wx:if="{{item.height}}">
+              <text class="record-item-detail">身高：{{item.height}}cm</text>
+            </block>
+            <block wx:if="{{item.weight}}">
+              <text class="record-item-detail">体重：{{item.weight}}kg</text>
+            </block>
+            <block wx:if="{{item.systolicPressure && item.diastolicPressure}}">
+              <text class="record-item-detail">血压：{{item.systolicPressure}}/{{item.diastolicPressure}}mmHg</text>
+            </block>
+            <block wx:if="{{item.fetalMovements}}">
+              <text class="record-item-detail">胎动：{{item.fetalMovements}}次</text>
+            </block>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

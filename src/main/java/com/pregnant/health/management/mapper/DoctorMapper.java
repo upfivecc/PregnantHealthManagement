@@ -19,13 +19,15 @@ public interface DoctorMapper {
     @Select("SELECT COUNT(*) FROM doctors")
     Long countAll();
     
-    @Insert("INSERT INTO doctors(user_id, hospital, department, title, specialty, introduction) " +
-            "VALUES(#{userId}, #{hospital}, #{department}, #{title}, #{specialty}, #{introduction})")
+    @Insert("INSERT INTO doctors(user_id, name, hospital, department, title, specialty, introduction, score, consultation_count, positive_rate, avatar) " +
+            "VALUES(#{userId}, #{name}, #{hospital}, #{department}, #{title}, #{specialty}, #{introduction}, #{score}, #{consultationCount}, #{positiveRate}, #{avatar})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Doctor doctor);
     
-    @Update("UPDATE doctors SET hospital=#{hospital}, department=#{department}, title=#{title}, " +
-            "specialty=#{specialty}, introduction=#{introduction}, updated_time=NOW() WHERE id=#{id}")
+    @Update("UPDATE doctors SET name=#{name}, hospital=#{hospital}, department=#{department}, title=#{title}, " +
+            "specialty=#{specialty}, introduction=#{introduction}, score=#{score}, " +
+            "consultation_count=#{consultationCount}, positive_rate=#{positiveRate}, avatar=#{avatar}, " +
+            "updated_time=NOW() WHERE id=#{id}")
     int update(Doctor doctor);
     
     @Delete("DELETE FROM doctors WHERE id = #{id}")

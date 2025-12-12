@@ -1,0 +1,120 @@
+<!-- register.wxml -->
+<view class="container">
+  <view class="logo">
+    <image src="/images/logo.png" mode="aspectFit"></image>
+    <text class="app-name">孕期管理助手</text>
+  </view>
+
+  <view class="form-container">
+    <!-- 用户名输入 -->
+    <view class="input-item">
+      <text class="label">用户名</text>
+      <input 
+        type="text" 
+        placeholder="请输入用户名" 
+        value="{{username}}" 
+        bindinput="onUsernameInput"
+      />
+    </view>
+
+    <!-- 手机号输入 -->
+    <view class="input-item">
+      <text class="label">手机号</text>
+      <input 
+        type="number" 
+        placeholder="请输入手机号" 
+        value="{{phone}}" 
+        bindinput="onPhoneInput"
+        maxlength="11"
+      />
+    </view>
+
+    <!-- 邮箱输入 -->
+    <view class="input-item">
+      <text class="label">邮箱</text>
+      <input 
+        type="text" 
+        placeholder="请输入邮箱" 
+        value="{{email}}" 
+        bindinput="onEmailInput"
+      />
+    </view>
+
+    <!-- 真实姓名输入 -->
+    <view class="input-item">
+      <text class="label">真实姓名</text>
+      <input 
+        type="text" 
+        placeholder="请输入真实姓名" 
+        value="{{realName}}" 
+        bindinput="onRealNameInput"
+      />
+    </view>
+
+    <!-- 性别选择 -->
+    <view class="input-item">
+      <text class="label">性别</text>
+      <view class="gender-options">
+        <radio-group bindchange="onGenderChange">
+          <label class="radio-item"><radio value="1" checked="{{gender === 1}}" />男</label>
+          <label class="radio-item"><radio value="2" checked="{{gender === 2}}" />女</label>
+        </radio-group>
+      </view>
+    </view>
+
+    <!-- 年龄输入 -->
+    <view class="input-item">
+      <text class="label">年龄</text>
+      <input 
+        type="number" 
+        placeholder="请输入年龄" 
+        value="{{age}}" 
+        bindinput="onAgeInput"
+      />
+    </view>
+
+    <!-- 密码输入 -->
+    <view class="input-item">
+      <text class="label">密码</text>
+      <input 
+        type="password" 
+        placeholder="请设置密码（不少于6位）" 
+        value="{{password}}" 
+        bindinput="onPasswordInput"
+      />
+    </view>
+
+    <!-- 确认密码 -->
+    <view class="input-item">
+      <text class="label">确认密码</text>
+      <input 
+        type="password" 
+        placeholder="请再次输入密码" 
+        value="{{confirmPassword}}" 
+        bindinput="onConfirmPasswordInput"
+      />
+    </view>
+
+    <!-- 用户协议 -->
+    <view class="agreement">
+      <checkbox checked="{{isAgree}}" bindtap="toggleAgree"></checkbox>
+      <text>我已阅读并同意《用户协议》和《隐私政策》</text>
+    </view>
+
+    <!-- 注册按钮 -->
+    <button 
+      class="register-btn" 
+      type="primary" 
+      bindtap="onRegister"
+      disabled="{{!isAgree}}"
+    >
+      注册
+    </button>
+
+    <!-- 登录入口 -->
+    <view class="login">
+      <text>已有账号？</text>
+      <text class="link" bindtap="goToLogin">立即登录</text>
+    </view>
+  </view>
+</view>

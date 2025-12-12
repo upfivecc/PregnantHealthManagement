@@ -25,6 +25,16 @@ public class UserController {
         }
     }
     
+    @PostMapping
+    public Result<User> addUser(@RequestBody User user) {
+        try {
+            User registeredUser = userService.register(user);
+            return Result.success(registeredUser);
+        } catch (Exception e) {
+            return Result.error("添加用户失败：" + e.getMessage());
+        }
+    }
+    
     @PostMapping("/login")
     public Result<User> login(@RequestBody User loginUser, HttpServletRequest request) {
         User user = userService.login(loginUser.getUsername(), loginUser.getPassword());

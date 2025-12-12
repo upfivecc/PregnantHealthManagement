@@ -1,0 +1,85 @@
+<!--index.wxml-->
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <!-- 欢迎标题区域 -->
+    <view class="welcome-section">
+      <text class="welcome-title">欢迎，准妈妈</text>
+      <text class="welcome-subtitle">我们陪您一起度过美好孕期</text>
+    </view>
+
+    <!-- 快捷功能按钮区域 -->
+    <view class="quick-functions">
+      <view class="function-item" bindtap="navigateToDoctor">
+        <view class="function-icon doctor-icon"><image style="width:50rpx;height: 50rpx;" src="/images/doctor.png"></image></view>
+        <text class="function-name">预约医生</text>
+      </view>
+      <view class="function-item" bindtap="navigateToRecord">
+        <view class="function-icon record-icon"><image style="width:50rpx;height: 50rpx;" src="/images/record.png"></image></view>
+        <text class="function-name">孕期档案</text>
+      </view>
+      <view class="function-item" bindtap="navigateToKnowledge">
+        <view class="function-icon knowledge-icon"><image style="width:50rpx;height: 50rpx;" src="/images/knowledge.png"></image></view>
+        <text class="function-name">孕期知识</text>
+      </view>
+      <view class="function-item" bindtap="navigateToDoctor">
+        <view class="function-icon consult-icon"><image style="width:50rpx;height: 50rpx;" src="/images/user-avatar.png"></image></view>
+        <text class="function-name">在线咨询</text>
+      </view>
+    </view>
+
+    <!-- 孕期小贴士区域 -->
+    <view class="tips-section">
+      <view class="section-title">
+        <text>孕期小贴士</text>
+      </view>
+      <view class="tips-card">
+        <text class="tips-content">保持良好的作息习惯，定期产检，均衡饮食，适量运动，保持心情愉悦，有助于胎儿健康发育。</text>
+      </view>
+    </view>
+
+    <!-- 孕期进度区域 -->
+    <view class="progress-section">
+      <view class="section-title">
+        <text>孕期进度</text>
+      </view>
+      <view class="progress-card">
+        <view class="progress-bar">
+          <view class="progress-fill empty"></view>
+        </view>
+        <text class="progress-text">孕期第0周</text>
+      </view>
+    </view>
+
+    <!-- 推荐阅读区域 -->
+    <view class="recommend-section">
+      <view class="section-title">
+        <text>推荐阅读</text>
+      </view>
+      <view class="recommend-card">
+        <view class="recommend-item" bindtap="navigateToKnowledge">
+          <view class="recommend-icon nutrition-icon"></view>
+          <view class="recommend-content">
+            <text class="recommend-title">孕期营养指南</text>
+            <text class="recommend-desc">了解孕期需要的各种营养素</text>
+          </view>
+        </view>
+        <view class="recommend-divider"></view>
+        <view class="recommend-item" bindtap="navigateToKnowledge">
+          <view class="recommend-icon exercise-icon"></view>
+          <view class="recommend-content">
+            <text class="recommend-title">适合孕妇的运动</text>
+            <text class="recommend-desc">安全有效的孕期运动方式</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 温馨提醒区域 -->
+    <view class="reminder-section">
+      <view class="reminder-card">
+        <view class="reminder-icon">💡</view>
+        <text class="reminder-text">定期产检是保障母婴健康的重要措施，请按时预约产检时间。</text>
+      </view>
+    </view>
+  </view>
+</scroll-view>

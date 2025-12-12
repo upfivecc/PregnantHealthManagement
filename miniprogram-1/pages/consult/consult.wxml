@@ -1,0 +1,75 @@
+<!-- consult.wxml -->
+<view class="consult-container">
+  <!-- 医生信息头部 -->
+  <view class="doctor-header" wx:if="!loading">
+    <image class="doctor-avatar" src="{{doctorInfo.avatar}}"></image>
+    <view class="doctor-info">
+      <view class="doctor-name-row">
+        <text class="doctor-name">{{doctorInfo.name}}</text>
+        <text class="doctor-title">{{doctorInfo.title}}</text>
+        <view class="online-status" wx:if="doctorInfo.online">
+          <view class="online-dot"></view>
+          <text class="online-text">在线</text>
+        </view>
+      </view>
+      <text class="doctor-department">{{doctorInfo.department}} - {{doctorInfo.hospital}}</text>
+    </view>
+  </view>
+
+  <!-- 连接状态 -->
+  <view class="connecting-container" wx:if="connecting">
+    <text class="connecting-text">正在连接医生...</text>
+  </view>
+
+  <!-- 聊天内容区域 -->
+  <scroll-view 
+    class="chat-content" 
+    scroll-y 
+    scroll-top="{{scrollTop}}" 
+    bindscroll="onScroll"
+    wx:if="!connecting"
+  >
+    <!-- 消息列表 -->
+    <view class="messages-list">
+      <view 
+        wx:for="{{messages}}" 
+        wx:key="id"
+        class="message-item {{item.type === 'sent' ? 'sent' : 'received'}}"
+      >
+        <!-- 头像 -->
+        <image 
+          class="message-avatar" 
+          src="{{item.type === 'sent' ? '/images/user-avatar.png' : doctorInfo.avatar}}"
+        ></image>
+        
+        <!-- 消息内容 -->
+        <view class="message-content-wrapper">
+          <view class="message-content">
+            <text class="message-text">{{item.content}}</text>
+          </view>
+          <text class="message-time">{{item.time}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 输入区域 -->
+  <view class="input-area" wx:if="!connecting">
+    <input 
+      class="message-input" 
+      type="text" 
+      placeholder="请输入消息..." 
+      value="{{inputValue}}"
+      bindinput="onInput"
+      bindconfirm="handleConfirm"
+    />
+    <button 
+      class="send-button" 
+      type="primary" 
+      bindtap="handleSend"
+      disabled="{{!inputValue.trim()}}"
+    >
+      发送
+    </button>
+  </view>
+</view>

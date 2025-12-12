@@ -1,0 +1,395 @@
+/* doctor.wxss */
+/* 重置和基础样式 */
+view, text, input, button, image {
+  box-sizing: border-box;
+}
+
+.container {
+  padding: 0;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+/* 搜索栏 */
+.search-bar {
+  display: flex;
+  padding: 20rpx 0;
+  background-color: #fff;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%; /* 占满整行 */
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+}
+
+.search-input {
+  flex: 3; /* 占3/4宽度 */
+  height: 80rpx;
+  border-radius: 40rpx 0 0 40rpx; /* 只保留左边圆角 */
+  background-color: #f5f5f5;
+  padding: 0 30rpx;
+  font-size: 24rpx; /* 搜索框字体调小 */
+  border: none;
+  outline: none;
+  transition: all 0.3s;
+  display: flex; /* 添加flex布局 */
+  align-items: center; /* 垂直居中 */
+}
+
+.search-input:focus {
+  background-color: #f0f0f0;
+}
+
+/* 搜索图标样式 */
+.search-icon {
+  color: #999;
+  margin-right: 10rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 输入框样式 */
+.input {
+  flex: 1;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 24rpx;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #333;
+}
+
+.search-btn {
+  flex: 1; /* 占1/4宽度 */
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 24rpx;
+  background-color: #1989fa;
+  color: #fff;
+  padding: 0;
+  border-radius: 0 40rpx 40rpx 0; /* 只保留右边圆角 */
+  transition: all 0.3s;
+  margin-left: 0; /* 去掉左边距 */
+  min-width: 0; /* 允许flex收缩 */
+}
+
+.search-btn:active {
+  background-color: #096dd9;
+}
+
+
+
+/* 医生列表 */
+.doctor-list {
+  padding: 0 20rpx 20rpx;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.doctor-item {
+  display: flex;
+  background-color: #fff;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+  border-bottom: none;
+  position: relative;
+  min-height: 320rpx; /* 调高卡片高度 */
+}
+
+.doctor-item:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.03);
+}
+
+.doctor-avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 30rpx;
+  flex-shrink: 0;
+}
+
+.doctor-avatar image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.doctor-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-right: 20rpx;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+.doctor-name-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.doctor-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-right: 15rpx;
+}
+
+.doctor-title {
+  font-size: 20rpx; /* 职称字体调小 */
+  color: #fff;
+  background-color: #ff7a45;
+  padding: 4rpx 10rpx;
+  border-radius: 6rpx;
+  white-space: nowrap;
+}
+
+.doctor-department {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 15rpx;
+  display: block;
+}
+
+.doctor-intro {
+  font-size: 26rpx;
+  color: #999;
+  line-height: 36rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  width: 100%; /* 横向铺满 */
+  box-sizing: border-box;
+}
+
+.doctor-stats {
+  display: flex;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.stat-item {
+  margin-right: 20rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.doctor-actions {
+  display: flex;
+  position: absolute;
+  bottom: 10rpx;
+  right: 10rpx;
+  gap: 8rpx;
+  width: 45%; /* 总占范围不超过卡片长度的50% */
+  box-sizing: border-box;
+  z-index: 1; /* 确保按钮在最上层 */
+}
+
+.consult-btn {
+  flex: 1;
+  height: 36rpx;
+  line-height: 36rpx;
+  font-size: 18rpx;
+  background-color: #fff;
+  color: #1989fa;
+  border: 1rpx solid #1989fa;
+  border-radius: 0; /* 去掉圆角 */
+  padding: 0;
+  margin-bottom: 0;
+  transition: all 0.3s;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.consult-btn:active {
+  background-color: #e6f7ff;
+}
+
+.appointment-btn {
+  flex: 1;
+  height: 36rpx;
+  line-height: 36rpx;
+  font-size: 18rpx;
+  background-color: #ff7a45; /* 改为不同颜色 */
+  color: #fff;
+  border-radius: 0; /* 去掉圆角 */
+  padding: 0;
+  transition: all 0.3s;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.appointment-btn:active {
+  background-color: #ff6b35;
+}
+
+/* 加载状态 */
+.loading, .empty, .load-more, .no-more {
+  padding: 50rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+}
+
+.loading::before {
+  content: '';
+  display: inline-block;
+  width: 30rpx;
+  height: 30rpx;
+  border: 3rpx solid #f0f0f0;
+  border-top-color: #1989fa;
+  border-radius: 50%;
+  margin-right: 15rpx;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 30rpx;
+}
+
+.doctor-name {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.message-input-section {
+  margin-bottom: 10rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+}
+
+.message-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 20rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 10rpx;
+  font-size: 26rpx;
+  color: #333;
+  line-height: 36rpx;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  gap: 20rpx;
+}
+
+.cancel-btn, .submit-btn {
+  flex: 1;
+  height: 80rpx;
+  line-height: normal; /* 重置line-height */
+  font-size: 28rpx;
+  border-radius: 10rpx;
+  transition: all 0.3s;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0; /* 移除默认内边距 */
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666;
+  border: 1rpx solid #e0e0e0;
+}
+
+.cancel-btn:active {
+  background-color: #e0e0e0;
+}
+
+.submit-btn {
+  background-color: #1989fa;
+  color: #fff;
+  border: none;
+}
+
+.submit-btn:active {
+  background-color: #096dd9;
+}

@@ -1,0 +1,116 @@
+<!-- login.wxml -->
+<view class="container">
+  <!-- 登录表单 - 显示logo和标题 -->
+  <block wx:if="{{!isLoggedIn}}">
+    <view class="logo">
+      <image src="/images/logo.png" mode="aspectFit"></image>
+      <text class="app-name">孕期管理助手</text>
+    </view>
+
+    <view class="form-container">
+      <!-- 手机号输入 -->
+      <view class="input-item">
+        <text class="label">帐号</text>
+        <input 
+          type="number" 
+          placeholder="请输入帐号" 
+          value="{{phone}}" 
+          bindinput="onPhoneInput"
+          maxlength="11"
+        />
+      </view>
+
+      <!-- 密码输入 -->
+      <view class="input-item">
+        <text class="label">密码</text>
+        <input 
+          type="password" 
+          placeholder="请输入密码" 
+          value="{{password}}" 
+          bindinput="onPasswordInput"
+        />
+      </view>
+
+      <!-- 忘记密码 -->
+      <view class="forgot-password">
+        <text bindtap="onForgotPassword">忘记密码？</text>
+      </view>
+
+      <!-- 用户协议 -->
+      <view class="agreement">
+        <checkbox checked="{{isAgree}}" bindtap="toggleAgree"></checkbox>
+        <text>我已阅读并同意《用户协议》和《隐私政策》</text>
+      </view>
+
+      <!-- 登录按钮 -->
+      <button 
+        class="login-btn" 
+        type="primary" 
+        bindtap="onLogin"
+        disabled="{{!isAgree}}"
+      >
+        登录
+      </button>
+
+      <!-- 注册入口 -->
+      <view class="register">
+        <text>还没有账号？</text>
+        <text class="link" bindtap="goToRegister">立即注册</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 用户信息面板 - 不显示logo和标题 -->
+  <view class="user-container" wx:else>
+    <!-- 头像区域 -->
+    <view class="avatar-section">
+      <image class="user-avatar" src="/images/user-avatar.png" mode="aspectFill"></image>
+      <text class="user-name">{{userInfo.nickName || '用户' + userInfo.phone}}</text>
+    </view>
+    
+    <!-- 用户信息 -->
+    <view class="user-details-section">
+      <text class="user-phone">手机号：{{userInfo.phone}}</text>
+    </view>
+    
+    <!-- 装饰性信息卡片 -->
+    <view class="info-cards">
+      <!-- 怀孕周数卡片 -->
+      <view class="info-card">
+        <view class="card-icon pregnancy-icon"></view>
+        <view class="card-content">
+          <text class="card-title">当前孕周</text>
+          <text class="card-value">0周</text>
+        </view>
+      </view>
+      
+      <!-- 宝宝预估体重卡片 -->
+      <view class="info-card">
+        <view class="card-icon baby-icon"></view>
+        <view class="card-content">
+          <text class="card-title">宝宝预估体重</text>
+          <text class="card-value">-</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 快速提示 -->
+    <view class="quick-tips">
+      <view class="tip-item">
+        <text class="tip-icon">💡</text>
+        <text class="tip-text">按时产检，保持健康作息</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">🥗</text>
+        <text class="tip-text">均衡饮食，多吃蔬菜水果</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-icon">😴</text>
+        <text class="tip-text">保证充足睡眠，避免熬夜</text>
+      </view>
+    </view>
+    
+    <!-- 退出登录按钮 -->
+    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  </view>
+</view>

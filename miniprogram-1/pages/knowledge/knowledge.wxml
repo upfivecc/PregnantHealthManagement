@@ -1,0 +1,63 @@
+<!-- knowledge.wxml -->
+<view class="knowledge-container">
+  <!-- 分类导航 -->
+  <scroll-view scroll-x class="category-scroll" enable-flex>
+    <view 
+      wx:for="{{categories}}" 
+      wx:key="id"
+      class="category-item {{currentCategory === item.id ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-category-id="{{item.id}}"
+    >
+      {{item.name}}
+    </view>
+  </scroll-view>
+
+  <!-- 文章列表 -->
+  <view class="articles-container">
+    <view wx:if="{{loading && currentPage === 1}}" class="loading-container">
+      <text class="loading-text">正在加载文章...</text>
+    </view>
+
+    <view wx:elif="{{articles.length === 0}}" class="empty-container">
+      <text class="empty-text">暂无文章</text>
+    </view>
+
+    <view wx:else class="articles-list">
+      <view 
+        wx:for="{{articles}}" 
+        wx:key="id"
+        class="article-item"
+        bindtap="viewArticleDetail"
+        data-article-id="{{item.id}}"
+      >
+        <view class="article-header">
+          <text class="article-title">{{item.title}}</text>
+          <text class="article-category">{{item.categoryName}}</text>
+        </view>
+        <image class="article-cover" src="{{item.cover}}" mode="aspectFill"></image>
+        <view class="article-footer">
+          <text class="article-date">{{item.publishDate}}</text>
+        </view>
+      </view>
+
+
+    </view>
+  </view>
+  
+  <!-- 文章详情模态框 -->
+  <view wx:if="{{showModal}}" class="modal-overlay" bindtap="closeModal">
+    <view class="modal-content" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">{{currentArticle.title}}</text>
+        <view class="modal-close" bindtap="closeModal">×</view>
+      </view>
+      <view class="modal-body">
+        <text class="modal-content-text">{{currentArticle.content}}</text>
+      </view>
+      <view class="modal-footer">
+        <text class="modal-created-time">{{currentArticle.createdTime}}</text>
+      </view>
+    </view>
+  </view>
+</view>

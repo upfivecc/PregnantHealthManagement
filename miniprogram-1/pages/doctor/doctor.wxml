@@ -1,0 +1,91 @@
+<!-- doctor.wxml -->
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input">
+      <icon type="search" size="20" class="search-icon"></icon>
+      <input type="text" placeholder="搜索医生、科室、医院" class="input" bindinput="onSearchInput" value="{{searchKeyword}}"></input>
+    </view>
+    <button class="search-btn" bindtap="onSearch">搜索</button>
+  </view>
+
+
+
+  <!-- 医生列表 -->
+  <view class="doctor-list">
+    <block wx:for="{{filteredDoctors}}" wx:key="id">
+      <view class="doctor-item">
+        <view class="doctor-avatar">
+          <image src="{{item.avatar}}" mode="aspectFill"></image>
+        </view>
+        <view class="doctor-info">
+          <view class="doctor-header">
+            <text class="doctor-name">{{item.name}}</text>
+            <text class="doctor-title">{{item.title}}</text>
+          </view>
+          <text class="doctor-department">{{item.department}} | {{item.hospital}}</text>
+          <text class="doctor-intro">{{item.introduction}}</text>
+          <view class="doctor-stats">
+            <view class="stat-item">
+              <text class="stat-value">{{item.rating}}</text>
+              <text class="stat-label">评分</text>
+            </view>
+            <view class="stat-divider"></view>
+            <view class="stat-item">
+              <text class="stat-value">{{item.patients}}</text>
+              <text class="stat-label">接诊量</text>
+            </view>
+            <view class="stat-divider"></view>
+            <view class="stat-item">
+              <text class="stat-value">{{item.positiveRate}}%</text>
+              <text class="stat-label">好评率</text>
+            </view>
+          </view>
+        </view>
+        <view class="doctor-actions">
+          <button class="consult-btn" bindtap="consultDoctor" data-doctor-id="{{item.id}}" data-doctor-name="{{item.name}}">咨询</button>
+          <button class="appointment-btn" bindtap="makeAppointment" data-doctor-id="{{item.id}}">预约</button>
+        </view>
+      </view>
+    </block>
+
+    <!-- 加载更多 -->
+    <view class="loading-more" wx:if="{{loading && filteredDoctors.length > 0}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && filteredDoctors.length === 0}}">
+      <text>暂无符合条件的医生</text>
+    </view>
+  </view>
+  
+  <!-- 咨询模态框 -->
+  <view class="modal-overlay" wx:if="{{showModal}}" bindtap="closeModal"></view>
+  <view class="modal-container" wx:if="{{showModal}}">
+    <view class="modal-header">
+      <text class="modal-title">咨询医生</text>
+    </view>
+    <view class="modal-body">
+      <view class="doctor-name">
+        医生：{{currentDoctor.name}}
+      </view>
+      <view class="message-input-section">
+        <text class="input-label">请输入您的留言：</text>
+        <textarea 
+          class="message-textarea" 
+          placeholder="请详细描述您的问题..." 
+          bindinput="inputMessage"
+          value="{{message}}"
+          auto-height
+          maxlength="500"
+        ></textarea>
+        <text class="char-count">{{message.length}}/500</text>
+      </view>
+    </view>
+    <view class="modal-footer">
+      <button class="cancel-btn" bindtap="closeModal">取消</button>
+      <button class="submit-btn" bindtap="submitConsultation">提交咨询</button>
+    </view>
+  </view>
+</view>

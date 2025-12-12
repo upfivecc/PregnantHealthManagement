@@ -33,6 +33,7 @@
               <tr>
                 <th>ID</th>
                 <th>用户ID</th>
+                <th>医生姓名</th>
                 <th>医院</th>
                 <th>科室</th>
                 <th>职称</th>
@@ -44,6 +45,7 @@
               <tr v-for="doctor in doctorList" :key="doctor.id">
                 <td>{{ doctor.id }}</td>
                 <td>{{ doctor.userId }}</td>
+                <td>{{ doctor.name }}</td>
                 <td>{{ doctor.hospital }}</td>
                 <td>{{ doctor.department }}</td>
                 <td>{{ doctor.title }}</td>
@@ -89,6 +91,9 @@
           <button class="btn btn-outline" @click="closeDetailModal">&times;</button>
         </div>
         <div class="modal-body">
+          <div class="detail-avatar" v-if="detailData.avatar">
+            <img :src="detailData.avatar" alt="医生照片" />
+          </div>
           <div class="detail-item">
             <label>ID:</label>
             <span>{{ detailData.id }}</span>
@@ -96,6 +101,10 @@
           <div class="detail-item">
             <label>用户ID:</label>
             <span>{{ detailData.userId }}</span>
+          </div>
+          <div class="detail-item">
+            <label>医生姓名:</label>
+            <span>{{ detailData.name }}</span>
           </div>
           <div class="detail-item">
             <label>医院:</label>
@@ -117,6 +126,18 @@
             <label>简介:</label>
             <span>{{ detailData.introduction || '无' }}</span>
           </div>
+          <div class="detail-item">
+            <label>评分:</label>
+            <span>{{ detailData.score }}</span>
+          </div>
+          <div class="detail-item">
+            <label>接诊量:</label>
+            <span>{{ detailData.consultationCount }}</span>
+          </div>
+          <div class="detail-item">
+            <label>好评率:</label>
+            <span>{{ detailData.positiveRate }}%</span>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" @click="closeDetailModal">关闭</button>
@@ -129,7 +150,6 @@
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>{{ modalTitle }}</h3>
-          <button class="btn btn-outline" @click="closeDoctorModal">&times;</button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="saveDoctor">
@@ -137,6 +157,10 @@
             <div class="form-group">
               <label>用户ID</label>
               <input type="number" class="form-control" v-model="doctorForm.userId" required>
+            </div>
+            <div class="form-group">
+              <label>医生姓名</label>
+              <input type="text" class="form-control" v-model="doctorForm.name" required>
             </div>
             <div class="form-group">
               <label>医院</label>
@@ -158,11 +182,50 @@
               <label>简介</label>
               <textarea class="form-control" v-model="doctorForm.introduction" rows="3"></textarea>
             </div>
+            <div class="form-group">
+              <label>评分 (1-10)</label>
+              <div class="d-flex align-items-center">
+                <input type="range" class="form-control-range mr-3" v-model.number="doctorForm.score" step="0.1" min="1" max="10" style="flex: 1;">
+                <input type="number" class="form-control w-25" v-model.number="doctorForm.score" step="0.1" min="1" max="10" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>接诊量</label>
+              <input type="number" class="form-control" v-model="doctorForm.consultationCount" min="0">
+            </div>
+            <div class="form-group">
+              <label>好评率</label>
+              <div class="d-flex align-items-center">
+                <input type="range" class="form-control-range mr-3" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" style="flex: 1;">
+                <div class="input-group w-25">
+                  <input type="number" class="form-control" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" readonly>
+                  <div class="input-group-append">
+                    <span class="input-group-text">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>医生照片</label>
+              <div class="avatar-upload">
+                <div class="avatar-preview" v-if="doctorForm.avatar">
+                  <img :src="doctorForm.avatar" alt="医生照片" />
+                </div>
+                <div class="avatar-preview placeholder" v-else>
+                  <i class="fas fa-user-circle"></i>
+                  <span>预览</span>
+                </div>
+                <input type="file" id="avatar-input" class="avatar-input" ref="avatarInput" @change="handleAvatarUpload" accept="image/*">
+                <label for="avatar-input" class="btn btn-outline avatar-btn">
+                  <i class="fas fa-upload"></i> 选择照片
+                </label>
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" @click="closeDoctorModal">取消</button>
-          <button class="btn btn-primary" @click="saveDoctor">保存</button>
+          <button class="btn btn-primary" @click="$event.preventDefault(); saveDoctor()">保存</button>
         </div>
       </div>
     </div>
@@ -183,11 +246,16 @@ export default {
     const detailData = reactive({
       id: '',
       userId: '',
+      name: '',
       hospital: '',
       department: '',
       title: '',
       specialty: '',
-      introduction: ''
+      introduction: '',
+      score: 1,
+      consultationCount: 0,
+      positiveRate: 0,
+      avatar: ''
     })
     const modalTitle = ref('添加医生')
     
@@ -198,12 +266,21 @@ export default {
     const doctorForm = reactive({
       id: '',
       userId: '',
+      name: '',
       hospital: '',
       department: '',
       title: '',
       specialty: '',
-      introduction: ''
+      introduction: '',
+      score: 1,
+      consultationCount: 0,
+      positiveRate: 0,
+      avatar: ''
     })
+    
+    // 头像上传相关
+    const avatarInput = ref(null)
+    const avatarFile = ref(null)
     
     const pagination = reactive({
       currentPage: 1,
@@ -275,14 +352,25 @@ export default {
       modalTitle.value = '添加医生'
       // 重置表单
       Object.keys(doctorForm).forEach(key => {
-        doctorForm[key] = ''
+        // 数字字段重置为0，其他字段重置为空字符串
+        if (key === 'score' || key === 'consultationCount' || key === 'positiveRate') {
+          doctorForm[key] = 0
+        } else {
+          doctorForm[key] = ''
+        }
       })
+      avatarFile.value = null
       showDoctorModal.value = true
     }
     
     // 关闭医生模态框
     const closeDoctorModal = () => {
       showDoctorModal.value = false
+      // 重置文件上传状态
+      if (avatarInput.value) {
+        avatarInput.value.value = ''
+      }
+      avatarFile.value = null
     }
     
     // 查看医生详情
@@ -316,6 +404,11 @@ export default {
           Object.keys(doctorForm).forEach(key => {
             doctorForm[key] = doctor[key] || ''
           })
+          // 重置文件上传状态
+          if (avatarInput.value) {
+            avatarInput.value.value = ''
+          }
+          avatarFile.value = null
           modalTitle.value = '编辑医生'
           showDoctorModal.value = true
         }
@@ -344,15 +437,84 @@ export default {
     
     // 保存医生
     const saveDoctor = async () => {
+      console.log('------------------------------------------')
+      console.log('saveDoctor方法开始执行')
+      console.log('当前时间:', new Date().toISOString())
+      console.log('avatarFile.value:', avatarFile.value)
+      console.log('doctorForm:', doctorForm)
+      console.log('formData准备构建...')
+      
+      let response
+      const formData = new FormData()
+      
+      // 将表单数据添加到FormData，排除avatar字段（因为它是Base64字符串）
+      Object.keys(doctorForm).forEach(key => {
+        if (key !== 'avatar') {
+          formData.append(key, doctorForm[key])
+        }
+      })
+      
+      // 如果有头像文件，添加到FormData
+      if (avatarFile.value) {
+        formData.append('avatar', avatarFile.value)
+        // 调试：打印添加的文件信息
+        console.log('添加的头像文件:', avatarFile.value)
+      }
+      // 调试：打印FormData中的所有字段
+      console.log('FormData内容:')
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1])
+      }
+      
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+      
+      console.log('准备发送请求...')
+      console.log('请求URL:', doctorForm.id ? `/api/doctors/${doctorForm.id}` : '/api/doctors')
+      console.log('请求方法:', doctorForm.id ? 'PUT' : 'POST')
+      
+      // 使用axios的拦截器来查看请求和响应的详细信息
+      console.log('配置axios拦截器...')
+      
+      // 请求拦截器
+      axios.interceptors.request.use(
+        config => {
+          console.log('请求配置:', config)
+          return config
+        },
+        error => {
+          console.error('请求错误:', error)
+          return Promise.reject(error)
+        }
+      )
+      
+      // 响应拦截器
+      axios.interceptors.response.use(
+        response => {
+          console.log('响应数据:', response)
+          return response
+        },
+        error => {
+          console.error('响应错误:', error)
+          return Promise.reject(error)
+        }
+      )
+      
       try {
-        let response
         if (doctorForm.id) {
           // 更新医生
-          response = await axios.put(`/api/doctors/${doctorForm.id}`, doctorForm)
+          console.log('发送PUT请求...')
+          response = await axios.put(`/api/doctors/${doctorForm.id}`, formData, config)
         } else {
           // 添加医生
-          response = await axios.post('/api/doctors', doctorForm)
+          console.log('发送POST请求...')
+          response = await axios.post('/api/doctors', formData, config)
         }
+        
+        console.log('请求成功，响应数据:', response.data)
         
         if (response.data.code === 200) {
           alert('保存成功')
@@ -363,7 +525,33 @@ export default {
         }
       } catch (error) {
         console.error('保存医生失败:', error)
+        console.error('错误详情:', error.response ? error.response : error)
         alert('保存失败')
+      } finally {
+        // 移除拦截器，避免重复添加
+        axios.interceptors.request.clear()
+        axios.interceptors.response.clear()
+      }
+    }
+    
+    // 处理头像上传
+    const handleAvatarUpload = (event) => {
+      console.log('文件选择事件触发')
+      const file = event.target.files[0]
+      if (file) {
+        console.log('选择的文件:', file)
+        avatarFile.value = file
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          console.log('文件读取完成:', e.target.result.substring(0, 100) + '...')
+          doctorForm.avatar = e.target.result
+        }
+        reader.onerror = (error) => {
+          console.error('文件读取错误:', error)
+        }
+        reader.readAsDataURL(file)
+      } else {
+        console.log('没有选择文件')
       }
     }
     
@@ -591,7 +779,7 @@ textarea.form-control {
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   padding: 20px;
   border-bottom: 1px solid #eee;
@@ -629,5 +817,77 @@ textarea.form-control {
 .detail-item span {
   flex: 1;
   color: #666;
+  white-space: nowrap;
+}
+
+.detail-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.detail-avatar img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
+/* 头像上传样式 */
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-preview.placeholder {
+  background: #f5f7fa;
+  color: #909399;
+  font-size: 24px;
+}
+
+.avatar-preview.placeholder span {
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+  text-align: center;
+}
+
+.avatar-input {
+  display: none;
+}
+
+.avatar-btn {
+  cursor: pointer;
+  padding: 8px 16px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.avatar-btn:hover {
+  background-color: #f5f7fa;
+  border-color: #c0c4cc;
 }
 </style>

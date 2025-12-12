@@ -19,26 +19,26 @@ public class LoginInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         Object currentUser = session.getAttribute("currentUser");
         
-        if (currentUser == null) {
-            // 未登录，返回JSON格式的错误响应
-            response.setContentType("application/json;charset=UTF-8");
-            PrintWriter writer = response.getWriter();
-            
-            // 创建错误响应对象
-            Result result = new Result();
-            result.setCode(401);
-            result.setMessage("未登录或登录已过期，请重新登录");
-            
-            // 转换为JSON字符串
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(result);
-            
-            writer.write(json);
-            writer.flush();
-            writer.close();
-            
-            return false;
-        }
+//        if (currentUser == null) {
+//            // 未登录，返回JSON格式的错误响应
+//            response.setContentType("application/json;charset=UTF-8");
+//            PrintWriter writer = response.getWriter();
+//
+//            // 创建错误响应对象
+//            Result result = new Result();
+//            result.setCode(401);
+//            result.setMessage("未登录或登录已过期，请重新登录");
+//
+//            // 转换为JSON字符串
+//            ObjectMapper mapper = new ObjectMapper();
+//            String json = mapper.writeValueAsString(result);
+//
+//            writer.write(json);
+//            writer.flush();
+//            writer.close();
+//
+//            return false;
+//        }
         
         return true;
     }

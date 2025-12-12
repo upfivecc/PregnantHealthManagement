@@ -16,7 +16,10 @@
           </div>
           <div class="form-group">
             <label>分类</label>
-            <input type="text" class="form-control" v-model="searchForm.category" placeholder="请输入分类">
+            <select class="form-control" v-model="searchForm.category">
+              <option value="">请选择分类</option>
+              <option v-for="option in categoryOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+            </select>
           </div>
           <div class="form-group search-buttons">
             <label>&nbsp;</label>
@@ -141,7 +144,10 @@
             </div>
             <div class="form-group">
               <label>分类</label>
-              <input type="text" class="form-control" v-model="knowledgeForm.category" required>
+              <select class="form-control" v-model="knowledgeForm.category" required>
+                <option value="">请选择分类</option>
+                <option v-for="option in categoryOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+              </select>
             </div>
 
             <div class="form-group">
@@ -181,6 +187,15 @@ export default {
     
     const detailData = ref({})
     
+    // 分类选项
+    const categoryOptions = ref([
+      { value: '孕早期', label: '孕早期' },
+      { value: '孕中期', label: '孕中期' },
+      { value: '孕晚期', label: '孕晚期' },
+      { value: '孕期营养', label: '孕期营养' },
+      { value: '孕期运动', label: '孕期运动' },
+      { value: '孕期保健', label: '孕期保健' }
+    ])
     
     const searchForm = reactive({
       title: '',
@@ -382,6 +397,7 @@ export default {
       pagination,
       knowledgeForm,
       detailData,
+      categoryOptions,
       showKnowledgeModal,
       showDetailModal,
       modalTitle,

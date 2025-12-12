@@ -1,0 +1,246 @@
+/* knowledge.wxss */
+.knowledge-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* 分类导航 */
+.category-scroll {
+  display: flex;
+  padding: 10rpx 0;
+  background-color: #ffffff;
+  border-bottom: 1rpx solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.category-item {
+  padding: 12rpx 24rpx;
+  margin: 0 10rpx;
+  font-size: 28rpx;
+  color: #666666;
+  border-radius: 20rpx;
+  transition: all 0.3s;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-item.active {
+  color: #4CAF50;
+  background-color: #e8f5e9;
+  font-weight: bold;
+}
+
+/* 文章列表 */
+.articles-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10rpx;
+}
+
+.loading-container,
+.empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200rpx;
+  font-size: 28rpx;
+  color: #999999;
+}
+
+.articles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.article-item {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 24rpx;
+  height: auto; /* 自适应高度 */
+  min-height: 450rpx; /* 大约是原来的3倍高度 */
+}
+
+.article-item:active {
+  transform: scale(0.99);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.article-header {
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.article-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333333;
+  line-height: 50rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+.article-category {
+  font-size: 24rpx;
+  color: #1989fa;
+  background-color: #e6f7ff;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+.article-cover {
+  align-self: center;
+    width: 90%;
+  height: 300rpx;
+  flex-shrink: 0;
+  background-color: #f5f5f5;
+}
+
+.article-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  font-size: 26rpx;
+  color: #999999;
+  background-color: #fafafa;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.article-date {
+  flex: 1;
+  text-align: left;
+}
+
+.article-read-count {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+/* 加载更多 */
+.load-more-container,
+.no-more-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80rpx;
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.load-more-container {
+  cursor: pointer;
+}
+
+.load-more-container:active {
+  color: #4CAF50;
+}
+
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 20rpx;
+  width: 85%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.16);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333333;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-close {
+  font-size: 40rpx;
+  color: #999999;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal-close:active {
+  background-color: #f5f5f5;
+  color: #333333;
+}
+
+.modal-body {
+  padding: 24rpx;
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(80vh - 160rpx);
+}
+
+.modal-content-text {
+  font-size: 28rpx;
+  color: #666666;
+  line-height: 48rpx;
+  text-align: justify;
+}
+
+.modal-footer {
+  padding: 16rpx 24rpx;
+  border-top: 1rpx solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.modal-created-time {
+  font-size: 22rpx;
+  color: #999999;
+}

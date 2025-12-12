@@ -52,8 +52,8 @@
                     <button class="btn btn-outline view-appointment" @click="viewAppointment(appointment.id)">
                       <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-outline edit-appointment" @click="editAppointment(appointment.id)">
-                      <i class="fas fa-edit"></i>
+                    <button class="btn btn-outline confirm-appointment" @click="confirmAppointment(appointment.id)" :disabled="appointment.status === 1">
+                      <i class="fas fa-check"></i>
                     </button>
                   </div>
                 </td>
@@ -228,26 +228,18 @@ export default {
       showDetailModal.value = false
     }
     
-    // 编辑预约
-    const editAppointment = async (appointmentId) => {
+    // 确认预约
+    const confirmAppointment = async (appointmentId) => {
       try {
-        const response = await axios.get(`/api/appointments/${appointmentId}`)
+        const response = await axios.put(`/api/appointments/${appointmentId}/status?status=1`)
         if (response.data.code === 200) {
-          const appointment = response.data.data
-          // 这里可以打开编辑模态框并填充数据
-          alert(`预约信息:
-ID: ${appointment.id}
-用户: ${appointment.userName}
-医院: ${appointment.hospital}
-科室: ${appointment.department}
-医生职称: ${appointment.title}
-预约时间: ${formatDate(appointment.appointmentTime)}
-状态: ${appointment.status === 1 ? '已确认' : '待确认'}
-
-这里应该打开编辑模态框，但为了简化示例，我们只显示信息。`)
+          alert('预约已确认')
+          // 重新加载预约列表
+          loadAppointmentList(pagination.currentPage)
         }
       } catch (error) {
-        console.error('获取预约信息失败:', error)
+        console.error('确认预约失败:', error)
+        alert('确认预约失败，请重试')
       }
     }
     
@@ -269,7 +261,7 @@ ID: ${appointment.id}
       nextPage,
       viewAppointment,
       closeDetailModal,
-      editAppointment
+      confirmAppointment
     }
   }
 }
