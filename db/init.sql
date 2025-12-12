@@ -27,6 +27,11 @@ CREATE TABLE doctors (
     title VARCHAR(50) COMMENT '职称',
     specialty VARCHAR(200) COMMENT '专长',
     introduction TEXT COMMENT '简介',
+    score DECIMAL(3,1) DEFAULT 0 COMMENT '评分',  -- 新增字段
+    consultation_count INT DEFAULT 0 COMMENT '接诊量',  -- 新增字段
+    positive_rate DECIMAL(5,2) DEFAULT 0 COMMENT '好评率',  -- 新增字段
+    avatar VARCHAR(255) DEFAULT '' COMMENT '头像',  -- 新增字段
+    name VARCHAR(50) DEFAULT '' COMMENT '医生姓名',  -- 新增字段
     created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -118,11 +123,11 @@ INSERT INTO users (username, password, email, real_name, gender, age, role, stat
 ('user4', '123456', 'user4@example.com', '赵女士', 2, 32, 'USER', 1),
 ('user5', '123456', 'user5@example.com', '黄女士', 2, 29, 'USER', 1);
 
--- 插入更多医生数据
-INSERT INTO doctors (user_id, hospital, department, title, specialty, introduction) VALUES 
-(2, '北京协和医院', '妇产科', '主任医师', '高危妊娠管理', '从事妇产科临床工作20年，擅长高危妊娠管理'),
-(3, '北京大学第一医院', '妇产科', '副主任医师', '产前诊断', '专注于产前诊断和遗传咨询'),
-(4, '北京妇产医院', '妇产科', '主治医师', '围产医学', '在围产医学领域有丰富经验');
+-- 插入更多医生数据（包含新增字段）
+INSERT INTO doctors (user_id, hospital, department, title, specialty, introduction, score, consultation_count, positive_rate, avatar, name) VALUES 
+(2, '北京协和医院', '妇产科', '主任医师', '高危妊娠管理', '从事妇产科临床工作20年，擅长高危妊娠管理', 4.8, 120, 98.50, 'https://youke2.picui.cn/s1/2025/12/13/693ca75d22e05.jpeg', '张伟'),
+(3, '北京大学第一医院', '妇产科', '副主任医师', '产前诊断', '专注于产前诊断和遗传咨询', 4.6, 95, 96.20, 'https://youke2.picui.cn/s1/2025/12/13/693ca75e3ba7d.jpg', '李娜'),
+(4, '北京妇产医院', '妇产科', '主治医师', '围产医学', '在围产医学领域有丰富经验', 4.7, 80, 97.80, 'https://youke2.picui.cn/s1/2025/12/13/693ca75d22e05.jpeg', '王强');
 
 -- 插入更多孕期知识数据
 INSERT INTO knowledge (title, content, category, status, created_by) VALUES 
