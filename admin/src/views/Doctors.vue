@@ -8,7 +8,7 @@
         </button>
       </div>
       <div class="card-body">
-        <!-- 添加查询表单 -->
+        <!-- 搜索表单 -->
         <div class="form-row">
           <div class="form-group">
             <label>医生姓名</label>
@@ -32,24 +32,26 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>用户ID</th>
                 <th>医生姓名</th>
                 <th>医院</th>
                 <th>科室</th>
                 <th>职称</th>
-                <th>专长</th>
+                <th>评分</th>
+                <th>接诊量</th>
+                <th>好评率</th>
                 <th>操作</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="doctor in doctorList" :key="doctor.id">
                 <td>{{ doctor.id }}</td>
-                <td>{{ doctor.userId }}</td>
                 <td>{{ doctor.name }}</td>
                 <td>{{ doctor.hospital }}</td>
                 <td>{{ doctor.department }}</td>
                 <td>{{ doctor.title }}</td>
-                <td>{{ doctor.specialty }}</td>
+                <td>{{ doctor.score }}</td>
+                <td>{{ doctor.consultationCount }}</td>
+                <td>{{ doctor.positiveRate }}%</td>
                 <td>
                   <div class="table-actions">
                     <button class="btn btn-outline view-doctor" @click="viewDoctor(doctor.id)">
@@ -58,7 +60,7 @@
                     <button class="btn btn-outline edit-doctor" @click="editDoctor(doctor.id)">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger delete-doctor" @click="deleteDoctor(doctor.id)">
+                    <button class="btn btn-outline delete-doctor" @click="deleteDoctor(doctor.id)">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
@@ -66,24 +68,18 @@
               </tr>
             </tbody>
           </table>
-        </div>
-        
-        <div class="pagination">
-          <div class="page-info">显示 {{ pagination.start }} 到 {{ pagination.end }} 条记录，共 {{ pagination.total }} 条</div>
-          <div class="page-controls">
-            <button class="btn btn-outline" @click="prevPage" :disabled="pagination.currentPage <= 1">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            <button class="btn btn-primary">{{ pagination.currentPage }}</button>
-            <button class="btn btn-outline" @click="nextPage" :disabled="pagination.currentPage >= pagination.totalPages">
-              <i class="fas fa-chevron-right"></i>
-            </button>
+          
+          <!-- 分页 -->
+          <div class="pagination" v-if="pagination.totalPages > 1">
+            <button class="btn btn-outline" :disabled="pagination.currentPage === 1" @click="prevPage">上一页</button>
+            <span class="page-info">{{ pagination.start }}-{{ pagination.end }} 共 {{ pagination.total }} 条</span>
+            <button class="btn btn-outline" :disabled="pagination.currentPage === pagination.totalPages" @click="nextPage">下一页</button>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- 医生查看详情模态框 -->
+    <!-- 医生详情模态框 -->
     <div class="modal" :class="{ 'modal-show': showDetailModal }">
       <div class="modal-dialog">
         <div class="modal-header">
@@ -94,13 +90,12 @@
           <div class="detail-avatar" v-if="detailData.avatar">
             <img :src="detailData.avatar" alt="医生照片" />
           </div>
+          <div class="detail-avatar placeholder" v-else>
+            <i class="fas fa-user-circle" style="font-size: 100px;"></i>
+          </div>
           <div class="detail-item">
             <label>ID:</label>
             <span>{{ detailData.id }}</span>
-          </div>
-          <div class="detail-item">
-            <label>用户ID:</label>
-            <span>{{ detailData.userId }}</span>
           </div>
           <div class="detail-item">
             <label>医生姓名:</label>
@@ -123,10 +118,6 @@
             <span>{{ detailData.specialty }}</span>
           </div>
           <div class="detail-item">
-            <label>简介:</label>
-            <span>{{ detailData.introduction || '无' }}</span>
-          </div>
-          <div class="detail-item">
             <label>评分:</label>
             <span>{{ detailData.score }}</span>
           </div>
@@ -138,40 +129,44 @@
             <label>好评率:</label>
             <span>{{ detailData.positiveRate }}%</span>
           </div>
+          <div class="detail-item">
+            <label>简介:</label>
+            <span>{{ detailData.introduction }}</span>
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" @click="closeDetailModal">关闭</button>
+          <button class="btn btn-primary" @click="closeDetailModal">确定</button>
         </div>
       </div>
     </div>
-
-    <!-- 医生编辑模态框 -->
+    
+    <!-- 添加/编辑医生模态框 -->
     <div class="modal" :class="{ 'modal-show': showDoctorModal }">
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>{{ modalTitle }}</h3>
+          <button class="btn btn-outline" @click="closeDoctorModal">&times;</button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="saveDoctor">
-            <input type="hidden" v-model="doctorForm.id">
             <div class="form-group">
-              <label>用户ID</label>
+              <label>关联用户ID *</label>
               <input type="number" class="form-control" v-model="doctorForm.userId" required>
             </div>
             <div class="form-group">
-              <label>医生姓名</label>
+              <label>医生姓名 *</label>
               <input type="text" class="form-control" v-model="doctorForm.name" required>
             </div>
             <div class="form-group">
-              <label>医院</label>
+              <label>医院 *</label>
               <input type="text" class="form-control" v-model="doctorForm.hospital" required>
             </div>
             <div class="form-group">
-              <label>科室</label>
+              <label>科室 *</label>
               <input type="text" class="form-control" v-model="doctorForm.department" required>
             </div>
             <div class="form-group">
-              <label>职称</label>
+              <label>职称 *</label>
               <input type="text" class="form-control" v-model="doctorForm.title" required>
             </div>
             <div class="form-group">
@@ -182,43 +177,33 @@
               <label>简介</label>
               <textarea class="form-control" v-model="doctorForm.introduction" rows="3"></textarea>
             </div>
-            <div class="form-group">
-              <label>评分 (1-10)</label>
-              <div class="d-flex align-items-center">
-                <input type="range" class="form-control-range mr-3" v-model.number="doctorForm.score" step="0.1" min="1" max="10" style="flex: 1;">
-                <input type="number" class="form-control w-25" v-model.number="doctorForm.score" step="0.1" min="1" max="10" readonly>
+            <div class="form-row">
+              <div class="form-group">
+                <label>评分</label>
+                <input type="number" class="form-control" v-model.number="doctorForm.score" step="0.1" min="0" max="10">
               </div>
-            </div>
-            <div class="form-group">
-              <label>接诊量</label>
-              <input type="number" class="form-control" v-model="doctorForm.consultationCount" min="0">
-            </div>
-            <div class="form-group">
-              <label>好评率</label>
-              <div class="d-flex align-items-center">
-                <input type="range" class="form-control-range mr-3" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" style="flex: 1;">
-                <div class="input-group w-25">
-                  <input type="number" class="form-control" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" readonly>
-                  <div class="input-group-append">
-                    <span class="input-group-text">%</span>
+              <div class="form-group">
+                <label>接诊量</label>
+                <input type="number" class="form-control" v-model.number="doctorForm.consultationCount" min="0">
+              </div>
+              <div class="form-group">
+                <label>好评率</label>
+                <div class="d-flex align-items-center">
+                  <input type="range" class="form-control-range mr-3" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" style="flex: 1;">
+                  <div class="input-group w-25">
+                    <input type="number" class="form-control" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" readonly>
+                    <div class="input-group-append">
+                      <span class="input-group-text">%</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="form-group">
-              <label>医生照片</label>
-              <div class="avatar-upload">
-                <div class="avatar-preview" v-if="doctorForm.avatar">
-                  <img :src="doctorForm.avatar" alt="医生照片" />
-                </div>
-                <div class="avatar-preview placeholder" v-else>
-                  <i class="fas fa-user-circle"></i>
-                  <span>预览</span>
-                </div>
-                <input type="file" id="avatar-input" class="avatar-input" ref="avatarInput" @change="handleAvatarUpload" accept="image/*">
-                <label for="avatar-input" class="btn btn-outline avatar-btn">
-                  <i class="fas fa-upload"></i> 选择照片
-                </label>
+              <label>医生照片URL</label>
+              <input type="text" class="form-control" v-model="doctorForm.avatar" placeholder="请输入图片URL">
+              <div class="avatar-preview mt-2" v-if="doctorForm.avatar">
+                <img :src="doctorForm.avatar" alt="医生照片预览" style="max-width: 100px; max-height: 100px;" />
               </div>
             </div>
           </form>
@@ -277,10 +262,6 @@ export default {
       positiveRate: 0,
       avatar: ''
     })
-    
-    // 头像上传相关
-    const avatarInput = ref(null)
-    const avatarFile = ref(null)
     
     const pagination = reactive({
       currentPage: 1,
@@ -359,18 +340,12 @@ export default {
           doctorForm[key] = ''
         }
       })
-      avatarFile.value = null
       showDoctorModal.value = true
     }
     
     // 关闭医生模态框
     const closeDoctorModal = () => {
       showDoctorModal.value = false
-      // 重置文件上传状态
-      if (avatarInput.value) {
-        avatarInput.value.value = ''
-      }
-      avatarFile.value = null
     }
     
     // 查看医生详情
@@ -404,11 +379,6 @@ export default {
           Object.keys(doctorForm).forEach(key => {
             doctorForm[key] = doctor[key] || ''
           })
-          // 重置文件上传状态
-          if (avatarInput.value) {
-            avatarInput.value.value = ''
-          }
-          avatarFile.value = null
           modalTitle.value = '编辑医生'
           showDoctorModal.value = true
         }
@@ -437,84 +407,21 @@ export default {
     
     // 保存医生
     const saveDoctor = async () => {
-      console.log('------------------------------------------')
-      console.log('saveDoctor方法开始执行')
-      console.log('当前时间:', new Date().toISOString())
-      console.log('avatarFile.value:', avatarFile.value)
-      console.log('doctorForm:', doctorForm)
-      console.log('formData准备构建...')
-      
-      let response
-      const formData = new FormData()
-      
-      // 将表单数据添加到FormData，排除avatar字段（因为它是Base64字符串）
-      Object.keys(doctorForm).forEach(key => {
-        if (key !== 'avatar') {
-          formData.append(key, doctorForm[key])
-        }
-      })
-      
-      // 如果有头像文件，添加到FormData
-      if (avatarFile.value) {
-        formData.append('avatar', avatarFile.value)
-        // 调试：打印添加的文件信息
-        console.log('添加的头像文件:', avatarFile.value)
-      }
-      // 调试：打印FormData中的所有字段
-      console.log('FormData内容:')
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1])
-      }
-      
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }
-      
-      console.log('准备发送请求...')
-      console.log('请求URL:', doctorForm.id ? `/api/doctors/${doctorForm.id}` : '/api/doctors')
-      console.log('请求方法:', doctorForm.id ? 'PUT' : 'POST')
-      
-      // 使用axios的拦截器来查看请求和响应的详细信息
-      console.log('配置axios拦截器...')
-      
-      // 请求拦截器
-      axios.interceptors.request.use(
-        config => {
-          console.log('请求配置:', config)
-          return config
-        },
-        error => {
-          console.error('请求错误:', error)
-          return Promise.reject(error)
-        }
-      )
-      
-      // 响应拦截器
-      axios.interceptors.response.use(
-        response => {
-          console.log('响应数据:', response)
-          return response
-        },
-        error => {
-          console.error('响应错误:', error)
-          return Promise.reject(error)
-        }
-      )
-      
       try {
+        let response
+        // 创建请求数据对象
+        const requestData = {}
+        Object.keys(doctorForm).forEach(key => {
+          requestData[key] = doctorForm[key]
+        })
+        
         if (doctorForm.id) {
           // 更新医生
-          console.log('发送PUT请求...')
-          response = await axios.put(`/api/doctors/${doctorForm.id}`, formData, config)
+          response = await axios.put(`/api/doctors/${doctorForm.id}`, requestData)
         } else {
           // 添加医生
-          console.log('发送POST请求...')
-          response = await axios.post('/api/doctors', formData, config)
+          response = await axios.post('/api/doctors', requestData)
         }
-        
-        console.log('请求成功，响应数据:', response.data)
         
         if (response.data.code === 200) {
           alert('保存成功')
@@ -525,33 +432,7 @@ export default {
         }
       } catch (error) {
         console.error('保存医生失败:', error)
-        console.error('错误详情:', error.response ? error.response : error)
         alert('保存失败')
-      } finally {
-        // 移除拦截器，避免重复添加
-        axios.interceptors.request.clear()
-        axios.interceptors.response.clear()
-      }
-    }
-    
-    // 处理头像上传
-    const handleAvatarUpload = (event) => {
-      console.log('文件选择事件触发')
-      const file = event.target.files[0]
-      if (file) {
-        console.log('选择的文件:', file)
-        avatarFile.value = file
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          console.log('文件读取完成:', e.target.result.substring(0, 100) + '...')
-          doctorForm.avatar = e.target.result
-        }
-        reader.onerror = (error) => {
-          console.error('文件读取错误:', error)
-        }
-        reader.readAsDataURL(file)
-      } else {
-        console.log('没有选择文件')
       }
     }
     
@@ -638,6 +519,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  margin-bottom: 15px;
 }
 
 .form-group label {
@@ -645,67 +527,46 @@ export default {
   color: #333;
 }
 
-.form-group.search-buttons label {
-  visibility: hidden;
-}
-
+/* 添加 form-control 样式定义 */
 .form-control {
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  transition: border-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-textarea.form-control {
-  resize: vertical;
+.form-control:focus {
+  outline: none;
+  border-color: #ff6b8b;
+  box-shadow: 0 0 0 2px rgba(255, 107, 139, 0.2);
 }
 
-.btn {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #ff6b8b, #ff8fab);
-  color: white;
-  box-shadow: 0 2px 10px rgba(255, 107, 139, 0.2);
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #ff5271, #ff7591);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(255, 107, 139, 0.3);
-}
-
-.btn-outline {
-  background: transparent;
+/* 添加数字输入框样式 */
+.form-control[type="number"] {
+  padding: 8px 12px;
   border: 1px solid #ddd;
-  color: #666;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.btn-outline:hover {
-  background: #f5f5f5;
+/* 添加范围选择器样式 */
+.form-control-range {
+  padding: 0;
+  border: none;
 }
 
-.btn-danger {
-  background: linear-gradient(135deg, #ff5271, #ff7591);
-  color: white;
-  box-shadow: 0 2px 10px rgba(255, 82, 113, 0.2);
-}
-
-.btn-danger:hover {
-  background: linear-gradient(135deg, #ff3860, #ff5c79);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(255, 82, 113, 0.3);
+.form-control-range:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 107, 139, 0.2);
 }
 
 .table-container {
   overflow-x: auto;
-  margin-bottom: 20px;
 }
 
 .table {
@@ -715,15 +576,15 @@ textarea.form-control {
 
 .table th,
 .table td {
-  padding: 12px;
+  padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
 
 .table th {
-  background: #f5f7fa;
+  background-color: #f8f9fa;
   font-weight: 600;
-  color: #909399;
+  color: #333;
 }
 
 .table-actions {
@@ -731,20 +592,56 @@ textarea.form-control {
   gap: 5px;
 }
 
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-primary {
+  background-color: #ff6b8b;
+  color: white;
+  border-color: #ff6b8b;
+}
+
+.btn-primary:hover {
+  background-color: #ff5271;
+  border-color: #ff5271;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: #666;
+  border-color: #ddd;
+}
+
+.btn-outline:hover {
+  background-color: #f5f7fa;
+  border-color: #c0c4cc;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .pagination {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  gap: 15px;
+  margin-top: 20px;
 }
 
 .page-info {
   color: #666;
-}
-
-.page-controls {
-  display: flex;
-  gap: 5px;
-  align-items: center;
+  font-size: 14px;
 }
 
 .modal {
@@ -889,5 +786,46 @@ textarea.form-control {
 .avatar-btn:hover {
   background-color: #f5f7fa;
   border-color: #c0c4cc;
+}
+
+/* Flexbox 工具类 */
+.d-flex {
+  display: flex;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.mr-3 {
+  margin-right: 1rem;
+}
+
+/* 输入组样式 */
+.input-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.input-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group-append {
+  display: flex;
+}
+
+.input-group-text {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+  background-color: #f8f9fa;
+  white-space: nowrap;
+}
+
+.w-25 {
+  width: 25%;
 }
 </style>
