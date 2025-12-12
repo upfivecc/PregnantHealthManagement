@@ -65,8 +65,16 @@ public class DashboardController {
     @GetMapping("/patient-stats")
     public Result<List<Map<String, Object>>> getPatientStats() {
         try {
-            // 从数据库获取真实的病人数量统计数据
-            List<Map<String, Object>> statsData = appointmentService.getPatientStats();
+            // 直接从用户表获取普通用户统计数据，而不是从预约表
+            Long totalPatients = userService.getUserCountByRole("USER");
+            
+            // 构造返回格式，与前端期望一致
+            List<Map<String, Object>> statsData = new ArrayList<>();
+            Map<String, Object> data = new HashMap<>();
+            data.put("date", "总计");
+            data.put("count", totalPatients);
+            statsData.add(data);
+            
             return Result.success(statsData);
         } catch (Exception e) {
             // 如果出现异常，返回空数据
