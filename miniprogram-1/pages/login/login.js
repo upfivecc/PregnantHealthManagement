@@ -105,7 +105,8 @@ Page({
           // 登录成功，保存用户信息
           const userInfo = {
             ...res.data.data,
-            phone: phone, // 保留手机号
+            // 如果后端返回的用户信息中有手机号，则使用后端返回的；否则使用用户输入的（仅当确实是手机号时）
+            phone: res.data.data.phone || (phone.length === 11 && /^1[3-9]\d{9}$/.test(phone) ? phone : ''),
             isLoggedIn: true
           }
           wx.setStorageSync('userInfo', userInfo)

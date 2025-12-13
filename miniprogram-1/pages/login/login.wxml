@@ -65,13 +65,14 @@
     <!-- 头像区域 -->
     <view class="avatar-section">
       <image class="user-avatar" src="/images/user-avatar.png" mode="aspectFill"></image>
-      <text class="user-name">{{userInfo.realName || userInfo.nickName || '用户' + userInfo.phone}}</text>
+      <text class="user-name">{{userInfo.realName || userInfo.nickName || '用户' + (userInfo.phone || userInfo.username)}}</text>
     </view>
     
     <!-- 用户信息 -->
     <view class="user-details-section">
       <text class="user-realname" wx:if="{{userInfo.realName}}">姓名：{{userInfo.realName}}</text>
-      <text class="user-phone">手机号：{{userInfo.phone}}</text>
+      <text class="user-phone" wx:if="{{userInfo.phone}}">手机号：{{userInfo.phone}}</text>
+      <text class="user-phone" wx:else>用户名：{{userInfo.username}}</text>
     </view>
     
     <!-- 装饰性信息卡片 -->
