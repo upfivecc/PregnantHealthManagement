@@ -151,7 +151,7 @@
           <form @submit.prevent="saveDoctor">
             <div class="form-group">
               <label>关联用户ID *</label>
-              <input type="number" class="form-control" v-model="doctorForm.userId" required>
+              <input type="number" class="form-control" v-model.number="doctorForm.userId" required>
             </div>
             <div class="form-group">
               <label>医生姓名 *</label>
@@ -191,7 +191,7 @@
                 <div class="d-flex align-items-center">
                   <input type="range" class="form-control-range mr-3" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" style="flex: 1;">
                   <div class="input-group w-25">
-                    <input type="number" class="form-control" v-model.number="doctorForm.positiveRate" step="0.1" min="0" max="100" readonly>
+                    <input type="number" class="form-control" :value="doctorForm.positiveRate" step="0.1" min="0" max="100" readonly>
                     <div class="input-group-append">
                       <span class="input-group-text">%</span>
                     </div>
@@ -218,7 +218,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 export default {
@@ -271,6 +271,8 @@ export default {
       start: 0,
       end: 0
     })
+    
+
     
     // 加载医生列表
     const loadDoctorList = async (page = 1) => {
@@ -377,7 +379,12 @@ export default {
           const doctor = response.data.data
           // 填充表单数据
           Object.keys(doctorForm).forEach(key => {
-            doctorForm[key] = doctor[key] || ''
+            // 数字字段需要特殊处理
+            if (key === 'score' || key === 'consultationCount' || key === 'positiveRate') {
+              doctorForm[key] = Number(doctor[key]) || 0
+            } else {
+              doctorForm[key] = doctor[key] || ''
+            }
           })
           modalTitle.value = '编辑医生'
           showDoctorModal.value = true
@@ -558,6 +565,7 @@ export default {
 .form-control-range {
   padding: 0;
   border: none;
+  height: calc(1.5em + 0.75rem + 2px);
 }
 
 .form-control-range:focus {
@@ -823,9 +831,16 @@ export default {
   border-radius: 0 4px 4px 0;
   background-color: #f8f9fa;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .w-25 {
   width: 25%;
+}
+
+/* 添加 margin 工具类 */
+.mt-2 {
+  margin-top: 0.5rem;
 }
 </style>
