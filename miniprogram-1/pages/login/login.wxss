@@ -159,6 +159,14 @@
   text-align: center;
 }
 
+.user-realname {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
 .user-phone {
   font-size: 28rpx;
   color: #666;
