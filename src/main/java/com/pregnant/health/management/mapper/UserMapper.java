@@ -14,6 +14,9 @@ public interface UserMapper {
     @Select("SELECT * FROM users WHERE username = #{username}")
     User selectByUsername(String username);
     
+    @Select("SELECT * FROM users WHERE username = #{username} OR phone = #{username}")
+    User selectByUsernameOrPhone(String username);
+    
     @Select("SELECT * FROM users WHERE role = #{role} LIMIT #{offset}, #{limit}")
     List<User> selectByRole(@Param("role") String role, @Param("offset") Integer offset, @Param("limit") Integer limit);
     

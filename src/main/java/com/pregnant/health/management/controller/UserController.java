@@ -37,7 +37,7 @@ public class UserController {
     
     @PostMapping("/login")
     public Result<User> login(@RequestBody User loginUser, HttpServletRequest request) {
-        User user = userService.login(loginUser.getUsername(), loginUser.getPassword());
+        User user = userService.loginByUsernameOrPhone(loginUser.getUsername(), loginUser.getPassword());
         if (user != null) {
             // 将用户信息保存到session中
             request.getSession().setAttribute("currentUser", user);

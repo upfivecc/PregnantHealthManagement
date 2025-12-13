@@ -72,7 +72,7 @@
           
           <form @submit.prevent="handleLogin" class="auth-form">
             <div class="form-group">
-              <label for="username">用户名</label>
+              <label for="username">用户名或电话号码</label>
               <div class="input-wrapper">
                 <svg class="input-icon" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
@@ -81,7 +81,7 @@
                   type="text" 
                   id="username" 
                   v-model="loginForm.username" 
-                  placeholder="请输入用户名"
+                  placeholder="请输入用户名或电话号码"
                   required
                   class="form-control"
                 >

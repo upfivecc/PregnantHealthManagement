@@ -33,6 +33,16 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
+    public User loginByUsernameOrPhone(String username, String password) {
+        User user = userMapper.selectByUsernameOrPhone(username);
+        // 使用明文密码验证
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
+        }
+        return null;
+    }
+    
+    @Override
     public User getById(Long id) {
         return userMapper.selectById(id);
     }

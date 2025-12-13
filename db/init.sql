@@ -111,18 +111,18 @@ CREATE TABLE pregnancy_records (
 ) COMMENT '孕期档案表';
 
 -- 插入初始管理员用户
-INSERT INTO users (username, password, email, role) VALUES ('admin', '123456', 'admin@example.com', 'ADMIN');
+INSERT INTO users (username, password, email, phone, role) VALUES ('admin', '123456', 'admin@example.com', '13800000000', 'ADMIN');
 
 -- 插入更多用户数据
-INSERT INTO users (username, password, email, real_name, gender, age, role, status) VALUES 
-('doctor1', '123456', 'doctor1@example.com', '张医生', 2, 35, 'DOCTOR', 1),
-('doctor2', '123456', 'doctor2@example.com', '李医生', 2, 32, 'DOCTOR', 1),
-('doctor3', '123456', 'doctor3@example.com', '王医生', 2, 38, 'DOCTOR', 1),
-('user1', '123456', 'user1@example.com', '李女士', 2, 28, 'USER', 1),
-('user2', '123456', 'user2@example.com', '陈女士', 2, 30, 'USER', 1),
-('user3', '123456', 'user3@example.com', '刘女士', 2, 25, 'USER', 1),
-('user4', '123456', 'user4@example.com', '赵女士', 2, 32, 'USER', 1),
-('user5', '123456', 'user5@example.com', '黄女士', 2, 29, 'USER', 1);
+INSERT INTO users (username, password, email, phone, real_name, gender, age, role, status) VALUES 
+('doctor1', '123456', 'doctor1@example.com', '13800000001', '张医生', 2, 35, 'DOCTOR', 1),
+('doctor2', '123456', 'doctor2@example.com', '13800000002', '李医生', 2, 32, 'DOCTOR', 1),
+('doctor3', '123456', 'doctor3@example.com', '13800000003', '王医生', 2, 38, 'DOCTOR', 1),
+('user1', '123456', 'user1@example.com', '13800000004', '李女士', 2, 28, 'USER', 1),
+('user2', '123456', 'user2@example.com', '13800000005', '陈女士', 2, 30, 'USER', 1),
+('user3', '123456', 'user3@example.com', '13800000006', '刘女士', 2, 25, 'USER', 1),
+('user4', '123456', 'user4@example.com', '13800000007', '赵女士', 2, 32, 'USER', 1),
+('user5', '123456', 'user5@example.com', '13800000008', '黄女士', 2, 29, 'USER', 1);
 
 -- 插入更多医生数据（包含新增字段）
 INSERT INTO doctors (user_id, hospital, department, title, specialty, introduction, score, consultation_count, positive_rate, avatar, name) VALUES 

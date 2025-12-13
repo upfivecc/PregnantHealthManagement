@@ -34,7 +34,7 @@ Page({
     }
   },
 
-  // 输入手机号
+  // 输入用户名或手机号
   onPhoneInput(e) {
     this.setData({
       phone: e.detail.value
@@ -62,7 +62,7 @@ Page({
     // 表单验证
     if (!phone) {
       wx.showToast({
-        title: '请输入手机号',
+        title: '请输入用户名或手机号',
         icon: 'none'
       })
       return
@@ -96,7 +96,7 @@ Page({
         'Content-Type': 'application/json'
       },
       data: {
-        username: phone, // 使用手机号作为用户名
+        username: phone, // 使用用户名或手机号登录
         password: password
       },
       success: (res) => {

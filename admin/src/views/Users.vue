@@ -36,6 +36,7 @@
               <tr>
                 <th>ID</th>
                 <th>用户名</th>
+                <th>电话号码</th>
                 <th>邮箱</th>
                 <th>真实姓名</th>
                 <th>角色</th>
@@ -47,6 +48,7 @@
               <tr v-for="user in userList" :key="user.id">
                 <td>{{ user.id }}</td>
                 <td>{{ user.username }}</td>
+                <td>{{ user.phone || '' }}</td>
                 <td>{{ user.email || '' }}</td>
                 <td>{{ user.realName || '' }}</td>
                 <td><span class="tag tag-primary">{{ getRoleName(user.role) }}</span></td>
@@ -101,6 +103,10 @@
             <span>{{ detailData.username }}</span>
           </div>
           <div class="detail-item">
+            <label>电话号码:</label>
+            <span>{{ detailData.phone || '无' }}</span>
+          </div>
+          <div class="detail-item">
             <label>邮箱:</label>
             <span>{{ detailData.email || '无' }}</span>
           </div>
@@ -140,6 +146,10 @@
             <div class="form-group">
               <label>密码</label>
               <input type="password" class="form-control" v-model="userForm.password" :required="!userForm.id">
+            </div>
+            <div class="form-group">
+              <label>电话号码</label>
+              <input type="text" class="form-control" v-model="userForm.phone">
             </div>
             <div class="form-group">
               <label>邮箱</label>
@@ -189,6 +199,7 @@ export default {
     const detailData = reactive({
       id: '',
       username: '',
+      phone: '',
       email: '',
       realName: '',
       role: '',
@@ -205,6 +216,7 @@ export default {
       id: '',
       username: '',
       password: '',
+      phone: '',
       email: '',
       realName: '',
       role: 'USER',

@@ -9,6 +9,8 @@ public interface UserService {
     
     User login(String username, String password);
     
+    User loginByUsernameOrPhone(String username, String password);
+    
     User getById(Long id);
     
     PageResult<User> getUserList(Integer page, Integer size, String role);
