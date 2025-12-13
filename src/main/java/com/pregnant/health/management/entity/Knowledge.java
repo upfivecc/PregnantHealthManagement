@@ -10,6 +10,7 @@ public class Knowledge {
     private String content;
     private String category;
     private Integer status;
+    private String coverImage;
     private Long createdBy;
     private String author; // 前端传递的作者字段
     private LocalDateTime createdTime;

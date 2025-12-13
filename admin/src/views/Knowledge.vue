@@ -41,7 +41,7 @@
                 <th>ID</th>
                 <th>标题</th>
                 <th>分类</th>
-
+                <th>封面图</th>
                 <th>状态</th>
                 <th>创建时间</th>
                 <th>操作</th>
@@ -52,7 +52,12 @@
                 <td>{{ knowledge.id }}</td>
                 <td>{{ knowledge.title }}</td>
                 <td>{{ knowledge.category }}</td>
-
+                <td>
+                  <div class="cover-image-preview" v-if="knowledge.coverImage">
+                    <img :src="knowledge.coverImage" :alt="knowledge.title" />
+                  </div>
+                  <span v-else>无</span>
+                </td>
                 <td><span class="tag" :class="knowledge.status === 1 ? 'tag-success' : 'tag-warning'">{{ knowledge.status === 1 ? '已发布' : '草稿' }}</span></td>
                 <td>{{ formatDate(knowledge.createdTime) }}</td>
                 <td>
@@ -108,7 +113,15 @@
             <span class="detail-label">分类</span>
             <span class="detail-value">{{ detailData.category }}</span>
           </div>
-
+          <div class="detail-item">
+            <span class="detail-label">封面图</span>
+            <span class="detail-value">
+              <div class="cover-image-preview" v-if="detailData.coverImage">
+                <img :src="detailData.coverImage" :alt="detailData.title" />
+              </div>
+              <span v-else>无</span>
+            </span>
+          </div>
           <div class="detail-item">
             <span class="detail-label">状态</span>
             <span class="detail-value">{{ detailData.status === 1 ? '已发布' : '草稿' }}</span>
@@ -161,6 +174,13 @@
               <label>内容</label>
               <textarea class="form-control" v-model="knowledgeForm.content" rows="5" required></textarea>
             </div>
+            <div class="form-group">
+              <label>封面图URL</label>
+              <input type="text" class="form-control" v-model="knowledgeForm.coverImage" placeholder="请输入封面图URL">
+              <div class="cover-image-preview mt-2" v-if="knowledgeForm.coverImage">
+                <img :src="knowledgeForm.coverImage" alt="封面图预览" />
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
@@ -206,7 +226,7 @@ export default {
       id: '',
       title: '',
       category: '',
-
+      coverImage: '',
       status: '1',
       content: ''
     })
@@ -659,5 +679,26 @@ textarea.form-control {
 .detail-value {
   flex: 1;
   color: #666;
+}
+
+.cover-image-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
 }
 </style>
