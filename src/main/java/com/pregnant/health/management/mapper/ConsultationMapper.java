@@ -8,7 +8,12 @@ import java.util.List;
 @Mapper
 public interface ConsultationMapper {
     
-    @Select("SELECT * FROM consultations WHERE id = #{id}")
+    @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title as doctorTitle, du.real_name as doctorName " +
+            "FROM consultations c " +
+            "LEFT JOIN users u ON c.user_id = u.id " +
+            "LEFT JOIN doctors d ON c.doctor_id = d.id " +
+            "LEFT JOIN users du ON d.user_id = du.id " +
+            "WHERE c.id = #{id}")
     Consultation selectById(Long id);
     
     @Select("SELECT c.*, u.username as userName, d.hospital, d.department, d.title, du.real_name as doctorName " +

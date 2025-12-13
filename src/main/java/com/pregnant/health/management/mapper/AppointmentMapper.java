@@ -10,7 +10,11 @@ import java.util.Map;
 @Mapper
 public interface AppointmentMapper {
     
-    @Select("SELECT * FROM appointments WHERE id = #{id}")
+    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title, d.name as doctorName " +
+            "FROM appointments a " +
+            "LEFT JOIN users u ON a.user_id = u.id " +
+            "LEFT JOIN doctors d ON a.doctor_id = d.id " +
+            "WHERE a.id = #{id}")
     Appointment selectById(Long id);
     
     @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title, d.name as doctorName " +
