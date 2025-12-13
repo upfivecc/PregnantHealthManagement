@@ -61,7 +61,7 @@ Page({
                 category: article.category || '',
                 categoryName: this.getCategoryName(article.category) || '',
                 // 如果没有封面图片，使用基于文章ID的随机图片
-                cover: article.cover || `https://picsum.photos/seed/pregnancy${article.id}/600/400`,
+                cover: article.coverImage || `https://picsum.photos/seed/pregnancy${article.id}/600/400`,
                 content: article.content || '',
                 readCount: article.readCount || 0,
                 publishDate: article.publishDate || '',
