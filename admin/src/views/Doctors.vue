@@ -203,7 +203,7 @@
               <label>医生照片URL</label>
               <input type="text" class="form-control" v-model="doctorForm.avatar" placeholder="请输入图片URL">
               <div class="avatar-preview mt-2" v-if="doctorForm.avatar">
-                <img :src="doctorForm.avatar" alt="医生照片预览" style="max-width: 100px; max-height: 100px;" />
+                <img :src="doctorForm.avatar" alt="医生照片预览" />
               </div>
             </div>
           </form>
