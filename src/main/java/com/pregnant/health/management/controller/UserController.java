@@ -49,7 +49,7 @@ public class UserController {
     
     @PostMapping("/admin-login")
     public Result<User> adminLogin(@RequestBody User loginUser, HttpServletRequest request) {
-        User user = userService.login(loginUser.getUsername(), loginUser.getPassword());
+        User user = userService.loginByUsernameOrPhone(loginUser.getUsername(), loginUser.getPassword());
         if (user != null) {
             // 验证角色是否匹配
             if (loginUser.getRole() != null && !loginUser.getRole().equals(user.getRole())) {
