@@ -682,7 +682,7 @@ textarea.form-control {
 }
 
 .cover-image-preview {
-  width: 80px;
+  width: 120px;
   height: 80px;
   border-radius: 8px;
   overflow: hidden;
