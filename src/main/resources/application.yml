@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  jpa:
+    open-in-view: false
   datasource:
     url: jdbc:mysql://localhost:3306/pregnant_health?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root

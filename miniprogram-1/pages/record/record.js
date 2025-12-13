@@ -115,53 +115,33 @@ Page({
     
     this.setData({ loading: true })
     
-    // 模拟保存数据
-    setTimeout(() => {
-      // 创建新记录
-      const newRecord = {
-        id: Date.now(),
-        ...formData
-      }
-      
-      // 更新本地记录
-      const updatedRecords = [newRecord, ...this.data.records]
-      
-      // 保存到本地存储
-      wx.setStorageSync('pregnancyRecords', updatedRecords)
-      
-      this.setData({
-        records: updatedRecords,
-        loading: false
-      })
-      
-      // 重置表单（保留日期）
-      this.setData({
-        'formData.height': '',
-        'formData.weight': '',
-        'formData.systolicPressure': '',
-        'formData.diastolicPressure': '',
-        'formData.fetalMovements': ''
-      })
-      
-      wx.showToast({ title: '记录成功', icon: 'success' })
-      
-      // 更新图表数据
-      this.updateChartData(updatedRecords)
-      
-    }, 1000)
+    // 构造请求数据
+    const requestData = {
+      userId: app.globalData.userInfo.id,
+      height: formData.height ? parseFloat(formData.height) : null,
+      weight: formData.weight ? parseFloat(formData.weight) : null,
+      bloodPressureHigh: formData.systolicPressure ? parseInt(formData.systolicPressure) : null,
+      bloodPressureLow: formData.diastolicPressure ? parseInt(formData.diastolicPressure) : null,
+      fetalMovementCount: formData.fetalMovements ? parseInt(formData.fetalMovements) : null,
+      recordDate: formData.recordDate,
+      remark: ""
+    };
     
-    // 实际接口调用示例（注释掉）
-    /*
+    console.log('提交的数据:', requestData);
+    
+    // 调用后端接口保存记录
     wx.request({
-      url: 'https://your-api.com/records',
+      url: app.globalData.baseUrl + '/api/mini-program/pregnancy-records',
       method: 'POST',
-      data: formData,
+      data: requestData,
       header: {
-        'Authorization': 'Bearer ' + wx.getStorageSync('token')
+        'content-type': 'application/json'
       },
       success: (res) => {
         this.setData({ loading: false })
-        if (res.data.success) {
+        console.log('提交记录响应:', res);
+        // 修正判断条件，使用code===200而不是success属性
+        if (res.data.code === 200) {
           wx.showToast({ title: '记录成功', icon: 'success' })
           // 重置表单并重新加载记录
           this.resetForm()
@@ -172,16 +152,96 @@ Page({
       },
       fail: (err) => {
         this.setData({ loading: false })
+        console.error('提交记录失败:', err)
         wx.showToast({ title: '网络错误', icon: 'none' })
       }
     })
-    */
   },
 
   // 加载历史记录
   loadRecords() {
+    const app = getApp();
+    if (!app.validateLogin()) {
+      return;
+    }
+    
+    console.log('开始加载历史记录，用户ID:', app.globalData.userInfo.id);
+    
+    // 调用后端接口获取记录
+    wx.request({
+      url: app.globalData.baseUrl + '/api/mini-program/pregnancy-records/my?userId=' + app.globalData.userInfo.id,
+      method: 'GET',
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        console.log('获取孕期档案返回数据:', res); // 调试信息
+        // 修正判断条件，使用code===200而不是success属性
+        if (res.data.code === 200) {
+          // 检查返回的数据是否为数组
+          if (!Array.isArray(res.data.data)) {
+            console.error('返回的数据不是数组格式:', res.data.data);
+            this.loadFromLocalStorage();
+            return;
+          }
+          
+          console.log('从后端获取的原始记录:', res.data.data);
+          
+          // 转换数据格式以匹配前端显示
+          const records = res.data.data.map(record => {
+            // 处理日期格式，确保是字符串
+            let recordDate = '';
+            if (record.recordDate) {
+              if (typeof record.recordDate === 'object' && record.recordDate.year !== undefined) {
+                // 处理Java LocalDate对象格式 {year: 2025, month: 12, day: 1}
+                recordDate = `${record.recordDate.year}-${String(record.recordDate.month).padStart(2, '0')}-${String(record.recordDate.day).padStart(2, '0')}`;
+              } else if (record.recordDate instanceof Date) {
+                // 处理JavaScript Date对象
+                const date = new Date(record.recordDate);
+                recordDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+              } else {
+                // 直接使用字符串格式
+                recordDate = record.recordDate;
+              }
+            }
+            
+            return {
+              id: record.id,
+              height: record.height !== null && record.height !== undefined ? record.height.toString() : '',
+              weight: record.weight !== null && record.weight !== undefined ? record.weight.toString() : '',
+              systolicPressure: record.bloodPressureHigh !== null && record.bloodPressureHigh !== undefined ? record.bloodPressureHigh.toString() : '',
+              diastolicPressure: record.bloodPressureLow !== null && record.bloodPressureLow !== undefined ? record.bloodPressureLow.toString() : '',
+              fetalMovements: record.fetalMovementCount !== null && record.fetalMovementCount !== undefined ? record.fetalMovementCount.toString() : '',
+              recordDate: recordDate
+            };
+          });
+          
+          console.log('转换后的记录:', records); // 调试信息
+          console.log('记录数量:', records.length); // 调试信息
+          this.setData({ records: records })
+          this.updateChartData(records)
+        } else {
+          // 如果获取失败，尝试从本地存储加载
+          console.log('获取记录失败，尝试从本地存储加载'); // 调试信息
+          this.loadFromLocalStorage();
+        }
+      },
+      fail: (err) => {
+        // 网络错误时，尝试从本地存储加载
+        console.log('网络错误，尝试从本地存储加载'); // 调试信息
+        console.error('网络请求失败:', err);
+        this.loadFromLocalStorage();
+      }
+    })
+  },
+  
+  // 从本地存储加载记录（备用方案）
+  loadFromLocalStorage() {
+    console.log('从本地存储加载记录');
     // 从本地存储加载记录
     const records = wx.getStorageSync('pregnancyRecords') || []
+    console.log('本地存储中的记录:', records);
+    console.log('本地存储记录数量:', records.length);
     
     // 如果没有记录，使用模拟数据
     if (records.length === 0) {
@@ -212,33 +272,17 @@ Page({
       this.setData({ records })
       this.updateChartData(records)
     }
-    
-    // 实际接口调用示例（注释掉）
-    /*
-    wx.request({
-      url: 'https://your-api.com/records',
-      method: 'GET',
-      header: {
-        'Authorization': 'Bearer ' + wx.getStorageSync('token')
-      },
-      success: (res) => {
-        if (res.data.success) {
-          this.setData({ records: res.data.records })
-          this.updateChartData(res.data.records)
-        }
-      }
-    })
-    */
   },
 
   // 更新图表数据
   updateChartData(records) {
+    console.log('更新图表数据，记录数量:', records.length); // 调试信息
     // 提取体重和日期数据用于图表
     const weights = []
     const dates = []
     
     // 按日期排序
-    const sortedRecords = records.sort((a, b) => new Date(a.recordDate) - new Date(b.recordDate))
+    const sortedRecords = [...records].sort((a, b) => new Date(a.recordDate) - new Date(b.recordDate))
     
     // 只取最近10条有体重记录的数据
     sortedRecords
@@ -320,20 +364,57 @@ Page({
       content: '确定要删除这条记录吗？',
       success: (res) => {
         if (res.confirm) {
-          // 从数组中删除记录
-          const updatedRecords = this.data.records.filter(r => r.id !== recordId)
-          
-          // 更新本地存储
-          wx.setStorageSync('pregnancyRecords', updatedRecords)
-          
-          this.setData({ records: updatedRecords })
-          
-          // 更新图表数据
-          this.updateChartData(updatedRecords)
-          
-          wx.showToast({ title: '删除成功', icon: 'success' })
+          // 调用后端接口删除记录
+          wx.request({
+            url: app.globalData.baseUrl + '/api/pregnancy-records/' + recordId,
+            method: 'DELETE',
+            header: {
+              'content-type': 'application/json'
+            },
+            success: (res) => {
+              console.log('删除记录响应:', res);
+              // 修正判断条件，使用code===200而不是success属性
+              if (res.data.code === 200) {
+                // 从前端数组中删除记录
+                const updatedRecords = this.data.records.filter(r => r.id !== recordId)
+                
+                // 更新本地存储
+                wx.setStorageSync('pregnancyRecords', updatedRecords)
+                
+                this.setData({ records: updatedRecords })
+                
+                // 更新图表数据
+                this.updateChartData(updatedRecords)
+                
+                wx.showToast({ title: '删除成功', icon: 'success' })
+              } else {
+                wx.showToast({ title: res.data.message || '删除失败', icon: 'none' })
+              }
+            },
+            fail: (err) => {
+              console.error('删除记录失败:', err)
+              wx.showToast({ title: '网络错误', icon: 'none' })
+            }
+          });
         }
       }
+    })
+  },
+  
+  // 重置表单
+  resetForm() {
+    const today = new Date()
+    const recordDate = today.getFullYear() + '-' + 
+      String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(today.getDate()).padStart(2, '0')
+      
+    this.setData({
+      'formData.height': '',
+      'formData.weight': '',
+      'formData.systolicPressure': '',
+      'formData.diastolicPressure': '',
+      'formData.fetalMovements': '',
+      'formData.recordDate': recordDate
     })
   }
 })
