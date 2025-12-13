@@ -132,14 +132,14 @@ INSERT INTO doctors (user_id, hospital, department, title, specialty, introducti
 
 -- 插入更多孕期知识数据
 INSERT INTO knowledge (title, content, category, cover_image,status, created_by) VALUES
-('孕期营养指南', '孕期应该均衡饮食，多吃新鲜蔬菜水果，补充叶酸和铁质...', '孕早期', 'https://youke2.picui.cn/s1/2025/12/13/693ca75cbdaac.jpeg',1, 1),
-('产检时间安排', '第一次产检应在怀孕6-8周进行，之后定期按医生建议进行各项检查...', '孕中期', 'https://youke2.picui.cn/s1/2025/12/13/693ca75cbdaac.jpeg',1, 1),
-('孕期运动指导', '适当的运动有助于孕妇健康，推荐散步、孕妇瑜伽等低强度运动...', '孕早期', 'https://youke2.picui.cn/s1/2025/12/13/693ca75cbdaac.jpeg',1, 1),
-('孕期心理调适', '保持良好的心态对母婴健康都很重要，可以通过听音乐、阅读等方式放松心情...', '孕晚期', 'https://youke2.picui.cn/s1/2025/12/13/693ca75cbdaac.jpeg',1, 1),
+('孕期营养指南', '孕期应该均衡饮食，多吃新鲜蔬菜水果，补充叶酸和铁质...', '孕早期', 'https://youke2.picui.cn/s1/2025/12/13/693cb61b57496.jpeg',1, 1),
+('产检时间安排', '第一次产检应在怀孕6-8周进行，之后定期按医生建议进行各项检查...', '孕中期', 'https://youke2.picui.cn/s1/2025/12/13/693cb61b6c9a9.jpeg',1, 1),
+('孕期运动指导', '适当的运动有助于孕妇健康，推荐散步、孕妇瑜伽等低强度运动...', '孕早期', 'https://youke2.picui.cn/s1/2025/12/13/693cb61b6dfe5.jpeg',1, 1),
+('孕期心理调适', '保持良好的心态对母婴健康都很重要，可以通过听音乐、阅读等方式放松心情...', '孕晚期', 'https://youke2.picui.cn/s1/2025/12/13/693cb61b57496.jpeg',1, 1),
 ('分娩准备事项', '提前了解分娩过程，准备好待产包，参加孕妇学校课程...', '孕早期', 'https://youke2.picui.cn/s1/2025/12/13/693ca75d22e05.jpeg',1, 1),
-('产后恢复要点', '产后要注意休息，合理饮食，适当运动促进身体恢复...', '孕期营养', 'https://youke2.picui.cn/s1/2025/12/13/693ca75cbdaac.jpeg',1, 1),
-('新生儿护理基础', '学习如何给新生儿洗澡、换尿布、喂养等基本护理技能...', '孕期运动', 'https://youke2.picui.cn/s1/2025/12/13/693ca75cbdaac.jpeg',1, 1),
-('母乳喂养技巧', '掌握正确的哺乳姿势，注意乳房护理，保证充足的营养摄入...', '孕期保健', 'https://youke2.picui.cn/s1/2025/12/13/693ca75d22e05.jpeg',1, 1);
+('产后恢复要点', '产后要注意休息，合理饮食，适当运动促进身体恢复...', '孕期营养', 'https://youke2.picui.cn/s1/2025/12/13/693cb61b6dfe5.jpeg',1, 1),
+('新生儿护理基础', '学习如何给新生儿洗澡、换尿布、喂养等基本护理技能...', '孕期运动', 'https://youke2.picui.cn/s1/2025/12/13/693cb61b57496.jpeg',1, 1),
+('母乳喂养技巧', '掌握正确的哺乳姿势，注意乳房护理，保证充足的营养摄入...', '孕期保健', 'https://youke2.picui.cn/s1/2025/12/13/693cb61b6c9a9.jpeg',1, 1);
 
 -- 插入更多病人医生关系数据
 INSERT INTO patient_doctor (user_id, doctor_id, status) VALUES 
