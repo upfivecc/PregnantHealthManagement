@@ -103,8 +103,10 @@ public class UserController {
         return Result.success(result);
     }
     
-    @PutMapping
-    public Result<String> updateUser(@RequestBody User user) {
+    @PutMapping("/{id}")
+    public Result<String> updateUser(@PathVariable Long id, @RequestBody User user) {
+        // 设置用户ID
+        user.setId(id);
         boolean success = userService.updateUser(user);
         if (success) {
             return Result.success("更新成功");
