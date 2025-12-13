@@ -32,6 +32,7 @@
                 <th>用户</th>
                 <th>医院</th>
                 <th>科室</th>
+                <th>医生姓名</th>
                 <th>医生职称</th>
                 <th>预约时间</th>
                 <th>状态</th>
@@ -44,6 +45,7 @@
                 <td>{{ appointment.userName }}</td>
                 <td>{{ appointment.hospital }}</td>
                 <td>{{ appointment.department }}</td>
+                <td>{{ appointment.doctorName }}</td>
                 <td>{{ appointment.title }}</td>
                 <td>{{ formatDate(appointment.appointmentTime) }}</td>
                 <td><span class="tag" :class="appointment.status === 1 ? 'tag-success' : 'tag-warning'">{{ appointment.status === 1 ? '已确认' : '待确认' }}</span></td>
@@ -100,6 +102,10 @@
           <div class="detail-item">
             <label>科室:</label>
             <span>{{ detailData.department }}</span>
+          </div>
+          <div class="detail-item">
+            <label>医生姓名:</label>
+            <span>{{ detailData.doctorName }}</span>
           </div>
           <div class="detail-item">
             <label>医生职称:</label>

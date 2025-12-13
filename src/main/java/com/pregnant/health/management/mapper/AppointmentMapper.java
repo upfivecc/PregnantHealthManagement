@@ -13,7 +13,7 @@ public interface AppointmentMapper {
     @Select("SELECT * FROM appointments WHERE id = #{id}")
     Appointment selectById(Long id);
     
-    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title " +
+    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title, d.name as doctorName " +
             "FROM appointments a " +
             "LEFT JOIN users u ON a.user_id = u.id " +
             "LEFT JOIN doctors d ON a.doctor_id = d.id " +
@@ -25,7 +25,7 @@ public interface AppointmentMapper {
     Long countAll();
     
     // 按用户姓名查询预约列表
-    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title " +
+    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title, d.name as doctorName " +
             "FROM appointments a " +
             "LEFT JOIN users u ON a.user_id = u.id " +
             "LEFT JOIN doctors d ON a.doctor_id = d.id " +
@@ -41,7 +41,7 @@ public interface AppointmentMapper {
     Long countByUserRealName(@Param("userRealName") String userRealName);
     
     // 按医生ID查询预约列表（新增）
-    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title " +
+    @Select("SELECT a.*, u.username as userName, u.real_name as userRealName, d.hospital, d.department, d.title, d.name as doctorName " +
             "FROM appointments a " +
             "LEFT JOIN users u ON a.user_id = u.id " +
             "LEFT JOIN doctors d ON a.doctor_id = d.id " +

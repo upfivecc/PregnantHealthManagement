@@ -20,4 +20,5 @@ public class Appointment {
     private String hospital;
     private String department;
     private String title;
+    private String doctorName;
 }
